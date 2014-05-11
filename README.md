@@ -55,12 +55,18 @@ A NodeJS compatibility layer for Rhino.
 ## Supported Platforms
 
 * Rhino JS
-  > ...
+
+    ```js
+    ...
+    ```
 * Pentaho Data-Integration (Kettle)
   * Load on Job (JavaScript):
-    > ...
+  
+    ```js
+    ...
+    ```
   * Load on Transformation (Modified Java Script Value):
-    > LoadScriptFile(getEnvironmentVar('NODESCHNAPS_LOADER_FILE'));
+    LoadScriptFile(getEnvironmentVar('NODESCHNAPS_LOADER_FILE'));
     
 ## Inspiration
 
@@ -68,5 +74,3 @@ What is the Inspiration behind?
 
 The main inspiration is to run ETL Transformation with the same code what we use
 in NodeJS to save development time.
-
-
