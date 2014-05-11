@@ -242,11 +242,11 @@ var require = null;
         {            
             var module = generateModule(resolvedObject.filename);
             module.paths = resolvedObject.paths.concat();
+            //currentModule.children.push(module);
             var sandbox = new Function(
                 'module, exports, require, __filename, __dirname',
                 getFileContent(resolvedObject.filename)
             );
-
             sandbox(
                 module,
                 module.exports,

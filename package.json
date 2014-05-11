@@ -1,0 +1,32 @@
+{
+  "name": "nodeschnaps",
+  "description": "A NodeJS compatibility layer for Rhino.",
+  "version": "0.0.0",
+  "private": false,
+  "author": "Lars Dietrich <lars@dietrich-hosting.de>",
+  "license": "LGPL-3.0",
+  "homepage": "http://killmag10.github.io/nodeschnaps/",
+  "contributors": [
+    {
+      "name": "Lars Dietrich",
+      "email": "lars@dietrich-hosting.de"
+    }
+  ],
+  "dependencies": {},
+  "main": "./loader.node.js",
+  "directories": {},
+  "devDependencies": {},
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/killmag10/nodeschnaps"
+  },
+  "keywords": [
+    "node",
+    "rhino",
+    "compatibility"
+  ],
+  "bugs": {
+    "url": "https://github.com/killmag10/nodeschnaps/issues"
+  }
+}
