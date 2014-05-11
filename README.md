@@ -66,7 +66,10 @@ A NodeJS compatibility layer for Rhino.
     ...
     ```
   * Load on Transformation (Modified Java Script Value):
+  
+    ```js
     LoadScriptFile(getEnvironmentVar('NODESCHNAPS_LOADER_FILE'));
+    ```
     
 ## Inspiration
 
