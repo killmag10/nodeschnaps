@@ -1,4 +1,5 @@
-var require = null;
+// Define global
+var global = this;
 
 (function()
 {
@@ -10,9 +11,10 @@ var require = null;
     var JavaByteTYPE = java.lang.Byte.TYPE;
     var JavaString = java.lang.String;
     
-    const NODE_MODULE_DIR = 'node_modules';
+    // Constants
+    const NODE_MODULE_DIRNAME = 'node_modules';
+    const LOADER_MODULE_NAME = 'nodeschnaps';
 
-    // Global functions
     var getFileContent = function(filename)
     {
         var file = new JavaFile(filename);
@@ -25,7 +27,7 @@ var require = null;
         }
         
         return String(new JavaString(buffer));
-    }
+    };
     
     // Classes    
     var RequireConfig = new (function()
@@ -77,7 +79,7 @@ var require = null;
                         + RequireConfig.fileSeparator + package.main;
                     searchObject.paths.unshift(
                         String(new JavaFile(filename).getCanonicalPath())
-                            + RequireConfig.fileSeparator + NODE_MODULE_DIR
+                            + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
                     );
                     
                     return resolveType(searchObject);
@@ -88,7 +90,7 @@ var require = null;
             if(javaFile.exists()) {
                 searchObject.paths.unshift(
                         String(new JavaFile(filename).getCanonicalPath())
-                            + RequireConfig.fileSeparator + NODE_MODULE_DIR
+                            + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
                 );
                 return {
                     "filename" : String(javaFile.getCanonicalPath()),
@@ -97,7 +99,7 @@ var require = null;
             }
             
             return null;
-        }
+        };
         
         var resolveType = function(searchObject)
         {
@@ -108,7 +110,7 @@ var require = null;
                 filename = String(javaFile.getCanonicalPath());
                 searchObject.paths.unshift(
                     String(new JavaFile(filename).getParent())
-                        + RequireConfig.fileSeparator + NODE_MODULE_DIR
+                        + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
                 );
                 return {
                     "filename" : filename,
@@ -121,7 +123,7 @@ var require = null;
                 filename = String(javaFile.getCanonicalPath());
                 searchObject.paths.unshift(
                     String(new JavaFile(filename).getParent())
-                        + RequireConfig.fileSeparator + NODE_MODULE_DIR
+                        + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
                 );
                 return {
                     "filename" : filename,
@@ -211,13 +213,12 @@ var require = null;
             }
             
             return resolvedObject;
-        }
+        };
         
         this.resolve = function(filename)
         {
             return self.resolveModule(filename).filename;
-        }
-        
+        };        
     };
     
     var RequireMain = null;
@@ -236,13 +237,13 @@ var require = null;
                 "exports" : {},
                 "paths" : []
             }
-        }
+        };
         
         var requireJs = function(resolvedObject)
         {            
             var module = generateModule(resolvedObject.filename);
             module.paths = resolvedObject.paths.concat();
-            //currentModule.children.push(module);
+            currentModule.children.push(module);
             var sandbox = new Function(
                 'module, exports, require, __filename, __dirname',
                 getFileContent(resolvedObject.filename)
@@ -257,7 +258,7 @@ var require = null;
             module.loaded = true;
             
             return module;
-        }
+        };
         
         var requireJson = function(resolvedObject)
         {
@@ -268,7 +269,7 @@ var require = null;
             module.loaded = true;
 
             return module;
-        }
+        };
         
         this.require = function(filename)
         {
@@ -312,7 +313,7 @@ var require = null;
         this.require.cache = RequireCache.cache;
     };
 
-    require = new RequireMain({
+    global.module = {
             "id" : 'repl',
             "filename" : '.',
             "loaded" : true,
@@ -320,5 +321,8 @@ var require = null;
             "children" : [],
             "exports" : {},
             "paths" : RequireConfig.paths.concat()
-    }).require;
+    };
+    global.require = new RequireMain(global.module).require;
+
+    require(LOADER_MODULE_NAME + '/lib/node.js');
 })()
