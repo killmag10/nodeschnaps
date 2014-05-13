@@ -36,6 +36,9 @@ var global = this;
         this.paths = String(
             JavaSystem.getProperty('NODESCHNAPS_PATH')
         ).split(':');
+        this.paths.push(
+            this.paths[this.paths.length - 1] + '/../' + NODE_MODULE_DIRNAME
+        );
     })();
     
     var RequireCache = new (function()
@@ -315,7 +318,7 @@ var global = this;
 
     global.module = {
             "id" : 'repl',
-            "filename" : '.',
+            "filename" : String(JavaFile('.').getCanonicalPath() + '/.'),
             "loaded" : true,
             "parent" : undefined,
             "children" : [],
@@ -324,5 +327,5 @@ var global = this;
     };
     global.require = new RequireMain(global.module).require;
 
-    require(LOADER_MODULE_NAME + '/lib/node.js');
+    require('nodeschnaps/node.js');
 })()
