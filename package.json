@@ -12,7 +12,9 @@
       "email": "lars@dietrich-hosting.de"
     }
   ],
-  "dependencies": {},
+  "dependencies": {
+    "should": "3.3.x"
+  },
   "main": "./loader.node.js",
   "directories": {},
   "devDependencies": {},
