@@ -15,40 +15,47 @@ A NodeJS compatibility layer for Rhino.
     * JSON Files
     * Packages
   * Core modules:
-    * Modules
+    * assert
+    * console
+    * events
+    * module
+    * util
+
 
 ### Planed to implement
 
 * Timer Support
 * NodeJS support:
   * Core modules:
-    * Buffer
-    * Child Processes
-    * Console
-    * Crypto
-    * DNS
-    * Domain
-    * Events
-    * File System
-    * Globals
-    * HTTP
-    * HTTPS
-    * Net
-    * OS
-    * Path
-    * Process
-    * Punycode
-    * Query Strings
-    * Stream
-    * String Decoder
-    * Timers
-    * TLS/SSL
-    * TTY
-    * UDP/Datagram
-    * URL
-    * Utilities
-    * VM
-    * ZLIB
+    * buffer
+    * child_process
+    * cluster
+    * constants
+    * crypto
+    * dgram
+    * dns
+    * domain
+    * freelist
+    * fs
+    * http
+    * https
+    * module
+    * net
+    * os
+    * path
+    * punycode
+    * querystring
+    * readline
+    * repl
+    * stream
+    * string_decoder
+    * sys
+    * timers
+    * tls
+    * tty
+    * url
+    * vm
+    * zlib
   * Module loading:
     * Node Files (Binary)
 
@@ -57,7 +64,7 @@ A NodeJS compatibility layer for Rhino.
 * Rhino JS
 
     ```js
-    ...
+    load('../loader.js');
     ```
 * Pentaho Data-Integration (Kettle)
   * Load on Job (JavaScript):
