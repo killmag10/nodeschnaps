@@ -3,11 +3,11 @@ PATH_TEST := test
 PATH_DEPS := deps
 
 PATH_RHINO_JAR := $(shell readlink -f $(PATH_DEPS)/rhino/js.jar)
-
 NODESCHNAPS_PATH := $(shell readlink -f lib)
 
 # Commands
 CD := cd
+NPM := npm
 
 JAVA := java
 JAVA_RHINO := $(JAVA) \
@@ -24,6 +24,7 @@ help:
 	# 	test		Run the tests.
 
 install:
+	$(NPM) install
 
 test:
 	########################################
