@@ -246,6 +246,7 @@ var global = this;
         {            
             var module = generateModule(resolvedObject.filename);
             module.paths = resolvedObject.paths.concat();
+            RequireCache.set(resolvedObject.filename, module);
             currentModule.children.push(module);
             var sandbox = new Function(
                 'module, exports, require, __filename, __dirname',
@@ -266,6 +267,7 @@ var global = this;
         var requireJson = function(resolvedObject)
         {
             var module = generateModule(resolvedObject.filename);
+            RequireCache.set(resolvedObject.filename, module);
             module.exports = JSON.parse(getFileContent(
                 resolvedObject.filename
             ));
@@ -282,6 +284,8 @@ var global = this;
             if(RequireCache.get(resolvedObject.filename) !== undefined) {
                 return RequireCache.get(resolvedObject.filename).exports;
             }
+            
+            global.console && console.log(resolvedObject.filename);
             
             var module = null;
             // .js
@@ -301,7 +305,6 @@ var global = this;
             }
             
             if (module !== null) {
-                RequireCache.set(resolvedObject.filename, module);
                 return module.exports;
             }
             
