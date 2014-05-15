@@ -15,10 +15,8 @@ exports.test = function(){
     } catch(e) {
         console.log(e);
     }
-    
+
     setTimeout(function(){
-        
-        console.log('TIMER')    
-        
+        console.log('TIMER')
     },100);
 }

@@ -8,18 +8,24 @@
   "homepage": "http://killmag10.github.io/nodeschnaps/",
   "contributors": [
     {
-      "name": "Lars Dietrich",
-      "email": "lars@dietrich-hosting.de"
+      "name": "Hermann Mayer",
+      "email": "hermann.mayer92@gmail.com",
+      "web": "http://hermann-mayer.net"
     }
   ],
-  "dependencies": {
-    "should": "3.3.x",
-    "mocha" : "1.18.x"
-  },
   "main": "./loader.node.js",
-  "directories": {},
-  "devDependencies": {},
-  "scripts": {},
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "should": "^3.3.1",
+    "mocha" : "^1.18.2"
+  },
+  "scripts": {
+    "test": "make test"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/killmag10/nodeschnaps"
