@@ -285,8 +285,6 @@ var global = this;
                 return RequireCache.get(resolvedObject.filename).exports;
             }
             
-            global.console && console.log(resolvedObject.filename);
-            
             var module = null;
             // .js
             if (resolvedObject.filename.search(/\.(js)$/i) >= 0){
