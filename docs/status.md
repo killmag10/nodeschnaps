@@ -14,8 +14,12 @@ describes the current status of our implementation.
   * Core modules:
     * assert
     * console
+    * constants
     * events
     * module
+    * path
+    * punycode
+    * timers
     * util
 
 ## Work in progress
@@ -31,7 +35,6 @@ tests, write concepts, and do a initial boostrap of the project.
     * buffer
     * child_process
     * cluster
-    * constants
     * crypto
     * dgram
     * dns
@@ -40,18 +43,14 @@ tests, write concepts, and do a initial boostrap of the project.
     * fs
     * http
     * https
-    * module
     * net
     * os
-    * path
-    * punycode
     * querystring
     * readline
     * repl
     * stream
     * string_decoder
     * sys
-    * timers
     * tls
     * tty
     * url
