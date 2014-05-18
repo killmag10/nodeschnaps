@@ -13,6 +13,7 @@ describes the current status of our implementation.
     * Packages
   * Core modules:
     * assert
+    * buffer (over [buffer-browserify](https://github.com/toots/buffer-browserify))
     * console
     * constants
     * events
@@ -32,7 +33,6 @@ tests, write concepts, and do a initial boostrap of the project.
 * Timer Support
 * NodeJS support:
   * Core modules:
-    * buffer
     * child_process
     * cluster
     * crypto

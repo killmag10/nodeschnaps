@@ -22,10 +22,12 @@
     "doc": "docs",
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "buffer-browserify" : "~0.2.2"
+  },
   "devDependencies": {
-    "qunitjs" : "1.14.x",
-    "colors" : "0.6.x"
+    "qunitjs" : "~1.14.0",
+    "colors" : "~0.6.2"
   },
   "scripts": {
     "test": "make test"
