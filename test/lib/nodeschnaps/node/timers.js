@@ -59,7 +59,7 @@ QUnit.test( "timers.clearInterval", function() {
 });
 
 QUnit.asyncTest( "timers.setImmediate", function() {
-    expect( 2 );
+    expect( 3 );
 
     QUnit.ok(
         require('timers').setImmediate instanceof Function,
@@ -67,7 +67,10 @@ QUnit.asyncTest( "timers.setImmediate", function() {
     );
 
     require('timers').setImmediate(function() {
-        ok( true, "Timeout callback should be called." );
+        ok( true, "First immediate callback should be called." );
+    });
+    require('timers').setImmediate(function() {
+        ok( true, "Second immediate callback should be called." );
         start();
     });
 });
