@@ -17,6 +17,7 @@ var Manager = function(baseDir)
     this.QUnit.config.blocking = true;
     this.QUnit.config.autorun = false;
     this.QUnit.config.updateRate = 0;
+    this.QUnit.config.testTimeout = 5000;
 
     this.QUnit.moduleStart(function(details) {
         console.log(
