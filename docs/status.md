@@ -12,16 +12,16 @@ describes the current status of our implementation.
     * JSON Files
     * Packages
   * Core modules:
-    * assert
+    * assert (nodejs only)
     * buffer (over [buffer-browserify](https://github.com/toots/buffer-browserify))
     * console
     * constants
-    * events
+    * events (nodejs only)
     * module
-    * path
-    * punycode
+    * path (nodejs only)
+    * punycode (nodejs only)
     * timers
-    * util
+    * util (nodejs only)
 
 ## Work in progress
 
