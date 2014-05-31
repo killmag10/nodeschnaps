@@ -59,18 +59,20 @@ QUnit.test( "timers.clearInterval", function() {
 });
 
 QUnit.asyncTest( "timers.setImmediate", function() {
-    expect( 3 );
+    expect( 11 );
 
     QUnit.ok(
         require('timers').setImmediate instanceof Function,
         "Should be an instance of Function."
     );
 
+    for (var i=1; i<10; i++){
+        require('timers').setImmediate(function(i) {
+            ok( true, i.toString() +"# immediate callback should be called." );
+        },i);
+    }
     require('timers').setImmediate(function() {
-        ok( true, "First immediate callback should be called." );
-    });
-    require('timers').setImmediate(function() {
-        ok( true, "Second immediate callback should be called." );
+        ok( true, i.toString() + "# immediate callback should be called." );
         start();
     });
 });
