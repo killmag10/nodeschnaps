@@ -1,4 +1,9 @@
-var JavaFile = java.io.File;
+try {
+    var JavaFile = java.io.File;
+} catch(e)
+{
+}
+    
 var colors = require('colors');
 
 /**
@@ -36,6 +41,7 @@ var Manager = function(baseDir)
             details.message.yellow
         );
     });
+    
     this.QUnit.done(function(details) {
         var format = "\nTests Total: %s Failed: %s Passed: %s Runtime: %s ms\n";
 
@@ -51,18 +57,40 @@ var Manager = function(baseDir)
     var getFiles = function getFiles(file)
     {
         var result = [];
-
-        if (file.isDirectory()) {
-            var fileList = file.listFiles();
-            fileList.forEach(function(item){
-                result = result.concat(getFiles(item));
-            });
+        
+        if (undefined !== JavaFile) {
+            file = new JavaFile(file);        
+        
+            if (file.isDirectory()) {
+                var fileList = file.listFiles();
+                fileList.forEach(function(item){
+                    result = result.concat(
+                        getFiles(String(item.getCanonicalPath()))
+                    );
+                });
+            } else {
+                result.push(
+                    String(
+                        file.getCanonicalPath()
+                    ).substr(baseDir.length +1)
+                );
+            }
         } else {
-            result.push(
-                String(
-                    file.getCanonicalPath()
-                ).substr(baseDir.length +1)
-            );
+            var fs = require('fs');
+            var file = fs.realpathSync(file);
+            
+            if (fs.statSync(file).isDirectory()) {
+                var fileList = fs.readdirSync(file);
+                fileList.forEach(function(item){
+                    result = result.concat(
+                        getFiles(file + '/' + item)
+                    );
+                });
+            } else {
+                result.push(
+                    file.substr(baseDir.length +1)
+                );
+            }
         }
 
         return result;
@@ -76,7 +104,7 @@ var Manager = function(baseDir)
     this.addPathRecursive = function(path)
     {
         testPaths = testPaths.concat(
-            getFiles(new JavaFile(baseDir + '/' + path)).filter(function(item){
+            getFiles(baseDir + '/' + path).filter(function(item){
                 return (item.search(/\.js$/) > -1)
             })
         );

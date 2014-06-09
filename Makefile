@@ -14,6 +14,7 @@ MV := mv
 NPM := npm
 WGET := wget
 TAR := tar
+NODE := node
 
 JAVA := java
 JAVA_RHINO := $(JAVA) \
@@ -58,6 +59,13 @@ test:
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
 			test.rhino.js
+			
+testNode:
+	########################################
+	# START TESTING in Node
+	########################################
+	@$(CD) $(PATH_TEST) \
+		&& $(NODE) test.node.js
 
 .installDependencyNodeSource: $(PATH_DEPS)/node
 
