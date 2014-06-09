@@ -327,6 +327,10 @@ var global = this;
             "paths" : RequireConfig.paths.concat()
     };
     global.require = new RequireMain(global.module).require;
+    global.__filename = global.module.filename;
+    global.__dirname = String(
+        new JavaFile(global.module.filename).getParentFile().getCanonicalPath()
+    );
 
     require('nodeschnaps/node.js');
 })()
