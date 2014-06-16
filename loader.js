@@ -10,7 +10,7 @@ var global = this;
     var JavaReflectArray = java.lang.reflect.Array;
     var JavaByteTYPE = java.lang.Byte.TYPE;
     var JavaString = java.lang.String;
-    
+
     // Constants
     const NODE_MODULE_DIRNAME = 'node_modules';
     const LOADER_MODULE_NAME = 'nodeschnaps';
@@ -25,11 +25,11 @@ var global = this;
         } finally {
             inputStream.close();
         }
-        
+
         return String(new JavaString(buffer));
     };
-    
-    // Classes    
+
+    // Classes
     var RequireConfig = new (function()
     {
         this.fileSeparator = '/';
@@ -40,7 +40,7 @@ var global = this;
             this.paths[this.paths.length - 1] + '/../' + NODE_MODULE_DIRNAME
         );
     })();
-    
+
     var RequireCache = new (function()
     {
         var self = this;
@@ -56,27 +56,27 @@ var global = this;
             return self.cache[filename];
         };
     })();
-    
+
     var RequireResolver = function(currentModule)
     {
         var self = this;
-        
+
         var getCurrentDir = function()
         {
             return String(new JavaFile(currentModule.filename).getParent());
         }
-        
+
         var resolvePackage = function(searchObject)
         {
-            var filename = searchObject.filename;            
+            var filename = searchObject.filename;
             var packageFile = filename + RequireConfig.fileSeparator
                 + 'package.json';
             var jsFile = filename + RequireConfig.fileSeparator + 'index.js';
-            
+
             var javaFile = new JavaFile(packageFile);
             if(javaFile.exists()) {
                 var package = JSON.parse(getFileContent(packageFile));
-                
+
                 if (package.main) {
                     searchObject.filename = filename
                         + RequireConfig.fileSeparator + package.main;
@@ -84,11 +84,11 @@ var global = this;
                         String(new JavaFile(filename).getCanonicalPath())
                             + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
                     );
-                    
+
                     return resolveType(searchObject);
                 }
             }
-            
+
             var javaFile = new JavaFile(jsFile);
             if(javaFile.exists()) {
                 searchObject.paths.unshift(
@@ -100,14 +100,14 @@ var global = this;
                     "paths" : searchObject.paths
                 };
             }
-            
+
             return null;
         };
-        
+
         var resolveType = function(searchObject)
         {
             var filename = searchObject.filename;
-            
+
             var javaFile = new JavaFile(filename);
             if (javaFile.exists() && !javaFile.isDirectory()) {
                 filename = String(javaFile.getCanonicalPath());
@@ -120,8 +120,8 @@ var global = this;
                     "paths" : searchObject.paths
                 }
             }
-            
-            var javaFile = new JavaFile(filename + '.js'); 
+
+            var javaFile = new JavaFile(filename + '.js');
             if (javaFile.exists() && !javaFile.isDirectory()) {
                 filename = String(javaFile.getCanonicalPath());
                 searchObject.paths.unshift(
@@ -133,29 +133,29 @@ var global = this;
                     "paths" : searchObject.paths
                 }
             }
-            
-            var javaFile = new JavaFile(filename + '.node'); 
+
+            var javaFile = new JavaFile(filename + '.node');
             if (javaFile.exists() && !javaFile.isDirectory()) {
                 throw new Error(
                     'File extension .node not supported at the moment. File: "'
                         + String(javaFile.getCanonicalPath())
                 );
             }
-            
-            var javaFile = new JavaFile(filename);            
+
+            var javaFile = new JavaFile(filename);
             if (javaFile.exists() && javaFile.isDirectory()){
                 return resolvePackage(searchObject);
             }
 
             return null;
         };
-        
+
         var resolveByRelativePath = function(searchObject)
         {
             searchObject.filename =
                 getCurrentDir() + RequireConfig.fileSeparator
                     + searchObject.filename;
-            
+
             return resolveType(searchObject);
         };
 
@@ -163,22 +163,22 @@ var global = this;
         {
             var filename = searchObject.filename;
             var paths = searchObject.paths;
-            
+
             for (var key in searchObject.paths) {
                 searchObject.filename =
                     searchObject.paths[key] + RequireConfig.fileSeparator
                         + filename;
                 searchObject.paths = searchObject.paths.concat();
-            
+
                 var resolvedObject = resolveType(searchObject);
                 if (resolvedObject !== null) {
                     return resolvedObject;
                 }
             }
-            
+
             return null;
         };
-        
+
         var resolve = function(searchObject)
         {
             // if absolute path
@@ -188,7 +188,7 @@ var global = this;
             ) {
                 return resolveType(searchObject);
             }
-            
+
             // if relative path
             if (
                 searchObject.filename
@@ -202,7 +202,7 @@ var global = this;
             // load from inlcude paths
             return resolveByIncludePath(searchObject);
         };
-        
+
         this.resolveModule = function(filename)
         {
             var resolvedObject = resolve({
@@ -214,21 +214,21 @@ var global = this;
                     "Cannot find module '" + filename + "'"
                 );
             }
-            
+
             return resolvedObject;
         };
-        
+
         this.resolve = function(filename)
         {
             return self.resolveModule(filename).filename;
-        };        
+        };
     };
-    
+
     var RequireMain = null;
     RequireMain = function(currentModule)
     {
         var self = this;
-        
+
         var generateModule = function(filename)
         {
             return {
@@ -241,9 +241,9 @@ var global = this;
                 "paths" : []
             }
         };
-        
+
         var requireJs = function(resolvedObject)
-        {            
+        {
             var module = generateModule(resolvedObject.filename);
             module.paths = resolvedObject.paths.concat();
             RequireCache.set(resolvedObject.filename, module);
@@ -260,10 +260,10 @@ var global = this;
                 String(new JavaFile(resolvedObject.filename).getParent())
             );
             module.loaded = true;
-            
+
             return module;
         };
-        
+
         var requireJson = function(resolvedObject)
         {
             var module = generateModule(resolvedObject.filename);
@@ -275,16 +275,16 @@ var global = this;
 
             return module;
         };
-        
+
         this.require = function(filename)
         {
             var resolvedObject = self.resolver.resolveModule(filename);
-            
+
             // if is cached
             if(RequireCache.get(resolvedObject.filename) !== undefined) {
                 return RequireCache.get(resolvedObject.filename).exports;
             }
-            
+
             var module = null;
             // .js
             if (resolvedObject.filename.search(/\.(js)$/i) >= 0){
@@ -301,19 +301,34 @@ var global = this;
                         + resolvedObject.filename
                 );
             }
-            
+
             if (module !== null) {
                 return module.exports;
             }
-            
+
             throw new Error(
                 'Unkown error on loading "' + resolvedObject.filename + '"'
             );
         };
-        
+
         this.resolver = new RequireResolver(currentModule);
         this.require.resolve = this.resolver.resolve;
-        this.require,paths = RequireConfig.paths;
+
+        // Throw a error than this.require.paths will be access.
+        // Because require.paths war's removed in node.
+        Object.defineProperty(
+            this.require,
+            "paths",
+            {
+                get : function() {
+                    throw new Error(
+                        'require.paths is removed. Use node_modules folders, or'
+                        + ' the NODE_PATH environment variable instead.'
+                    );
+                }
+            }
+        );
+
         this.require.cache = RequireCache.cache;
     };
 
