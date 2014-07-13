@@ -108,8 +108,8 @@ QUnit.test( "process.versions", function() {
 
 QUnit.test( "process.config", function() {
     QUnit.ok(
-        process.config === undefined,
-        "Should be undefined. (Not supported)"
+        process.config instanceof Object,
+        "Should be an Object. (Not supported)"
     );
 });
 
@@ -122,8 +122,8 @@ QUnit.test( "process.kill", function() {
 
 QUnit.test( "process.pid", function() {
     QUnit.ok(
-        process.pid instanceof Number,
-        "Should be an instance of Number."
+        typeof process.pid === 'number',
+        "Should be from type number."
     );
 });
 
@@ -131,16 +131,6 @@ QUnit.test( "process.title", function() {
     QUnit.ok(
         typeof process.title === 'string',
         "Should be from type string."
-    );
-
-    QUnit.ok(
-        Object.getOwnPropertyDescriptor(process, 'title').get !== undefined,
-        "Should has an getter."
-    );
-
-    QUnit.ok(
-        Object.getOwnPropertyDescriptor(process, 'title').set !== undefined,
-        "Should has an setter."
     );
 });
 
