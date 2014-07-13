@@ -1,4 +1,4 @@
-DEPPENDENCY_NODE_VERSION := 0.10.28
+DEPPENDENCY_NODE_VERSION := 0.10.29
 
 # Paths
 PATH_TEST := test
@@ -59,7 +59,7 @@ test:
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
 			test.rhino.js
-			
+
 testNode:
 	########################################
 	# START TESTING in Node
