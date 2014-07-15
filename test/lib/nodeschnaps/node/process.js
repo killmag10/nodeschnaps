@@ -108,8 +108,8 @@ QUnit.test( "process.versions", function() {
 
 QUnit.test( "process.config", function() {
     QUnit.ok(
-        process.config instanceof Object,
-        "Should be an Object. (Not supported)"
+        'config' in process,
+        "Property should be exists."
     );
 });
 
