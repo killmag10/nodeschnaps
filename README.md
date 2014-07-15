@@ -32,7 +32,11 @@ load('../loader.js');
 Load on Job (JavaScript):
 
 ```js
-...
+new Function(
+    org.apache.commons.io.FileUtils.readFileToString(
+      new java.io.File(parent_job.getVariable("NODESCHNAPS_LOADER_FILE"))
+    )
+)();
 ```
 
 Load on Transformation (Modified Java Script Value):
