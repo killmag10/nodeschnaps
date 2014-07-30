@@ -1,17 +1,46 @@
 var semver = require('semver');
 
+QUnit.test( "process.stdin", function() {
+    [
+        'read',
+        'setEncoding',
+        'resume',
+        'pause',
+        'pipe',
+        'unpipe',
+        'unshift',
+        'wrap'
+    ].forEach(function(key){
+        QUnit.ok(
+            process.stdin[key] instanceof Function,
+            "Property " + key + " should be an instance of Function."
+        );
+    });
+});
+
+
 QUnit.test( "process.stdout", function() {
-    QUnit.ok(
-        process.stdout instanceof require('stream').Writable,
-        "Should be an instance of stream.Writable."
-    );
+    [
+        'write',
+        'end'
+    ].forEach(function(key){
+        QUnit.ok(
+            process.stdout[key] instanceof Function,
+            "Property " + key + " should be an instance of Function."
+        );
+    });
 });
 
 QUnit.test( "process.stderr", function() {
-    QUnit.ok(
-        process.stderr instanceof require('stream').Writable,
-        "Should be an instance of stream.Writable."
-    );
+    [
+        'write',
+        'end'
+    ].forEach(function(key){
+        QUnit.ok(
+            process.stderr[key] instanceof Function,
+            "Property " + key + " should be an instance of Function."
+        );
+    });
 });
 
 QUnit.test( "process.stdin", function() {
