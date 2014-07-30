@@ -41,12 +41,16 @@ help:
 	########################################
 
 install: .installDependencyNodeSource
+
+installComplete: install
 	# Install npm packages
-	@$(NPM) install
+	@$(NPM) install	
 
 uninstall:
 	# Remove $(PATH_DEPS)/node
 	@$(RM) -r $(PATH_DEPS)/node
+
+uninstallComplete: uninstall
 	# Remove $(PATH_NODE_MODULES)/
 	@$(RM) -r $(PATH_NODE_MODULES)/*
 

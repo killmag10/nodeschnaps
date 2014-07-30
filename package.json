@@ -1,7 +1,7 @@
 {
   "name": "nodeschnaps",
   "description": "A NodeJS compatibility layer for Rhino.",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": false,
   "author": "Lars Dietrich <lars@dietrich-hosting.de>",
   "license": "LGPL-3.0",
@@ -31,6 +31,10 @@
     "semver" : "~2.3.0"
   },
   "scripts": {
+    "install": "make install",
+    "preuninstall": "make uninstall",
+    "preupdate": "make uninstall",
+    "update": "make install",
     "test": "make test"
   },
   "repository": {
