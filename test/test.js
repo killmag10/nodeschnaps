@@ -4,3 +4,5 @@ var TestManager = require('./test/manager.js');
 var testManager = new TestManager(__dirname);
 testManager.addPathRecursive('lib');
 testManager.startTests();
+
+NodeJS();

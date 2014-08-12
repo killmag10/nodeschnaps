@@ -1,5 +1,13 @@
 var semver = require('semver');
 
+QUnit.test( "process", function() {
+    QUnit.ok(
+        process instanceof require('events').EventEmitter,
+        "process should be an instance of EventEmitter."
+    );
+});
+
+
 QUnit.test( "process.stdin", function() {
     [
         'read',
