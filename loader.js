@@ -333,10 +333,10 @@ var global = this;
     };
 
     global.module = {
-            "id" : 'repl',
+            "id" : '.',
             "filename" : String(JavaFile('.').getCanonicalPath() + '/.'),
             "loaded" : true,
-            "parent" : undefined,
+            "parent" : null,
             "children" : [],
             "exports" : {},
             "paths" : RequireConfig.paths.concat()
