@@ -6,6 +6,7 @@ describes the current status of our implementation.
 ## Done
 
 * require(...) support
+* Timer Support
 * NodeJS support:
   * Module loading:
     * JS Files
@@ -19,9 +20,12 @@ describes the current status of our implementation.
     * events (nodejs only)
     * module
     * path (nodejs only)
+    * process
     * punycode (nodejs only)
+    * stream (nodejs only)
     * timers
     * util (nodejs only)
+    * vm
 
 ## Work in progress
 
@@ -30,7 +34,6 @@ tests, write concepts, and do a initial boostrap of the project.
 
 ## Todo
 
-* Timer Support
 * NodeJS support:
   * Core modules:
     * child_process
@@ -48,13 +51,11 @@ tests, write concepts, and do a initial boostrap of the project.
     * querystring
     * readline
     * repl
-    * stream
     * string_decoder
     * sys
     * tls
     * tty
     * url
-    * vm
     * zlib
   * Module loading:
     * Node Files (Binary)

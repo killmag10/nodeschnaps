@@ -18,6 +18,7 @@ We plan to support the following platform:
 
 * Rhino JS
 * Pentaho Data-Integration (Kettle)
+* Nashorn (later)
 
 ### Bootstrap
 
@@ -25,6 +26,8 @@ We plan to support the following platform:
 
 ```js
 load('../loader.js');
+
+NodeJS(...);
 ```
 
 #### Pentaho Data-Integration (Kettle)
@@ -37,11 +40,31 @@ new Function(
       new java.io.File(parent_job.getVariable('NODESCHNAPS_LOADER_FILE'))
     )
 )();
+
+NodeJS(...);
 ```
 
 Load on Transformation (Modified Java Script Value):
 
 ```js
 LoadScriptFile(getEnvironmentVar('NODESCHNAPS_LOADER_FILE'));
+
+NodeJS(...);
 ```
 
+#### Start main loop
+As callback:
+
+```js
+NodeJS(function(){
+    // Your code here ...
+});
+```
+
+Or before:
+
+```js
+// Your code here ...
+
+NodeJS();
+```
