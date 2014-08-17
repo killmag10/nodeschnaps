@@ -1,4 +1,4 @@
-DEPPENDENCY_NODE_VERSION := 0.10.29
+DEPPENDENCY_NODE_VERSION := 0.10.30
 
 # Paths
 PATH_TEST := test
@@ -44,7 +44,7 @@ install: .installDependencyNodeSource
 
 installComplete: install
 	# Install npm packages
-	@$(NPM) install	
+	@$(NPM) install
 
 uninstall:
 	# Remove $(PATH_DEPS)/node
