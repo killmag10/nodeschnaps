@@ -110,6 +110,16 @@ QUnit.test( "process.env", function() {
         process.env instanceof Object,
         "Should be an instance of Object."
     );
+
+    QUnit.ok(
+        typeof process.env.TEST_VAR === 'string',
+        "TEST_VAR should be from type string."
+    );
+
+    QUnit.ok(
+        process.env.TEST_VAR === '123 test -',
+        'TEST_VAR should be "123 test -".'
+    );
 });
 
 QUnit.test( "process.exit", function() {

@@ -8,6 +8,13 @@ PATH_NODE_MODULES := node_modules
 PATH_RHINO_JAR := $(shell readlink -f $(PATH_DEPS)/rhino/js.jar)
 NODESCHNAPS_PATH := $(shell readlink -f lib)
 
+# A test value for env tests
+TEST_VAR := 123 test -
+TEST_TEMP_PATH := $(shell readlink -f temp)
+
+export TEST_VAR
+export TEST_TEMP_PATH
+
 # Commands
 CD := cd
 MV := mv
@@ -20,6 +27,7 @@ JAVA := java
 JAVA_RHINO := $(JAVA) \
 	-cp $(PATH_RHINO_JAR) \
 	-DNODESCHNAPS_PATH=$(NODESCHNAPS_PATH)
+
 
 .PHONY: \
 	all \
@@ -63,6 +71,16 @@ test:
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
 			test.rhino.js
+
+devTest:
+	########################################
+	# START DEVELOPMENT TESTING SCRIPT
+	# NODESCHNAPS_PATH: $(NODESCHNAPS_PATH)
+	########################################
+	@$(CD) $(PATH_TEST) \
+		&& $(JAVA_RHINO) \
+			org.mozilla.javascript.tools.shell.Main \
+			development.rhino.js
 
 testNode:
 	########################################
