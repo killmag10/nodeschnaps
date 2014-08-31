@@ -27,7 +27,7 @@ JAVA := java
 JAVA_RHINO := $(JAVA) \
 	-cp $(PATH_RHINO_JAR) \
 	-DNODESCHNAPS_PATH=$(NODESCHNAPS_PATH)
-
+JAVA_NASHORN := jrunscript
 
 .PHONY: \
 	all \
@@ -81,6 +81,14 @@ devTest:
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
 			development.rhino.js
+
+testNashorn:
+	########################################
+	# START TESTING
+	# NODESCHNAPS_PATH: $(NODESCHNAPS_PATH)
+	########################################
+	@$(CD) $(PATH_TEST) \
+		&& $(JAVA_NASHORN) test.nashorn.js
 
 testNode:
 	########################################
