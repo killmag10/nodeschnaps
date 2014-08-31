@@ -22,6 +22,12 @@ We plan to support the following platform:
 
 ### Bootstrap
 
+#### Environment Variables
+
+##### NODESCHNAPS_PATH
+
+Path to search for modules/files (Last must be the nodeschnaps lib folder).
+
 #### Rhino JS
 
 ```js

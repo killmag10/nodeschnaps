@@ -1,3 +1,9 @@
+# Version 0.3.0
+* [2a197a6](https://github.com/killmag10/nodeschnaps/commit/2a197a6fdf9842e53f4bf606ce03c5d176bff9f1): **[deps][core]** Update node to 0.10.31.
+* [9570f4e](https://github.com/killmag10/nodeschnaps/commit/9570f4e27d697f90f1d340618b485c51b951d0a3): **[core][timer]** Correct timer functions.
+* [4d21599](https://github.com/killmag10/nodeschnaps/commit/4d21599706ade6f6db01077ae2f0528f4a19ce7a): **[core]** Optimize main loop.
+* [87fa024](https://github.com/killmag10/nodeschnaps/commit/87fa0240aeb5ef50b3daad81d6be39218ab9850e): **[core]** Implement process.env
+
 # Version 0.2.0
 * [eecc505](https://github.com/killmag10/nodeschnaps/commit/eecc505ad900811747e1ade467785c2eb04a00af): **[core]** Update constants for node 0.10.30.
 * [12761e2](https://github.com/killmag10/nodeschnaps/commit/12761e2dedbcbcd4e06fc0b4b5d026219f8b4a4d): **[deps][core]** Update node to 0.10.30 and correct bindings.
