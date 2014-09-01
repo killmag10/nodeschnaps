@@ -1,3 +1,7 @@
+# Version 0.3.1
+* [aba66d2](https://github.com/killmag10/nodeschnaps/commit/aba66d2b214dcf3b97d6d99c2e60255caa23ceb4): **[core][loader]** Correct global, set really global.
+* [3e8558f](https://github.com/killmag10/nodeschnaps/commit/3e8558f7cdee2fab65d3e5bf0806af7d99bdc2f8): **[testing]** Add testing for nashorn.
+
 # Version 0.3.0
 * [2a197a6](https://github.com/killmag10/nodeschnaps/commit/2a197a6fdf9842e53f4bf606ce03c5d176bff9f1): **[deps][core]** Update node to 0.10.31.
 * [9570f4e](https://github.com/killmag10/nodeschnaps/commit/9570f4e27d697f90f1d340618b485c51b951d0a3): **[core][timer]** Correct timer functions.
