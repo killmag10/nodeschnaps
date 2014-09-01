@@ -1,5 +1,5 @@
 // Define global
-var global = this;
+global = this;
 
 (function()
 {
