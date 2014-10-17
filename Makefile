@@ -11,9 +11,11 @@ NODESCHNAPS_PATH := $(shell readlink -f lib)
 # A test value for env tests
 TEST_VAR := 123 test -
 TEST_TEMP_PATH := $(shell readlink -f temp)
+TEST_RESOURCE_PATH := $(shell readlink -f test/resource)
 
 export TEST_VAR
 export TEST_TEMP_PATH
+export TEST_RESOURCE_PATH
 
 # Commands
 CD := cd
