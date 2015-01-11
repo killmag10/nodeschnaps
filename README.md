@@ -28,6 +28,10 @@ We plan to support the following platform:
 
 Path to search for modules/files (Last must be the nodeschnaps lib folder).
 
+##### NODESCHNAPS_MODIFIER
+
+A path to a module, what will be loaded at the start to modify the environment.
+
 #### Rhino JS
 
 ```js
