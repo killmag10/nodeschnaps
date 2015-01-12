@@ -1,4 +1,4 @@
-DEPPENDENCY_NODE_VERSION := 0.10.33
+DEPPENDENCY_NODE_VERSION := 0.10.35
 
 # Paths
 PATH_TEST := test
@@ -24,6 +24,8 @@ NPM := npm
 WGET := wget
 TAR := tar
 NODE := node
+TEST := test
+MKDIR := mkdir
 
 JAVA := java
 JAVA_RHINO := $(JAVA) \
@@ -50,7 +52,7 @@ help:
 	# 	test		Run the tests.
 	########################################
 
-install: .installDependencyNodeSource
+install: .installDependencyNodeSource .setupFolders
 
 installComplete: install
 	# Install npm packages
@@ -98,6 +100,10 @@ testNode:
 	########################################
 	@$(CD) $(PATH_TEST) \
 		&& $(NODE) test.node.js
+
+.setupFolders:
+	# Create test temp directory.
+	@$(TEST) -d "$$TEST_TEMP_PATH" || $(MKDIR) "$$TEST_TEMP_PATH"
 
 .installDependencyNodeSource: $(PATH_DEPS)/node
 
