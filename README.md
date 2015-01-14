@@ -20,15 +20,13 @@ We plan to support the following platform:
 * Pentaho Data-Integration (Kettle)
 * Nashorn (later)
 
-### Bootstrap
-
-#### Installation
+### Installation
 
 ```sh
 npm install nodeschnaps
 ```
 
-#### Testing
+### Testing
 
 Install dev dependencies:
 ```sh
@@ -44,6 +42,8 @@ Run tests with nodejs:
 ```sh
 make testNode
 ```
+
+### Configuration
 
 #### Environment Variables
 
@@ -84,6 +84,10 @@ LoadScriptFile(getEnvironmentVar('NODESCHNAPS_LOADER_FILE'));
 
 NodeJS(...);
 ```
+
+For a example look at: [kitchen-stove](https://github.com/killmag10/kitchen-stove)
+
+### Coding
 
 #### Start main loop
 As callback:
