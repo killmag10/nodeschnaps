@@ -22,6 +22,12 @@ We plan to support the following platform:
 
 ### Bootstrap
 
+#### Installation
+
+```sh
+    npm install nodeschnaps
+```
+
 #### Environment Variables
 
 ##### NODESCHNAPS_PATH
