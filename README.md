@@ -25,7 +25,24 @@ We plan to support the following platform:
 #### Installation
 
 ```sh
-    npm install nodeschnaps
+npm install nodeschnaps
+```
+
+#### Testing
+
+Install dev dependencies:
+```sh
+npm install
+```
+
+Run tests with rhinojs:
+```sh
+make test
+```
+
+Run tests with nodejs:
+```sh
+make testNode
 ```
 
 #### Environment Variables
