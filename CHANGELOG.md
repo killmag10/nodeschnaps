@@ -1,3 +1,15 @@
+# Version 0.4.0
+* [336b0a0](https://github.com/killmag10/nodeschnaps/commit/336b0a0f41449ae8166ea9b45614698b4266a1e1): **[#9][core][require]** Fix json require bug.
+* [0f1b705](https://github.com/killmag10/nodeschnaps/commit/0f1b705cce2d4e4f457c5d38f3edd18739906f09): **[#2][core][fs]** Update fs binding methods
+* [7d3d6f8](https://github.com/killmag10/nodeschnaps/commit/7d3d6f8bd9e227ce18a201ee53ad73e3b4695c87): **[#2][core][fs]** Update fs binding methods
+* [71e4cf5](https://github.com/killmag10/nodeschnaps/commit/71e4cf581be4c7f1c2ae013a3a34ef9647e60d65): **[#2][core][fs]** Update fs binding methods
+* [e17cebe](https://github.com/killmag10/nodeschnaps/commit/e17cebe109b3aa1d88ca4f9469ea540ff5deb31c): **[deps][core]** Update node to 0.10.35.
+* [cd69d33](https://github.com/killmag10/nodeschnaps/commit/cd69d333f0bf54f9f2514909ac26cfa2145311e7): **[core]** Add NODESCHNAPS_MODIFIER env var.
+* [67cb3dc](https://github.com/killmag10/nodeschnaps/commit/67cb3dc287b5207d71ee5e90ea30938316169113): **[#2][core][fs]** Update fs binding methods
+* [ce65b30](https://github.com/killmag10/nodeschnaps/commit/ce65b30a976e41757aeb2c2fe895e38d77aa3ac8): **[#2][core][fs]** Update fs binding methods
+* [37e22a9](https://github.com/killmag10/nodeschnaps/commit/37e22a9a8898e06a8375a0a0103e0b8f6b79d0d4): **[deps][core]** Update node to 0.10.33.
+* [3441cec](https://github.com/killmag10/nodeschnaps/commit/3441cec5bd2b93aafb892308f98b679f5eecd58d): **[core][fs]** Add first fs binding methods.
+
 # Version 0.3.1
 * [aba66d2](https://github.com/killmag10/nodeschnaps/commit/aba66d2b214dcf3b97d6d99c2e60255caa23ceb4): **[core][loader]** Correct global, set really global.
 * [3e8558f](https://github.com/killmag10/nodeschnaps/commit/3e8558f7cdee2fab65d3e5bf0806af7d99bdc2f8): **[testing]** Add testing for nashorn.
