@@ -134,6 +134,19 @@ global = this;
                 }
             }
 
+            var javaFile = new JavaFile(filename + '.json');
+            if (javaFile.exists() && !javaFile.isDirectory()) {
+                filename = String(javaFile.getCanonicalPath());
+                searchObject.paths.unshift(
+                    String(new JavaFile(filename).getParent())
+                        + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
+                );
+                return {
+                    "filename" : filename,
+                    "paths" : searchObject.paths
+                }
+            }
+
             var javaFile = new JavaFile(filename + '.node');
             if (javaFile.exists() && !javaFile.isDirectory()) {
                 throw new Error(

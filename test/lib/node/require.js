@@ -35,3 +35,11 @@ QUnit.test('require.paths', function() {
         'Should throw an Error.'
     );
 });
+
+QUnit.test("require .json", function() {
+    require(process.env.TEST_RESOURCE_PATH + '/test_json'),
+    
+    QUnit.ok(
+        "Should be loaded correctly."
+    );
+});
