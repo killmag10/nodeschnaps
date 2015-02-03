@@ -696,7 +696,106 @@ QUnit.test( "fs.openSync", function() {
 });
 
 // fs.utimes
+QUnit.asyncTest( "fs.utimes", function() {
+    expect( 2 );
+    require('fs').writeFileSync(testfile_write, 'test utimes');
+
+    QUnit.ok(
+        require('fs').utimes instanceof Function,
+        "Should be an instance of Function."
+    );
+
+    var time = new Date();
+
+    require('fs').utimes(
+        testfile_write,
+        time,
+        time,
+        function(err) {
+            if (err) throw err;
+
+            QUnit.ok(true, "Should call callback.");
+            require('fs').unlinkSync(testfile_write);
+            start();
+        }
+    );
+});
+
+QUnit.test( "fs.utimesSync", function() {
+    require('fs').writeFileSync(testfile_write, 'test utimes');
+
+    QUnit.ok(
+        require('fs').utimesSync instanceof Function,
+        "Should be an instance of Function."
+    );
+
+    var time = new Date();
+    var data = require('fs').utimesSync(testfile_write, time, time);
+    QUnit.ok(
+        data === undefined,
+        "Should return nothing."
+    );
+
+    require('fs').unlinkSync(testfile_write);
+});
+
+
 // fs.futimes
+QUnit.asyncTest( "fs.futimes", function() {
+    expect( 2 );
+    require('fs').writeFileSync(testfile_write, 'test futimes');
+
+    QUnit.ok(
+        require('fs').futimes instanceof Function,
+        "Should be an instance of Function."
+    );
+
+    var fd = require('fs').openSync(
+        testfile_write,
+        'w'
+    );
+
+    var time = new Date();
+
+    require('fs').futimes(
+        fd,
+        time,
+        time,
+        function(err) {
+            if (err) throw err;
+
+            QUnit.ok(true, "Should call callback.");
+            require('fs').unlinkSync(testfile_write);
+
+            require('fs').closeSync(fd);
+            start();
+        }
+    );
+});
+
+QUnit.test( "fs.futimesSync", function() {
+    require('fs').writeFileSync(testfile_write, 'test futimes');
+
+    QUnit.ok(
+        require('fs').futimesSync instanceof Function,
+        "Should be an instance of Function."
+    );
+
+    var fd = require('fs').openSync(
+        testfile_write,
+        'w'
+    );
+
+    var time = new Date();
+    var data = require('fs').futimesSync(fd, time, time);
+    QUnit.ok(
+        data === undefined,
+        "Should return nothing."
+    );
+
+    require('fs').closeSync(fd);
+    require('fs').unlinkSync(testfile_write);
+});
 
 // fs.fsync
 
