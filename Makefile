@@ -74,8 +74,7 @@ test:
 	@$(CD) $(PATH_TEST) \
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
-			test.rhino.js \
-			-DNODE_DEBUG=timer
+			test.rhino.js
 
 devTest:
 	########################################
