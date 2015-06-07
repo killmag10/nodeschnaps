@@ -224,13 +224,6 @@ QUnit.test( "process.nextTick", function() {
     );
 });
 
-QUnit.test( "process.maxTickDepth", function() {
-    QUnit.ok(
-        typeof process.maxTickDepth === 'number',
-        "Should be from type number."
-    );
-});
-
 QUnit.test( "process.umask", function() {
     QUnit.ok(
         process.umask instanceof Function,

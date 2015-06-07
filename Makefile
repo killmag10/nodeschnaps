@@ -1,4 +1,4 @@
-DEPPENDENCY_NODE_VERSION := 0.10.35
+DEPPENDENCY_NODE_VERSION := 0.12.3
 
 # Paths
 PATH_TEST := test
@@ -74,7 +74,8 @@ test:
 	@$(CD) $(PATH_TEST) \
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
-			test.rhino.js
+			test.rhino.js \
+			-DNODE_DEBUG=timer
 
 devTest:
 	########################################
