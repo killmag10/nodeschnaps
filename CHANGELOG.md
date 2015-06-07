@@ -1,4 +1,7 @@
 # Version 0.4.0
+* 87db1f0 [core][fs] Fix IndexOutOfBoundsException on write on BSD
+
+# Version 0.4.0
 * [336b0a0](https://github.com/killmag10/nodeschnaps/commit/336b0a0f41449ae8166ea9b45614698b4266a1e1): **[#9][core][require]** Fix json require bug.
 * [0f1b705](https://github.com/killmag10/nodeschnaps/commit/0f1b705cce2d4e4f457c5d38f3edd18739906f09): **[#2][core][fs]** Update fs binding methods
 * [7d3d6f8](https://github.com/killmag10/nodeschnaps/commit/7d3d6f8bd9e227ce18a201ee53ad73e3b4695c87): **[#2][core][fs]** Update fs binding methods
