@@ -3,7 +3,7 @@ try {
 } catch(e)
 {
 }
-    
+
 var colors = require('colors');
 
 /**
@@ -41,7 +41,7 @@ var Manager = function(baseDir)
             details.message.yellow
         );
     });
-    
+
     this.QUnit.done(function(details) {
         var format = "\nTests Total: %s Failed: %s Passed: %s Runtime: %s ms\n";
 
@@ -57,40 +57,21 @@ var Manager = function(baseDir)
     var getFiles = function getFiles(file)
     {
         var result = [];
-        
-        if (undefined !== JavaFile) {
-            file = new JavaFile(file);        
-        
-            if (file.isDirectory()) {
-                var fileList = file.listFiles();
-                fileList.forEach(function(item){
-                    result = result.concat(
-                        getFiles(String(item.getCanonicalPath()))
-                    );
-                });
-            } else {
-                result.push(
-                    String(
-                        file.getCanonicalPath()
-                    ).substr(baseDir.length +1)
+
+        var fs = require('fs');
+        var file = fs.realpathSync(file);
+
+        if (fs.statSync(file).isDirectory()) {
+            var fileList = fs.readdirSync(file);
+            fileList.forEach(function(item){
+                result = result.concat(
+                    getFiles(file + '/' + item)
                 );
-            }
+            });
         } else {
-            var fs = require('fs');
-            var file = fs.realpathSync(file);
-            
-            if (fs.statSync(file).isDirectory()) {
-                var fileList = fs.readdirSync(file);
-                fileList.forEach(function(item){
-                    result = result.concat(
-                        getFiles(file + '/' + item)
-                    );
-                });
-            } else {
-                result.push(
-                    file.substr(baseDir.length +1)
-                );
-            }
+            result.push(
+                file.substr(baseDir.length +1)
+            );
         }
 
         return result;
