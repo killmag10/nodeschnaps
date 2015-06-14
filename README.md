@@ -60,7 +60,7 @@ A path to a module, what will be loaded at the start to modify the environment.
 ```js
 load('../loader.js');
 
-NodeJS(...);
+NodeJS();
 ```
 
 #### Pentaho Data-Integration (Kettle)
@@ -74,7 +74,7 @@ new Function(
     )
 )();
 
-NodeJS(...);
+NodeJS();
 ```
 
 Load on Transformation (Modified Java Script Value):
@@ -82,7 +82,7 @@ Load on Transformation (Modified Java Script Value):
 ```js
 LoadScriptFile(getEnvironmentVar('NODESCHNAPS_LOADER_FILE'));
 
-NodeJS(...);
+NodeJS();
 ```
 
 For a example look at: [kitchen-stove](https://github.com/killmag10/kitchen-stove)
