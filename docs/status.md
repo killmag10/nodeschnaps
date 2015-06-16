@@ -19,14 +19,19 @@ describes the current status of our implementation.
     * constants
     * crypto (partial over [crypto-browserify](https://github.com/crypto-browserify/crypto-browserify))
     * events (nodejs only)
+    * freelist (nodejs only)
+    * fs
     * module
     * path (nodejs only)
     * process
     * punycode (nodejs only)
+    * querystring (nodejs only)
     * stream (nodejs only)
     * timers
+    * url (nodejs only)
     * util (nodejs only)
     * vm
+
 
 ## Work in progress
 
@@ -42,20 +47,16 @@ tests, write concepts, and do a initial boostrap of the project.
     * dgram
     * dns
     * domain
-    * freelist
-    * fs
     * http
     * https
     * net
     * os
-    * querystring
     * readline
     * repl
     * string_decoder
     * sys
     * tls
     * tty
-    * url
     * zlib
   * Module loading:
     * Node Files (Binary)
