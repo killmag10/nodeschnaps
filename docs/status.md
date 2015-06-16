@@ -17,6 +17,7 @@ describes the current status of our implementation.
     * buffer (over [buffer-browserify](https://github.com/toots/buffer-browserify))
     * console
     * constants
+    * crypto (partial over [crypto-browserify](https://github.com/crypto-browserify/crypto-browserify))
     * events (nodejs only)
     * module
     * path (nodejs only)
@@ -38,7 +39,6 @@ tests, write concepts, and do a initial boostrap of the project.
   * Core modules:
     * child_process
     * cluster
-    * crypto
     * dgram
     * dns
     * domain

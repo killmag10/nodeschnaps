@@ -77,6 +77,21 @@ global = this;
             if(javaFile.exists()) {
                 var package = JSON.parse(getFileContent(packageFile));
 
+                if (
+                    self.resolve.browser
+                    && package.browser
+                    && typeof package.browser.valueOf() === 'string'
+                ) {
+                    searchObject.filename = filename
+                        + RequireConfig.fileSeparator + package.browser;
+                    searchObject.paths.unshift(
+                        String(new JavaFile(filename).getCanonicalPath())
+                            + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
+                    );
+
+                    return resolveType(searchObject);
+                }
+
                 if (package.main) {
                     searchObject.filename = filename
                         + RequireConfig.fileSeparator + package.main;
@@ -235,6 +250,12 @@ global = this;
         {
             return self.resolveModule(filename).filename;
         };
+
+        if (currentModule.require) {
+            this.resolve.browser = currentModule.require.resolve.browser;
+        } else {
+            this.resolve.browser = false
+        }
     };
 
     var RequireMain = null;
@@ -242,7 +263,7 @@ global = this;
     {
         var self = this;
 
-        var generateModule = function(filename)
+        var generateModule = function(currentModule, filename)
         {
             return {
                 "id" : filename,
@@ -251,13 +272,14 @@ global = this;
                 "parent" : currentModule ? currentModule : undefined,
                 "children" : [],
                 "exports" : {},
-                "paths" : []
+                "paths" : [],
+                "require" : currentModule.require
             }
         };
 
         var requireJs = function(resolvedObject)
         {
-            var module = generateModule(resolvedObject.filename);
+            var module = generateModule(currentModule, resolvedObject.filename);
             module.paths = resolvedObject.paths.concat();
             RequireCache.set(resolvedObject.filename, module);
             currentModule.children.push(module);
@@ -265,10 +287,11 @@ global = this;
                 'module, exports, require, __filename, __dirname',
                 getFileContent(resolvedObject.filename)
             );
+            module.require = new RequireMain(module).require;
             sandbox(
                 module,
                 module.exports,
-                new RequireMain(module).require,
+                module.require,
                 resolvedObject.filename,
                 String(new JavaFile(resolvedObject.filename).getParent())
             );
@@ -279,12 +302,13 @@ global = this;
 
         var requireJson = function(resolvedObject)
         {
-            var module = generateModule(resolvedObject.filename);
+            var module = generateModule(currentModule, resolvedObject.filename);
             RequireCache.set(resolvedObject.filename, module);
             module.exports = JSON.parse(getFileContent(
                 resolvedObject.filename
             ));
             module.loaded = true;
+            module.require = currentModule.require;
 
             return module;
         };
@@ -352,9 +376,11 @@ global = this;
             "parent" : null,
             "children" : [],
             "exports" : {},
-            "paths" : RequireConfig.paths.concat()
+            "paths" : RequireConfig.paths.concat(),
+            "require" : null
     };
     global.require = new RequireMain(global.module).require;
+    global.module.require = global.require;
     global.__filename = global.module.filename;
     global.__dirname = String(
         new JavaFile(global.module.filename).getParentFile().getCanonicalPath()
