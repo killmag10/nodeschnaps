@@ -5,6 +5,10 @@ Javscript engines like Rhino.
 The main inspiration is to run ETL transformation with the same code we use
 in node.js to save development time.
 
+[![Travis](https://img.shields.io/travis/joyent/node.svg)](https://travis-ci.org/killmag10/nodeschnaps)
+[![npm](https://img.shields.io/npm/dm/nodeschnaps.svg)](https://www.npmjs.com/package/nodeschnaps)
+[![npm](https://img.shields.io/npm/v/nodeschnaps.svg)](https://www.npmjs.com/package/nodeschnaps)
+
 ## Features
 
 We work hard to implement the full API of node.js. So you could load
