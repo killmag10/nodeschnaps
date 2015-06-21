@@ -1,4 +1,4 @@
-DEPPENDENCY_NODE_VERSION := 0.12.3
+DEPPENDENCY_NODE_VERSION := 0.12.4
 
 # Paths
 PATH_TEST := test
@@ -52,19 +52,23 @@ help:
 	# 	test		Run the tests.
 	########################################
 
-install: .installDependencyNodeSource .setupFolders
+npmInstall: .installDependencyNodeSource .setupFolders
 
-installComplete: install
+install: npmInstall
 	# Install npm packages
 	@$(NPM) install
 
-uninstall:
+npmUninstall:
 	# Remove $(PATH_DEPS)/node
 	@$(RM) -r $(PATH_DEPS)/node
 
-uninstallComplete: uninstall
+uninstall: npmUninstall
 	# Remove $(PATH_NODE_MODULES)/
 	@$(RM) -r $(PATH_NODE_MODULES)/*
+
+clean: distclean
+
+distclean:
 
 test:
 	########################################

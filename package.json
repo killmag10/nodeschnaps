@@ -30,13 +30,14 @@
   "devDependencies": {
     "qunitjs": "~1.14.0",
     "colors": "~0.6.2",
-    "semver": "~2.3.0"
+    "semver": "~2.3.0",
+    "jsdoc": "^3.3.2"
   },
   "scripts": {
-    "install": "make install",
-    "preuninstall": "make uninstall",
-    "preupdate": "make uninstall",
-    "update": "make install",
+    "install": "make npmInstall",
+    "preuninstall": "make npmUninstall",
+    "preupdate": "make npmUninstall",
+    "update": "make npmInstall",
     "test": "make test"
   },
   "repository": {
@@ -46,6 +47,7 @@
   "keywords": [
     "node",
     "nodejs",
+    "java",
     "rhino",
     "rhinojs",
     "compatibility",
