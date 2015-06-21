@@ -23,6 +23,7 @@
     "test": "test"
   },
   "dependencies": {
+    "browserify-zlib": "^0.1.4",
     "buffer-browserify": "~0.2.2",
     "crypto-browserify": "^3.9.14"
   },

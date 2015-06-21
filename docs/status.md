@@ -31,6 +31,7 @@ describes the current status of our implementation.
     * url (nodejs only)
     * util (nodejs only)
     * vm
+    * zlib (partial over [browserify-zlib](https://www.npmjs.com/package/browserify-zlib))
 
 
 ## Work in progress
@@ -57,7 +58,6 @@ tests, write concepts, and do a initial boostrap of the project.
     * sys
     * tls
     * tty
-    * zlib
   * Module loading:
     * Node Files (Binary)
 
