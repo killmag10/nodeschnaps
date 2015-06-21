@@ -4,6 +4,7 @@ DEPPENDENCY_NODE_VERSION := 0.12.4
 PATH_TEST := test
 PATH_DEPS := deps
 PATH_NODE_MODULES := node_modules
+PATH_DOCS := docs
 
 PATH_RHINO_JAR := $(shell readlink -f $(PATH_DEPS)/rhino/js.jar)
 NODESCHNAPS_PATH := $(shell readlink -f lib)
@@ -16,6 +17,9 @@ TEST_RESOURCE_PATH := $(shell readlink -f test/resource)
 export TEST_VAR
 export TEST_TEMP_PATH
 export TEST_RESOURCE_PATH
+
+# Macros
+EXISTS_DOCS = $(shell $(TEST) -d $(PATH_DOCS)/html && printf '1')
 
 # Commands
 CD := cd
@@ -68,7 +72,8 @@ uninstall: npmUninstall
 
 clean: distclean
 
-distclean:
+distclean: .cleanHtml
+	
 
 test:
 	########################################
@@ -104,6 +109,19 @@ testNode:
 	########################################
 	@$(CD) $(PATH_TEST) \
 		&& $(NODE) test.node.js
+
+html: .cleanHtml
+	# Create html docs under docs/html/api
+	@$(PATH_NODE_MODULES)/.bin/jsdoc \
+		--destination $(PATH_DOCS)/html/api \
+		--recurse \
+		lib/
+
+.cleanHtml:
+ifeq ($(EXISTS_DOCS),1)
+	# Remove html docs
+	@$(TEST) ! -d $(PATH_DOCS)/html || $(RM) -r $(PATH_DOCS)/html
+endif
 
 .setupFolders:
 	# Create test temp directory.
