@@ -4,7 +4,7 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Nodeschnaps : A NodeJS compatibility layer for Rhino">
+    <meta name="description" content="Nodeschnaps : A NodeJS compatibility layer for Java Javscript engines like Rhino">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -19,7 +19,7 @@
           <a id="forkme_banner" href="https://github.com/killmag10/nodeschnaps">View on GitHub</a>
 
           <h1 id="project_title">Nodeschnaps</h1>
-          <h2 id="project_tagline">A NodeJS compatibility layer for Rhino</h2>
+          <h2 id="project_tagline">A NodeJS compatibility layer for Java Javscript engines like Rhino</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/killmag10/nodeschnaps/zipball/master">Download this project as a .zip file</a>
@@ -33,12 +33,17 @@
       <section id="main_content" class="inner">
         <p><a href=""><img src="https://raw.githubusercontent.com/killmag10/nodeschnaps/master/docs/assets/teaser.png" alt="Nodeschnaps"></a></p>
 
-<p>Nodeschnaps is a <a href="http://nodejs.org">node.js</a> compatibility layer for Rhino.
+<p>Nodeschnaps is a <a href="http://nodejs.org">node.js</a> compatibility layer for Java
+Javscript engines like Rhino.
 The main inspiration is to run ETL transformation with the same code we use
 in node.js to save development time.</p>
 
+<p><a href="https://travis-ci.org/killmag10/nodeschnaps"><img src="https://img.shields.io/travis/killmag10/nodeschnaps.svg" alt="Travis"></a>
+<a href="https://www.npmjs.com/package/nodeschnaps"><img src="https://img.shields.io/npm/dm/nodeschnaps.svg" alt="npm"></a>
+<a href="https://www.npmjs.com/package/nodeschnaps"><img src="https://img.shields.io/npm/v/nodeschnaps.svg" alt="npm"></a></p>
+
 <h2>
-<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
 
 <p>We work hard to implement the full API of node.js. So you could load
 Nodeschnaps into your Rhino environment and use your node.js code without
@@ -47,70 +52,104 @@ restrictions. Take a look at the current
 to get a overview of what we done so far.</p>
 
 <h2>
-<a name="supported-platforms" class="anchor" href="#supported-platforms"><span class="octicon octicon-link"></span></a>Supported Platforms</h2>
-
-<p>We plan to support the following platform:</p>
+<a id="supported-platforms" class="anchor" href="#supported-platforms" aria-hidden="true"><span class="octicon octicon-link"></span></a>Supported Platforms</h2>
 
 <ul>
-<li>Rhino JS</li>
+<li>Rhino JS
+
+<ul>
 <li>Pentaho Data-Integration (Kettle)</li>
-<li>Nashorn (later)</li>
-</ul><h3>
-<a name="bootstrap" class="anchor" href="#bootstrap"><span class="octicon octicon-link"></span></a>Bootstrap</h3>
+</ul>
+</li>
+</ul>
+
+<p>We plan to support the following platforms in the next time:</p>
+
+<ul>
+<li>Nashorn</li>
+</ul>
+
+<h3>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
+
+<div class="highlight highlight-sh"><pre>npm install nodeschnaps</pre></div>
+
+<h3>
+<a id="testing" class="anchor" href="#testing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing</h3>
+
+<p>Install dev dependencies:</p>
+
+<div class="highlight highlight-sh"><pre>npm install</pre></div>
+
+<p>Run tests with rhinojs:</p>
+
+<div class="highlight highlight-sh"><pre>make <span class="pl-c1">test</span></pre></div>
+
+<p>Run tests with nodejs:</p>
+
+<div class="highlight highlight-sh"><pre>make testNode</pre></div>
+
+<h3>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3>
 
 <h4>
-<a name="environment-variables" class="anchor" href="#environment-variables"><span class="octicon octicon-link"></span></a>Environment Variables</h4>
+<a id="environment-variables" class="anchor" href="#environment-variables" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Variables</h4>
 
 <h5>
-<a name="nodeschnaps_path" class="anchor" href="#nodeschnaps_path"><span class="octicon octicon-link"></span></a>NODESCHNAPS_PATH</h5>
+<a id="nodeschnaps_path" class="anchor" href="#nodeschnaps_path" aria-hidden="true"><span class="octicon octicon-link"></span></a>NODESCHNAPS_PATH</h5>
 
 <p>Path to search for modules/files (Last must be the nodeschnaps lib folder).</p>
 
-<h4>
-<a name="rhino-js" class="anchor" href="#rhino-js"><span class="octicon octicon-link"></span></a>Rhino JS</h4>
+<h5>
+<a id="nodeschnaps_modifier" class="anchor" href="#nodeschnaps_modifier" aria-hidden="true"><span class="octicon octicon-link"></span></a>NODESCHNAPS_MODIFIER</h5>
 
-<div class="highlight highlight-js"><pre><span class="nx">load</span><span class="p">(</span><span class="s1">'../loader.js'</span><span class="p">);</span>
-
-<span class="nx">NodeJS</span><span class="p">(...);</span>
-</pre></div>
+<p>A path to a module, what will be loaded at the start to modify the environment.</p>
 
 <h4>
-<a name="pentaho-data-integration-kettle" class="anchor" href="#pentaho-data-integration-kettle"><span class="octicon octicon-link"></span></a>Pentaho Data-Integration (Kettle)</h4>
+<a id="rhino-js" class="anchor" href="#rhino-js" aria-hidden="true"><span class="octicon octicon-link"></span></a>Rhino JS</h4>
+
+<div class="highlight highlight-js"><pre><span class="pl-c1">load</span>(<span class="pl-s"><span class="pl-pds">'</span>../loader.js<span class="pl-pds">'</span></span>);
+
+NodeJS();</pre></div>
+
+<h4>
+<a id="pentaho-data-integration-kettle" class="anchor" href="#pentaho-data-integration-kettle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pentaho Data-Integration (Kettle)</h4>
 
 <p>Load on Job (JavaScript):</p>
 
-<div class="highlight highlight-js"><pre><span class="k">new</span> <span class="nb">Function</span><span class="p">(</span>
-    <span class="nx">org</span><span class="p">.</span><span class="nx">apache</span><span class="p">.</span><span class="nx">commons</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">FileUtils</span><span class="p">.</span><span class="nx">readFileToString</span><span class="p">(</span>
-      <span class="k">new</span> <span class="nx">java</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">File</span><span class="p">(</span><span class="nx">parent_job</span><span class="p">.</span><span class="nx">getVariable</span><span class="p">(</span><span class="s1">'NODESCHNAPS_LOADER_FILE'</span><span class="p">))</span>
-    <span class="p">)</span>
-<span class="p">)();</span>
+<div class="highlight highlight-js"><pre><span class="pl-k">new</span> <span class="pl-en">Function</span>(
+    org.apache.commons.io.FileUtils.readFileToString(
+      <span class="pl-k">new</span> <span class="pl-en">java.io</span>.File(parent_job.getVariable(<span class="pl-s"><span class="pl-pds">'</span>NODESCHNAPS_LOADER_FILE<span class="pl-pds">'</span></span>))
+    )
+)();
 
-<span class="nx">NodeJS</span><span class="p">(...);</span>
-</pre></div>
+NodeJS();</pre></div>
 
 <p>Load on Transformation (Modified Java Script Value):</p>
 
-<div class="highlight highlight-js"><pre><span class="nx">LoadScriptFile</span><span class="p">(</span><span class="nx">getEnvironmentVar</span><span class="p">(</span><span class="s1">'NODESCHNAPS_LOADER_FILE'</span><span class="p">));</span>
+<div class="highlight highlight-js"><pre>LoadScriptFile(getEnvironmentVar(<span class="pl-s"><span class="pl-pds">'</span>NODESCHNAPS_LOADER_FILE<span class="pl-pds">'</span></span>));
 
-<span class="nx">NodeJS</span><span class="p">(...);</span>
-</pre></div>
+NodeJS();</pre></div>
+
+<p>For a example look at: <a href="https://github.com/killmag10/kitchen-stove">kitchen-stove</a></p>
+
+<h3>
+<a id="coding" class="anchor" href="#coding" aria-hidden="true"><span class="octicon octicon-link"></span></a>Coding</h3>
 
 <h4>
-<a name="start-main-loop" class="anchor" href="#start-main-loop"><span class="octicon octicon-link"></span></a>Start main loop</h4>
+<a id="start-main-loop" class="anchor" href="#start-main-loop" aria-hidden="true"><span class="octicon octicon-link"></span></a>Start main loop</h4>
 
 <p>As callback:</p>
 
-<div class="highlight highlight-js"><pre><span class="nx">NodeJS</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
-    <span class="c1">// Your code here ...</span>
-<span class="p">});</span>
-</pre></div>
+<div class="highlight highlight-js"><pre>NodeJS(<span class="pl-k">function</span>(){
+    <span class="pl-c">// Your code here ...</span>
+});</pre></div>
 
 <p>Or before:</p>
 
-<div class="highlight highlight-js"><pre><span class="c1">// Your code here ...</span>
+<div class="highlight highlight-js"><pre><span class="pl-c">// Your code here ...</span>
 
-<span class="nx">NodeJS</span><span class="p">();</span>
-</pre></div>
+NodeJS();</pre></div>
       </section>
     </div>
 
@@ -118,7 +157,7 @@ to get a overview of what we done so far.</p>
     <div id="footer_wrap" class="outer">
       <footer class="inner">
         <p class="copyright">Nodeschnaps maintained by <a href="https://github.com/killmag10">killmag10</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
 
