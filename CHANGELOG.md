@@ -1,4 +1,18 @@
-# Version 0.4.0
+# Version 0.5.1
+* 847b7c3 [core][fs] Fix fs binding for better support of java 6.
+* 77e1bba [docs] Add shields to readme.
+* 0f80ca7 [setup] add .travis.yml
+
+# Version 0.5.0
+* 78085ee [core][crypto] Add partial node crypto support.
+* 8a02e73 [core][deps] Update to nodejs 0.12.4.
+* f67fdd9 [core] Update to nodejs 0.12.2.
+* a41e3ac [core][zlib] Add partial node zlib support.
+* e799df7 [deps] Upgrade to Rhino 1.7.6 (https://github.com/mozilla/rhino/releases/tag/Rhino1_7_6_RELEASE)
+* 0978251 [setup][docs] Add jsdoc.
+* e03f9da [setup] Remove timer debug mode.
+
+# Version 0.4.1
 * 87db1f0 [core][fs] Fix IndexOutOfBoundsException on write on BSD
 
 # Version 0.4.0
