@@ -1,3 +1,6 @@
+# Version 0.5.2
+* 787d27f [core][deps] Update to nodejs 0.12.7.
+
 # Version 0.5.1
 * 847b7c3 [core][fs] Fix fs binding for better support of java 6.
 * 77e1bba [docs] Add shields to readme.
