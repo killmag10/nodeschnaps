@@ -24,7 +24,7 @@ var fstatProperties = [
     'atime',
     'mtime',
     'ctime'
-]
+];
 
 // fs.rename
 QUnit.asyncTest( "fs.rename", function() {
@@ -939,4 +939,18 @@ QUnit.test( "fs.existsSync", function()
 });
 
 
+QUnit.test( "fs ", function() {
+    var testfile = process.env.TEST_RESOURCE_PATH + '/tux.png';
+    var testfile_write = process.env.TEST_TEMP_PATH + '/tux.write.png';
 
+    var fs = require('fs');
+    var data = fs.readFileSync(testfile);
+    fs.writeFileSync(testfile_write, data);
+
+    QUnit.ok(
+        data instanceof Buffer,
+        "data should be a Buffer"
+    );
+
+    require('fs').unlinkSync(testfile_write);
+});
