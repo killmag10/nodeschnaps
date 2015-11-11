@@ -25,7 +25,6 @@
   "dependencies": {
     "browserify-zlib": "^0.1.4",
     "buffer": "^3.5.1",
-    "buffer-browserify": "~0.2.5",
     "crypto-browserify": "^3.9.14"
   },
   "devDependencies": {
