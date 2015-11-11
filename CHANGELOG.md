@@ -1,3 +1,8 @@
+# Version 0.5.3
+* [core][fs] Correct binary data reading and writing in fs binding.
+* [core] Remove useless java sync block in async call.
+* [config] Add coding style config.
+
 # Version 0.5.2
 * 787d27f [core][deps] Update to nodejs 0.12.7.
 
