@@ -18,6 +18,9 @@ export TEST_VAR
 export TEST_TEMP_PATH
 export TEST_RESOURCE_PATH
 
+TEST_DIRS := test/lib
+TEST_FILES := $(shell find $(TEST_DIRS) -type f -name '*.js')
+
 # Macros
 EXISTS_DOCS = $(shell $(TEST) -d $(PATH_DOCS)/html && printf '1')
 
@@ -43,7 +46,8 @@ JAVA_NASHORN := jrunscript
 	install \
 	uninstall \
 	test \
-	.installDependencyNodeSource
+	.installDependencyNodeSource \
+	$(TEST_FILES)
 
 all: help
 
@@ -73,7 +77,7 @@ uninstall: npmUninstall
 clean: distclean
 
 distclean: .cleanHtml
-	
+
 
 test:
 	########################################
@@ -82,6 +86,13 @@ test:
 	########################################
 	@$(CD) $(PATH_TEST) \
 		&& $(JAVA_RHINO) \
+			org.mozilla.javascript.tools.shell.Main \
+			test.rhino.js
+
+$(TEST_FILES):
+	@$(CD) $(PATH_TEST) \
+		&& $(JAVA_RHINO) \
+			-DTEST_FILE='$(subst test/,,$@)' \
 			org.mozilla.javascript.tools.shell.Main \
 			test.rhino.js
 

@@ -34,16 +34,16 @@ var hashes = {
 //    'RSA-MD5'
 };
 
-QUnit.test( "crypto", function() {
+QUnit.test( "crypto", function(assert) {
     var crypto = require('crypto');
 
-    QUnit.ok(
+    assert.ok(
         crypto instanceof Object,
         "crypto is in instance of Object"
-    );   
+    );
 });
 
-QUnit.test( "crypto.createHash", function() {
+QUnit.test( "crypto.createHash", function(assert) {
     var crypto = require('crypto');
 
     Object.keys(hashes).forEach(function(hashName) {
@@ -51,15 +51,14 @@ QUnit.test( "crypto.createHash", function() {
         hash.update('test data 123');
         var result = hash.digest();
 
-        QUnit.ok(
+        assert.ok(
             result instanceof Buffer,
             hashName + ": hash.digest() return instance of Buffer"
         );
 
-        QUnit.ok(
+        assert.ok(
             result.toString('hex') === hashes[hashName],
             hashName + ": hash should be " + hashes[hashName]
         );
     });
 });
-

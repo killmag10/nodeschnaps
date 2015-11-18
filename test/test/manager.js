@@ -3,7 +3,7 @@ try {
 } catch(e)
 {
 }
-    
+
 var colors = require('colors');
 
 /**
@@ -16,19 +16,18 @@ var Manager = function(baseDir)
     var testPaths = [];
 
     this.QUnit = require('qunitjs');
+    global.QUnit = this.QUnit;
 
     // Configure QUnit.
-    this.QUnit.init();
     this.QUnit.config.blocking = true;
-    this.QUnit.config.autorun = false;
-    this.QUnit.config.updateRate = 0;
+    this.QUnit.config.autostart = false;
     this.QUnit.config.testTimeout = 5000;
 
     this.QUnit.moduleStart(function(details) {
         console.log(
             colors.bold("Test File: %s"),
             details.name
-        )
+        );
     });
 
     this.QUnit.log(function(details) {
@@ -41,7 +40,7 @@ var Manager = function(baseDir)
             details.message.yellow
         );
     });
-    
+
     this.QUnit.done(function(details) {
         var format = "\nTests Total: %s Failed: %s Passed: %s Runtime: %s ms\n";
 
@@ -57,10 +56,10 @@ var Manager = function(baseDir)
     var getFiles = function getFiles(file)
     {
         var result = [];
-        
+
         if (undefined !== JavaFile) {
-            file = new JavaFile(file);        
-        
+            file = new JavaFile(file);
+
             if (file.isDirectory()) {
                 var fileList = file.listFiles();
                 fileList.forEach(function(item){
@@ -78,7 +77,7 @@ var Manager = function(baseDir)
         } else {
             var fs = require('fs');
             var file = fs.realpathSync(file);
-            
+
             if (fs.statSync(file).isDirectory()) {
                 var fileList = fs.readdirSync(file);
                 fileList.forEach(function(item){
@@ -105,7 +104,7 @@ var Manager = function(baseDir)
     {
         testPaths = testPaths.concat(
             getFiles(baseDir + '/' + path).filter(function(item){
-                return (item.search(/\.js$/) > -1)
+                return (item.search(/\.js$/) > -1);
             })
         );
     };
@@ -113,17 +112,23 @@ var Manager = function(baseDir)
     /**
      * Start testing.
      */
-    this.startTests = function()
+    this.startTests = function(testFile)
     {
+        var self = this;
         console.log("Start tests...\n");
 
+        if (testFile) {
+            require(testFile);
+        }
+
         testPaths.forEach(function(item){
-            this.QUnit.module(item);
+            self.QUnit.module(item);
             require(baseDir + '/' +item);
         });
 
+        this.QUnit.load();
         this.QUnit.start();
     };
-}
+};
 
 module.exports = Manager;

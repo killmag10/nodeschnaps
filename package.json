@@ -28,7 +28,7 @@
     "crypto-browserify": "^3.9.14"
   },
   "devDependencies": {
-    "qunitjs": "~1.14.0",
+    "qunitjs": "~1.20.0",
     "colors": "~0.6.2",
     "semver": "~2.3.0",
     "jsdoc": "^3.3.2"

@@ -1,17 +1,17 @@
-QUnit.test('assert', function() {
+QUnit.test('assert', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj('1', 'test assert'),
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj('', 'test assert');
         },
@@ -20,15 +20,15 @@ QUnit.test('assert', function() {
 });
 
 
-QUnit.test('assert.fail', function() {
+QUnit.test('assert.fail', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.fail instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.fail('0', '1', 'test fail', '=');
         },
@@ -36,20 +36,20 @@ QUnit.test('assert.fail', function() {
     );
 });
 
-QUnit.test('assert.ok', function() {
+QUnit.test('assert.ok', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.ok instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.ok('1', 'test assert'),
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.ok('', 'test assert');
         },
@@ -57,20 +57,20 @@ QUnit.test('assert.ok', function() {
     );
 });
 
-QUnit.test('assert.equal', function() {
+QUnit.test('assert.equal', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.equal instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.equal('1', 1, 'test assert'),
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.equal('', 1, 'test assert');
         },
@@ -78,20 +78,20 @@ QUnit.test('assert.equal', function() {
     );
 });
 
-QUnit.test('assert.notEqual', function() {
+QUnit.test('assert.notEqual', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.notEqual instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.notEqual('', 1, 'test assert'),
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.notEqual('1', 1, 'test assert');
         },
@@ -99,15 +99,15 @@ QUnit.test('assert.notEqual', function() {
     );
 });
 
-QUnit.test('assert.deepEqual', function() {
+QUnit.test('assert.deepEqual', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.deepEqual instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.deepEqual(
             { 'test' : '1' },
             { 'test' : 1 },
@@ -116,27 +116,27 @@ QUnit.test('assert.deepEqual', function() {
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.deepEqual(
                 { 'test' : '' },
                 { 'test' : 1 },
                 'test assert'
-            )
+            );
         },
         'Should throw an Error.'
     );
 });
 
-QUnit.test('assert.notDeepEqual', function() {
+QUnit.test('assert.notDeepEqual', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.notDeepEqual instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.notDeepEqual(
             { 'test' : '' },
             { 'test' : 1 },
@@ -145,32 +145,32 @@ QUnit.test('assert.notDeepEqual', function() {
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.notDeepEqual(
                 { 'test' : '1' },
                 { 'test' : 1 },
                 'test assert'
-            )
+            );
         },
         'Should throw an Error.'
     );
 });
 
-QUnit.test('assert.strictEqual', function() {
+QUnit.test('assert.strictEqual', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.strictEqual instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.strictEqual(1, 1, 'test assert'),
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.strictEqual(1, '1', 'test assert');
         },
@@ -178,20 +178,20 @@ QUnit.test('assert.strictEqual', function() {
     );
 });
 
-QUnit.test('assert.notStrictEqual', function() {
+QUnit.test('assert.notStrictEqual', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.notStrictEqual instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.notStrictEqual(1, '1', 'test assert'),
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.notStrictEqual(1, 1, 'test assert');
         },
@@ -199,15 +199,15 @@ QUnit.test('assert.notStrictEqual', function() {
     );
 });
 
-QUnit.test('assert.throws', function() {
+QUnit.test('assert.throws', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.throws instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.throws(
             function(){
                 throw new RangeError('test');
@@ -217,7 +217,7 @@ QUnit.test('assert.throws', function() {
         'Should be undefined with error class.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.throws(
             function(){
                 throw new RangeError('test');
@@ -227,7 +227,7 @@ QUnit.test('assert.throws', function() {
         'Should be undefined with regex.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.throws(
             function(){
                 throw new Error('test');
@@ -241,31 +241,31 @@ QUnit.test('assert.throws', function() {
         'Should be undefined with function.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.throws(
                 function(){
                     throw new Error('test');
                 },
                 RangeError
-            )
+            );
         },
         'Should throw an Error with error class.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.throws(
                 function(){
                     // nothing
                 },
                 /^Range/
-            )
+            );
         },
         'Should throw an Error with regex.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.throws(
                 function(){
@@ -276,21 +276,21 @@ QUnit.test('assert.throws', function() {
                     }
                 },
                 'test assert'
-            )
+            );
         },
         'Should throw an Error with function.'
     );
 });
 
-QUnit.test('assert.doesNotThrow', function() {
+QUnit.test('assert.doesNotThrow', function(assert) {
     var testObj = require('assert');
 
-    QUnit.ok(
+    assert.ok(
         testObj.doesNotThrow instanceof Function,
         'Should be an instance of Function.'
     );
 
-    QUnit.ok(
+    assert.ok(
         undefined === testObj.doesNotThrow(
             function(){
                 // nothing
@@ -300,14 +300,14 @@ QUnit.test('assert.doesNotThrow', function() {
         'Should be undefined.'
     );
 
-    QUnit.throws(
+    assert.throws(
         function() {
             testObj.doesNotThrow(
                 function(){
                     throw new Error('test');
                 },
                 'test assert'
-            )
+            );
         },
         'Should throw an Error.'
     );

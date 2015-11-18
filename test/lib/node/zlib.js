@@ -4,14 +4,14 @@ QUnit.test( "zlib", function(assert) {
     assert.ok(
         zlib instanceof Object,
         "zlib is in instance of Object"
-    );   
+    );
 });
 
 QUnit.test( "zlib.deflateSync", function(assert) {
     var zlib = require('zlib');
 
     var result = zlib.deflateSync('test string 123');
-    
+
     assert.strictEqual(
         result.toString('hex'),
         '789c2b492d2e51282e29cacc4b5730343206002e4a052e',
