@@ -1,4 +1,4 @@
-DEPPENDENCY_NODE_VERSION := 0.12.7
+NODESCHNAPS_DEPPENDENCY_NODE_VERSION := 0.12.9
 
 # Paths
 PATH_TEST := test
@@ -144,6 +144,6 @@ endif
 
 $(PATH_DEPS)/node:
 	# Install nodejs source
-	@$(WGET) -O - 'http://nodejs.org/dist/v$(DEPPENDENCY_NODE_VERSION)/node-v$(DEPPENDENCY_NODE_VERSION).tar.gz' \
+	@$(WGET) -O - 'http://nodejs.org/dist/v$(NODESCHNAPS_DEPPENDENCY_NODE_VERSION)/node-v$(NODESCHNAPS_DEPPENDENCY_NODE_VERSION).tar.gz' \
 		| $(TAR) -xz -C $(PATH_DEPS)/
-	@$(MV) $(PATH_DEPS)/node-v$(DEPPENDENCY_NODE_VERSION) $(PATH_DEPS)/node
+	@$(MV) $(PATH_DEPS)/node-v$(NODESCHNAPS_DEPPENDENCY_NODE_VERSION) $(PATH_DEPS)/node
