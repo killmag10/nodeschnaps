@@ -3,74 +3,67 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<project name="xmlimplsrc" basedir=".." default="compile">
+  <!--
+    Properties which affect this build file:
 
-<!--
-Build file for Rhino using Ant (see http://jakarta.apache.org/ant/index.html)
-Requires Ant version 1.2
--->
-<project name="src" default="compile" basedir="..">
+    no-e4x: Will cause E4X not to be built
+  -->
 
+  <property file="build.local.properties"/>
   <property file="build.properties"/>
 
-  <available property="jdk15"
-             classname="java.lang.reflect.ParameterizedType" />
+  <!--
+    Provide support for the old name for skipping E4X compilation, in case someone is still using it
+  -->
+  <condition property="no-e4x">
+    <isset property="without-xmlimpl" />
+  </condition>
 
-  <target name="compile" depends="compile-most,compile-jdk15">
+  <target name="compile" unless="no-e4x">
+    <antcall target="e4x-compile" />
+    <antcall target="no-e4x-compile" />
   </target>
 
-  <target name="shell" depends="compile">
-    <java classname="org.mozilla.javascript.tools.shell.Main"
-          classpath="${classes}"
-          fork="true">
-      <arg line="-version 170"/>
-    </java>
+  <available property="jdk1.5?" classname="java.lang.ProcessBuilder" />
+
+  <target name="e4x-compile" if="jdk1.5?">
+    <javac
+      srcdir="xmlimplsrc"
+      destdir="${classes}"
+      deprecation="on"
+      debug="${debug}"
+      includeAntRuntime="false"
+      target="${target-jvm}"
+      source="${source-level}"
+    />
   </target>
 
-  <target name="compile-most">
-    <javac srcdir="src"
-           destdir="${classes}"
-           includes="org/**/*.java"
-           excludes="org/**/jdk15/*.java"
-           deprecation="on"
-           debug="${debug}"
-           includeAntRuntime="false"
-           encoding="UTF-8"
-           target="${target-jvm}"
-           source="${source-level}" />
-    <copy todir="${classes}">
-      <fileset dir="src" includes="org/**/*.properties" />
-      <filterset>
-      <filter token="IMPLEMENTATION.VERSION"
-              value="${implementation.version}"/>
-      </filterset>
-    </copy>
-  </target>
-
-  <target name="compile-jdk15" if="jdk15">
-    <javac srcdir="src"
-           destdir="${classes}"
-           includes="org/**/jdk15/*.java"
-           deprecation="on"
-           debug="${debug}"
-           includeAntRuntime="false"
-           encoding="UTF-8"
-           target="${target-jvm}"
-           source="${source-level}" />
+  <target name="no-e4x-compile" unless="jdk1.5?">
+    <echo>
+      Skipping DOM E4X implementation; JDK 1.5+ currently required for compilation.
+      <!--
+        If the compiler is outfitted with DOM3 using the endorsed standards
+        override mechanism, presumably the code could be built under 1.4.
+        Not tested.
+      -->
+    </echo>
   </target>
 
   <target name="copy-source">
-    <mkdir dir="${dist.dir}/src"/>
-    <copy todir="${dist.dir}/src">
-      <fileset dir="src"
-               includes="**/*.java,**/*.properties,**/*.xml,manifest"/>
+    <mkdir dir="${dist.dir}/xmlimplsrc"/>
+    <copy todir="${dist.dir}/xmlimplsrc">
+      <fileset dir="xmlimplsrc"
+               includes="**/*.java,**/*.properties,**/*.xml"
+      />
     </copy>
   </target>
 
   <target name="clean">
     <delete includeEmptyDirs="true">
       <fileset dir="${classes}"
-               excludes="org/mozilla/javascript/tools/**"/>
+               includes="org/mozilla/javascript/xmlimpl/**"
+      />
     </delete>
   </target>
-
 </project>
