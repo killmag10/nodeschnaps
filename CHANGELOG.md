@@ -1,3 +1,6 @@
+# Version 0.6.1
+* f14e5ff [core] Fix #11. Correct module loading for npm 3.
+
 # Version 0.6.0
 * 0c9cbc8 [core][deps] Update to nodejs 0.12.9.
 * 7848296 [deps] Upgrade to Rhino 1.7.7.1 (https://github.com/mozilla/rhino/releases/tag/Rhino1_7_7_1_RELEASE)
