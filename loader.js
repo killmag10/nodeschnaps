@@ -123,19 +123,6 @@ global = this;
         {
             var filename = searchObject.filename;
 
-            var javaFile = new JavaFile(filename);
-            if (javaFile.exists() && !javaFile.isDirectory()) {
-                filename = String(javaFile.getCanonicalPath());
-                searchObject.paths.unshift(
-                    String(new JavaFile(filename).getParent())
-                        + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
-                );
-                return {
-                    "filename" : filename,
-                    "paths" : searchObject.paths
-                }
-            }
-
             var javaFile = new JavaFile(filename + '.js');
             if (javaFile.exists() && !javaFile.isDirectory()) {
                 filename = String(javaFile.getCanonicalPath());
@@ -171,6 +158,19 @@ global = this;
             }
 
             var javaFile = new JavaFile(filename);
+            if (javaFile.exists() && !javaFile.isDirectory()) {
+                filename = String(javaFile.getCanonicalPath());
+                searchObject.paths.unshift(
+                    String(new JavaFile(filename).getParent())
+                        + RequireConfig.fileSeparator + NODE_MODULE_DIRNAME
+                );
+                return {
+                    "filename" : filename,
+                    "paths" : searchObject.paths
+                }
+            }
+
+            var javaFile = new JavaFile(filename);
             if (javaFile.exists() && javaFile.isDirectory()){
                 return resolvePackage(searchObject);
             }
@@ -192,11 +192,11 @@ global = this;
             var filename = searchObject.filename;
             var paths = searchObject.paths;
 
-            for (var key in searchObject.paths) {
+            for (var key in paths) {
                 searchObject.filename =
-                    searchObject.paths[key] + RequireConfig.fileSeparator
+                    paths[key] + RequireConfig.fileSeparator
                         + filename;
-                searchObject.paths = searchObject.paths.concat();
+                searchObject.paths = paths.concat();
 
                 var resolvedObject = resolveType(searchObject);
                 if (resolvedObject !== null) {
