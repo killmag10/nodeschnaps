@@ -1,5 +1,6 @@
 var testfile = process.env.TEST_RESOURCE_PATH + '/text';
 var testfile_write = process.env.TEST_TEMP_PATH + '/test.write';
+var testfile_empty = process.env.TEST_RESOURCE_PATH + '/empty';
 
 var testfileContent = [
     "test",
@@ -708,6 +709,31 @@ QUnit.test( "fs.openSync", function(assert) {
         ) === 'number',
         "Should return a number."
     );
+});
+
+QUnit.test( "fs.readSync empty", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
+
+    assert.ok(
+        require('fs').readSync instanceof Function,
+        "Should be an instance of Function."
+    );
+
+    var file = require('fs').openSync(testfile_empty, 'r');
+
+    var result = require('fs').readSync(
+        file,
+        new Buffer(64),
+        0,
+        16,
+        null
+    );
+
+    require('fs').closeSync(file);
+
+    assert.ok(result === 0, "Should return 0.");
+    done();
 });
 
 // fs.utimes
