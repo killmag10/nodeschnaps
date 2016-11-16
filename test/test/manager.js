@@ -5,6 +5,7 @@ try {
 }
 
 var colors = require('colors');
+colors.enabled = true;
 
 /**
  * Manger to load and start tests.
