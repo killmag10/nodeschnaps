@@ -1,8 +1,13 @@
 [![Nodeschnaps](https://raw.githubusercontent.com/killmag10/nodeschnaps/master/docs/assets/teaser.png)]()
 
-Nodeschnaps is a [node.js](http://nodejs.org) compatibility layer for Rhino.
+Nodeschnaps is a [node.js](http://nodejs.org) compatibility layer for Java
+Javscript engines like Rhino.
 The main inspiration is to run ETL transformation with the same code we use
 in node.js to save development time.
+
+[![Travis](https://img.shields.io/travis/killmag10/nodeschnaps.svg)](https://travis-ci.org/killmag10/nodeschnaps)
+[![npm](https://img.shields.io/npm/dm/nodeschnaps.svg)](https://www.npmjs.com/package/nodeschnaps)
+[![npm](https://img.shields.io/npm/v/nodeschnaps.svg)](https://www.npmjs.com/package/nodeschnaps)
 
 ## Features
 
@@ -14,11 +19,12 @@ to get a overview of what we done so far.
 
 ## Supported Platforms
 
-We plan to support the following platform:
-
 * Rhino JS
-* Pentaho Data-Integration (Kettle)
-* Nashorn (later)
+    * Pentaho Data-Integration (Kettle)
+
+We plan to support the following platforms in the next time:
+
+* Nashorn
 
 ### Installation
 

@@ -17,15 +17,22 @@ describes the current status of our implementation.
     * buffer (over [buffer-browserify](https://github.com/toots/buffer-browserify))
     * console
     * constants
+    * crypto (partial over [crypto-browserify](https://github.com/crypto-browserify/crypto-browserify))
     * events (nodejs only)
+    * freelist (nodejs only)
+    * fs
     * module
     * path (nodejs only)
     * process
     * punycode (nodejs only)
+    * querystring (nodejs only)
     * stream (nodejs only)
     * timers
+    * url (nodejs only)
     * util (nodejs only)
     * vm
+    * zlib (partial over [browserify-zlib](https://www.npmjs.com/package/browserify-zlib))
+
 
 ## Work in progress
 
@@ -38,25 +45,19 @@ tests, write concepts, and do a initial boostrap of the project.
   * Core modules:
     * child_process
     * cluster
-    * crypto
     * dgram
     * dns
     * domain
-    * freelist
-    * fs
     * http
     * https
     * net
     * os
-    * querystring
     * readline
     * repl
     * string_decoder
     * sys
     * tls
     * tty
-    * url
-    * zlib
   * Module loading:
     * Node Files (Binary)
 

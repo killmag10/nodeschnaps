@@ -1,5 +1,6 @@
 var testfile = process.env.TEST_RESOURCE_PATH + '/text';
 var testfile_write = process.env.TEST_TEMP_PATH + '/test.write';
+var testfile_empty = process.env.TEST_RESOURCE_PATH + '/empty';
 
 var testfileContent = [
     "test",
@@ -24,15 +25,16 @@ var fstatProperties = [
     'atime',
     'mtime',
     'ctime'
-]
+];
 
 // fs.rename
-QUnit.asyncTest( "fs.rename", function() {
-    expect( 2 );
+QUnit.test( "fs.rename", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
     require('fs').writeFileSync(testfile_write, 'test unlink');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').rename instanceof Function,
         "Should be an instance of Function."
     );
@@ -43,21 +45,21 @@ QUnit.asyncTest( "fs.rename", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 true,
                 "Callback should be called."
             );
 
             require('fs').unlinkSync(testfile_write + '.renamed');
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.renameSync", function() {
+QUnit.test( "fs.renameSync", function(assert) {
     require('fs').writeFileSync(testfile_write, 'test unlink');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').renameSync instanceof Function,
         "Should be an instance of Function."
     );
@@ -65,17 +67,18 @@ QUnit.test( "fs.renameSync", function() {
     var result = require('fs').renameSync(
         testfile_write, testfile_write + '.renamed'
     );
-    QUnit.ok(result === undefined, "Should return nothing.");
+    assert.ok(result === undefined, "Should return nothing.");
 
     require('fs').unlinkSync(testfile_write + '.renamed');
 });
 
 // fs.ftruncate
-QUnit.asyncTest( "fs.ftruncate", function() {
-    expect( 2 );
+QUnit.test( "fs.ftruncate", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
     require('fs').writeFileSync(testfile_write, 'test truncate');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').ftruncate instanceof Function,
         "Should be an instance of Function."
     );
@@ -90,17 +93,17 @@ QUnit.asyncTest( "fs.ftruncate", function() {
 
             if (err) throw err;
 
-            QUnit.ok(true, "Should call callback.");
+            assert.ok(true, "Should call callback.");
             require('fs').unlinkSync(testfile_write);
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.ftruncateSync", function() {
+QUnit.test( "fs.ftruncateSync", function(assert) {
     require('fs').writeFileSync(testfile_write, 'test truncate');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').ftruncateSync instanceof Function,
         "Should be an instance of Function."
     );
@@ -108,7 +111,7 @@ QUnit.test( "fs.ftruncateSync", function() {
     var file = require('fs').openSync(testfile_write, 'w');
     try {
         var data = require('fs').ftruncateSync(file, 0);
-        QUnit.ok(
+        assert.ok(
             data === undefined,
             "Should return nothing."
         );
@@ -121,11 +124,12 @@ QUnit.test( "fs.ftruncateSync", function() {
 
 
 // fs.truncate
-QUnit.asyncTest( "fs.truncate", function() {
-    expect( 2 );
+QUnit.test( "fs.truncate", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
     require('fs').writeFileSync(testfile_write, 'test truncate');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').truncate instanceof Function,
         "Should be an instance of Function."
     );
@@ -136,23 +140,23 @@ QUnit.asyncTest( "fs.truncate", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(true, "Should call callback.");
+            assert.ok(true, "Should call callback.");
             require('fs').unlinkSync(testfile_write);
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.truncateSync", function() {
+QUnit.test( "fs.truncateSync", function(assert) {
     require('fs').writeFileSync(testfile_write, 'test truncate');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').truncateSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var data = require('fs').truncateSync(testfile_write, 0);
-    QUnit.ok(
+    assert.ok(
         data === undefined,
         "Should return nothing."
     );
@@ -161,10 +165,11 @@ QUnit.test( "fs.truncateSync", function() {
 });
 
 // fs.stat
-QUnit.asyncTest( "fs.stat", function() {
-    expect( 2 );
+QUnit.test( "fs.stat", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').stat instanceof Function,
         "Should be an instance of Function."
     );
@@ -174,32 +179,32 @@ QUnit.asyncTest( "fs.stat", function() {
         function(err, data) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 typeof data === 'object',
                 "Should return a object."
             );
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.statSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.statSync", function(assert) {
+    assert.ok(
         require('fs').statSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var data = require('fs').statSync(
         testfile
-    )
+    );
 
-    QUnit.ok(
+    assert.ok(
         typeof data === 'object',
         "Should return a object."
     );
 
     fstatProperties.forEach(function(key) {
-        QUnit.ok(
+        assert.ok(
             data[key] !== undefined,
             key + ": should exists."
         );
@@ -207,10 +212,11 @@ QUnit.test( "fs.statSync", function() {
 });
 
 // fs.lstat
-QUnit.asyncTest( "fs.lstat", function() {
-    expect( 2 );
+QUnit.test( "fs.lstat", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').lstat instanceof Function,
         "Should be an instance of Function."
     );
@@ -220,32 +226,32 @@ QUnit.asyncTest( "fs.lstat", function() {
         function(err, data) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 typeof data === 'object',
                 "Should return a object."
             );
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.lstatSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.lstatSync", function(assert) {
+    assert.ok(
         require('fs').statSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var data = require('fs').lstatSync(
         testfile
-    )
+    );
 
-    QUnit.ok(
+    assert.ok(
         typeof data === 'object',
         "Should return a object."
     );
 
     fstatProperties.forEach(function(key) {
-        QUnit.ok(
+        assert.ok(
             data[key] !== undefined,
             key + ": should exists."
         );
@@ -253,8 +259,8 @@ QUnit.test( "fs.lstatSync", function() {
 });
 
 // fs.fstat
-QUnit.test( "fs.fstatSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.fstatSync", function(assert) {
+    assert.ok(
         require('fs').fstat instanceof Function,
         "Should be an instance of Function."
     );
@@ -262,18 +268,18 @@ QUnit.test( "fs.fstatSync", function() {
     var fd = require('fs').openSync(
         testfile,
         'r'
-    )
+    );
 
     var result = require('fs').fstatSync(fd);
 
     fstatProperties.forEach(function(key) {
-        QUnit.ok(
+        assert.ok(
             result[key] !== undefined,
             key + ": should exists."
         );
     });
 
-    QUnit.ok(
+    assert.ok(
         typeof result.size === 'number',
         "size: should be a number."
     );
@@ -281,10 +287,10 @@ QUnit.test( "fs.fstatSync", function() {
     require('fs').closeSync(fd);
 });
 
-QUnit.test( "fs.fstatSync", function() {
+QUnit.test( "fs.fstatSync", function(assert) {
     require('fs').writeFileSync(testfile_write, 'test fstatSync');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').fstatSync instanceof Function,
         "Should be an instance of Function."
     );
@@ -292,13 +298,13 @@ QUnit.test( "fs.fstatSync", function() {
     var file = require('fs').openSync(testfile_write, 'w');
     try {
         var data = require('fs').fstatSync(file);
-        QUnit.ok(
+        assert.ok(
             typeof data === 'object',
             "Should return a object."
         );
 
         fstatProperties.forEach(function(key) {
-            QUnit.ok(
+            assert.ok(
                 data[key] !== undefined,
                 key + ": should exists."
             );
@@ -311,10 +317,11 @@ QUnit.test( "fs.fstatSync", function() {
 });
 
 // fs.link
-QUnit.asyncTest( "fs.link", function() {
-    expect( 2 );
+QUnit.test( "fs.link", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').link instanceof Function,
         "Should be an instance of Function."
     );
@@ -325,20 +332,20 @@ QUnit.asyncTest( "fs.link", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 true,
                 "Callback should be called."
             );
 
             require('fs').unlinkSync(testfile_write);
 
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.linkSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.linkSync", function(assert) {
+    assert.ok(
         require('fs').symlinkSync instanceof Function,
         "Should be an instance of Function."
     );
@@ -347,17 +354,18 @@ QUnit.test( "fs.linkSync", function() {
         testfile,
         testfile_write
     );
-    QUnit.ok(result === undefined, "Should return nothing.");
+    assert.ok(result === undefined, "Should return nothing.");
 
     require('fs').unlinkSync(testfile_write);
 });
 
 
 // fs.symlink
-QUnit.asyncTest( "fs.symlink", function() {
-    expect( 2 );
+QUnit.test( "fs.symlink", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').symlink instanceof Function,
         "Should be an instance of Function."
     );
@@ -368,20 +376,20 @@ QUnit.asyncTest( "fs.symlink", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 true,
                 "Callback should be called."
             );
 
             require('fs').unlinkSync(testfile_write);
 
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.symlinkSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.symlinkSync", function(assert) {
+    assert.ok(
         require('fs').symlinkSync instanceof Function,
         "Should be an instance of Function."
     );
@@ -390,21 +398,22 @@ QUnit.test( "fs.symlinkSync", function() {
         testfile_write + '.linkdest',
         testfile_write
     );
-    QUnit.ok(result === undefined, "Should return nothing.");
+    assert.ok(result === undefined, "Should return nothing.");
 
     require('fs').unlinkSync(testfile_write);
 });
 
 // fs.readlink
-QUnit.asyncTest( "fs.readlink", function() {
-    expect( 2 );
+QUnit.test( "fs.readlink", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
     var result = require('fs').symlinkSync(
         testfile,
         testfile_write
     );
 
-    QUnit.ok(
+    assert.ok(
         require('fs').readlink instanceof Function,
         "Should be an instance of Function."
     );
@@ -414,36 +423,37 @@ QUnit.asyncTest( "fs.readlink", function() {
         function(err, data) {
             if (err) throw err;
 
-            QUnit.ok(typeof data === 'string', "linkString should be a string.");
+            assert.ok(typeof data === 'string', "linkString should be a string.");
 
             require('fs').unlinkSync(testfile_write);
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.readlinkSync", function() {
+QUnit.test( "fs.readlinkSync", function(assert) {
     var result = require('fs').symlinkSync(
         testfile,
         testfile_write
     );
 
-    QUnit.ok(
+    assert.ok(
         require('fs').readlinkSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var data = require('fs').readlinkSync(testfile_write);
-    QUnit.ok(typeof data === 'string', "linkString should be a string.");
+    assert.ok(typeof data === 'string', "linkString should be a string.");
 
     require('fs').unlinkSync(testfile_write);
 });
 
 // fs.realpath
-QUnit.asyncTest( "fs.realpath", function() {
-    expect( 2 );
+QUnit.test( "fs.realpath", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').realpath instanceof Function,
         "Should be an instance of Function."
     );
@@ -453,29 +463,30 @@ QUnit.asyncTest( "fs.realpath", function() {
         function(err, data) {
             if (err) throw err;
 
-            QUnit.ok(typeof data === 'string', "linkString should be a string.");
-            start();
+            assert.ok(typeof data === 'string', "linkString should be a string.");
+            done();
         }
     );
 });
 
-QUnit.test( "fs.realpathSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.realpathSync", function(assert) {
+    assert.ok(
         require('fs').realpathSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var data = require('fs').realpathSync('lib/node/fs.js');
-    QUnit.ok(typeof data === 'string', "linkString should be a string.");
+    assert.ok(typeof data === 'string', "linkString should be a string.");
 });
 
 // fs.unlink
-QUnit.asyncTest( "fs.unlink", function() {
-    expect( 2 );
+QUnit.test( "fs.unlink", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
     require('fs').writeFileSync(testfile_write, 'test unlink');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').unlink instanceof Function,
         "Should be an instance of Function."
     );
@@ -485,35 +496,36 @@ QUnit.asyncTest( "fs.unlink", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 true,
                 "Callback should be called."
             );
 
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.unlinkSync", function() {
+QUnit.test( "fs.unlinkSync", function(assert) {
     require('fs').writeFileSync(testfile_write, 'test unlink');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').unlinkSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var result = require('fs').unlinkSync(testfile_write);
-    QUnit.ok(result === undefined, "Should return nothing.");
+    assert.ok(result === undefined, "Should return nothing.");
 });
 
 // fs.rmdir
-QUnit.asyncTest( "fs.rmdir", function() {
-    expect( 2 );
+QUnit.test( "fs.rmdir", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
     require('fs').mkdirSync(testfile_write);
 
-    QUnit.ok(
+    assert.ok(
         require('fs').rmdir instanceof Function,
         "Should be an instance of Function."
     );
@@ -523,33 +535,34 @@ QUnit.asyncTest( "fs.rmdir", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 true,
                 "Callback should be called."
             );
 
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.rmdirSync", function() {
+QUnit.test( "fs.rmdirSync", function(assert) {
     require('fs').mkdirSync(testfile_write);
 
-    QUnit.ok(
+    assert.ok(
         require('fs').rmdirSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var result = require('fs').rmdirSync(testfile_write);
-    QUnit.ok(result === undefined, "Should return nothing.");
+    assert.ok(result === undefined, "Should return nothing.");
 });
 
 // fs.mkdir
-QUnit.asyncTest( "fs.mkdir", function() {
-    expect( 2 );
+QUnit.test( "fs.mkdir", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').mkdir instanceof Function,
         "Should be an instance of Function."
     );
@@ -559,35 +572,36 @@ QUnit.asyncTest( "fs.mkdir", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 true,
                 "Callback should be called."
             );
 
             require('fs').rmdirSync(testfile_write);
 
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.mkdirSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.mkdirSync", function(assert) {
+    assert.ok(
         require('fs').mkdirSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var result = require('fs').mkdirSync(testfile_write);
-    QUnit.ok(result === undefined, "Should return nothing.");
+    assert.ok(result === undefined, "Should return nothing.");
 
     require('fs').rmdirSync(testfile_write);
 });
 
 // fs.readdir
-QUnit.asyncTest( "fs.readdir", function() {
-    expect( 2 );
+QUnit.test( "fs.readdir", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').readdir instanceof Function,
         "Should be an instance of Function."
     );
@@ -597,35 +611,36 @@ QUnit.asyncTest( "fs.readdir", function() {
         function(err, files) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 files instanceof Array,
                 "files should be a Array"
             );
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.readdirSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.readdirSync", function(assert) {
+    assert.ok(
         require('fs').readdirSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var result = require('fs').readdirSync(process.cwd());
-    QUnit.ok(result instanceof Array, "Should return a Array.");
+    assert.ok(result instanceof Array, "Should return a Array.");
 });
 
 // fs.close
-QUnit.asyncTest( "fs.close", function() {
-    expect( 2 );
+QUnit.test( "fs.close", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
     var fd = require('fs').openSync(
         testfile,
         'r'
     );
 
-    QUnit.ok(
+    assert.ok(
         require('fs').close instanceof Function,
         "Should be an instance of Function."
     );
@@ -635,35 +650,36 @@ QUnit.asyncTest( "fs.close", function() {
         function(err, data) {
             if (err) throw err;
 
-            QUnit.ok(true, "Should call callback.");
-            start();
+            assert.ok(true, "Should call callback.");
+            done();
         }
     );
 });
 
-QUnit.test( "fs.closeSync", function()
+QUnit.test( "fs.closeSync", function(assert)
 {
     var fd = require('fs').openSync(
         testfile,
         'r'
     );
 
-    QUnit.ok(
+    assert.ok(
         require('fs').closeSync instanceof Function,
         "Should be an instance of Function."
     );
 
-    QUnit.ok(
+    assert.ok(
         require('fs').closeSync(fd) === undefined,
         "Should return nothing."
     );
 });
 
 // fs.open
-QUnit.asyncTest( "fs.open", function() {
-    expect( 2 );
+QUnit.test( "fs.open", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').open instanceof Function,
         "Should be an instance of Function."
     );
@@ -674,19 +690,19 @@ QUnit.asyncTest( "fs.open", function() {
         function(err, data) {
             if (err) throw err;
 
-            QUnit.ok(typeof data === 'number', "Should return a number.");
-            start();
+            assert.ok(typeof data === 'number', "Should return a number.");
+            done();
         }
     );
 });
 
-QUnit.test( "fs.openSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.openSync", function(assert) {
+    assert.ok(
         require('fs').openSync instanceof Function,
         "Should be an instance of Function."
     );
 
-    QUnit.ok(
+    assert.ok(
         typeof require('fs').openSync(
             testfile,
             'r'
@@ -695,12 +711,38 @@ QUnit.test( "fs.openSync", function() {
     );
 });
 
+QUnit.test( "fs.readSync empty", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
+
+    assert.ok(
+        require('fs').readSync instanceof Function,
+        "Should be an instance of Function."
+    );
+
+    var file = require('fs').openSync(testfile_empty, 'r');
+
+    var result = require('fs').readSync(
+        file,
+        new Buffer(64),
+        0,
+        16,
+        null
+    );
+
+    require('fs').closeSync(file);
+
+    assert.ok(result === 0, "Should return 0.");
+    done();
+});
+
 // fs.utimes
-QUnit.asyncTest( "fs.utimes", function() {
-    expect( 2 );
+QUnit.test( "fs.utimes", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
     require('fs').writeFileSync(testfile_write, 'test utimes');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').utimes instanceof Function,
         "Should be an instance of Function."
     );
@@ -714,24 +756,24 @@ QUnit.asyncTest( "fs.utimes", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(true, "Should call callback.");
+            assert.ok(true, "Should call callback.");
             require('fs').unlinkSync(testfile_write);
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.utimesSync", function() {
+QUnit.test( "fs.utimesSync", function(assert) {
     require('fs').writeFileSync(testfile_write, 'test utimes');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').utimesSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var time = new Date();
     var data = require('fs').utimesSync(testfile_write, time, time);
-    QUnit.ok(
+    assert.ok(
         data === undefined,
         "Should return nothing."
     );
@@ -741,11 +783,12 @@ QUnit.test( "fs.utimesSync", function() {
 
 
 // fs.futimes
-QUnit.asyncTest( "fs.futimes", function() {
-    expect( 2 );
+QUnit.test( "fs.futimes", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
     require('fs').writeFileSync(testfile_write, 'test futimes');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').futimes instanceof Function,
         "Should be an instance of Function."
     );
@@ -764,19 +807,19 @@ QUnit.asyncTest( "fs.futimes", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(true, "Should call callback.");
+            assert.ok(true, "Should call callback.");
             require('fs').unlinkSync(testfile_write);
 
             require('fs').closeSync(fd);
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.futimesSync", function() {
+QUnit.test( "fs.futimesSync", function(assert) {
     require('fs').writeFileSync(testfile_write, 'test futimes');
 
-    QUnit.ok(
+    assert.ok(
         require('fs').futimesSync instanceof Function,
         "Should be an instance of Function."
     );
@@ -788,7 +831,7 @@ QUnit.test( "fs.futimesSync", function() {
 
     var time = new Date();
     var data = require('fs').futimesSync(fd, time, time);
-    QUnit.ok(
+    assert.ok(
         data === undefined,
         "Should return nothing."
     );
@@ -799,8 +842,8 @@ QUnit.test( "fs.futimesSync", function() {
 
 // fs.fsync
 
-QUnit.test( "fs.fsyncSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.fsyncSync", function(assert) {
+    assert.ok(
         require('fs').fstat instanceof Function,
         "Should be an instance of Function."
     );
@@ -808,20 +851,21 @@ QUnit.test( "fs.fsyncSync", function() {
     var fd = require('fs').openSync(
         testfile,
         'r'
-    )
+    );
 
     var result = require('fs').fsyncSync(fd);
-    QUnit.ok(result === undefined, "Should return nothing.");
+    assert.ok(result === undefined, "Should return nothing.");
 
     require('fs').closeSync(fd);
 });
 
 // fs.read && fs.readFile
 
-QUnit.asyncTest( "fs.readFile", function() {
-    expect( 3 );
+QUnit.test( "fs.readFile", function(assert) {
+    assert.expect( 3 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').readFile instanceof Function,
         "Should be an instance of Function."
     );
@@ -831,32 +875,33 @@ QUnit.asyncTest( "fs.readFile", function() {
         function(err, data) {
             if (err) throw err;
 
-            QUnit.ok(data instanceof Buffer, "Content should be an instance of Buffer.");
-            QUnit.ok(data.toString() === testfileContent, "Content should be correct.");
-            start();
+            assert.ok(data instanceof Buffer, "Content should be an instance of Buffer.");
+            assert.ok(data.toString() === testfileContent, "Content should be correct.");
+            done();
         }
     );
 });
 
-QUnit.test( "fs.readFileSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.readFileSync", function(assert) {
+    assert.ok(
         require('fs').readFileSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var data = require('fs').readFileSync(testfile);
-    QUnit.ok(data instanceof Buffer, "Content should be an instance of Buffer.");
-    QUnit.ok(
+    assert.ok(data instanceof Buffer, "Content should be an instance of Buffer.");
+    assert.ok(
         data.toString() === testfileContent,
         "Content should be correct."
     );
 });
 
 // fs.write && fs.writeFile
-QUnit.asyncTest( "fs.writeFile", function() {
-    expect( 2 );
+QUnit.test( "fs.writeFile", function(assert) {
+    assert.expect( 2 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('fs').writeFile instanceof Function,
         "Should be an instance of Function."
     );
@@ -866,26 +911,26 @@ QUnit.asyncTest( "fs.writeFile", function() {
         function(err) {
             if (err) throw err;
 
-            QUnit.ok(
+            assert.ok(
                 true,
                 "Callback should be called."
             );
 
             require('fs').unlinkSync(testfile_write);
 
-            start();
+            done();
         }
     );
 });
 
-QUnit.test( "fs.writeFileSync", function() {
-    QUnit.ok(
+QUnit.test( "fs.writeFileSync", function(assert) {
+    assert.ok(
         require('fs').writeFileSync instanceof Function,
         "Should be an instance of Function."
     );
 
     var result = require('fs').writeFileSync(testfile_write, '123\nabc');
-    QUnit.ok(result === undefined, "Should return nothing.");
+    assert.ok(result === undefined, "Should return nothing.");
 
     require('fs').unlinkSync(testfile_write);
 });
@@ -896,10 +941,11 @@ QUnit.test( "fs.writeFileSync", function() {
 // fs.watch
 
 // fs.exists
-QUnit.asyncTest( "fs.exists", function() {
-    expect( 3 );
+QUnit.test( "fs.exists", function(assert) {
+    assert.expect( 3 );
+    var done = assert.async(2);
 
-    QUnit.ok(
+    assert.ok(
         require('fs').exists instanceof Function,
         "Should be an instance of Function."
     );
@@ -907,36 +953,51 @@ QUnit.asyncTest( "fs.exists", function() {
     require('fs').exists(
         testfile,
         function(exists) {
-            QUnit.ok(exists === true, "exists should be true.");
+            assert.ok(exists === true, "exists should be true.");
+            done();
         }
     );
 
     require('fs').exists(
         testfile + '_false',
         function(exists) {
-            QUnit.ok(exists === false, "exists should be false.");
-            start();
+            assert.ok(exists === false, "exists should be false.");
+            done();
         }
     );
 });
 
-QUnit.test( "fs.existsSync", function()
+QUnit.test( "fs.existsSync", function(assert)
 {
-    QUnit.ok(
+    assert.ok(
         require('fs').existsSync instanceof Function,
         "Should be an instance of Function."
     );
 
-    QUnit.ok(
+    assert.ok(
         require('fs').existsSync(testfile) === true,
         "Should return true."
     );
 
-    QUnit.ok(
+    assert.ok(
         require('fs').existsSync(testfile + '_false') === false,
         "Should return false."
     );
 });
 
 
+QUnit.test( "fs ", function(assert) {
+    var testfile = process.env.TEST_RESOURCE_PATH + '/tux.png';
+    var testfile_write = process.env.TEST_TEMP_PATH + '/tux.write.png';
 
+    var fs = require('fs');
+    var data = fs.readFileSync(testfile);
+    fs.writeFileSync(testfile_write, data);
+
+    assert.ok(
+        data instanceof Buffer,
+        "data should be a Buffer"
+    );
+
+    require('fs').unlinkSync(testfile_write);
+});

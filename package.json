@@ -1,7 +1,7 @@
 {
   "name": "nodeschnaps",
-  "description": "A NodeJS compatibility layer for Rhino.",
-  "version": "0.4.1",
+  "description": "A NodeJS compatibility layer for Java (Rhino).",
+  "version": "0.6.1",
   "private": false,
   "author": "Lars Dietrich <lars@dietrich-hosting.de>",
   "license": "LGPL-3.0",
@@ -23,18 +23,21 @@
     "test": "test"
   },
   "dependencies": {
-    "buffer-browserify" : "~0.2.2"
+    "browserify-zlib": "^0.1.4",
+    "buffer": "^4.9.1",
+    "crypto-browserify": "^3.11.0"
   },
   "devDependencies": {
-    "qunitjs" : "~1.14.0",
-    "colors" : "~0.6.2",
-    "semver" : "~2.3.0"
+    "colors": "^1.1.2",
+    "jsdoc": "^3.3.2",
+    "qunitjs": "^2.0.1",
+    "semver": "~2.3.0"
   },
   "scripts": {
-    "install": "make install",
-    "preuninstall": "make uninstall",
-    "preupdate": "make uninstall",
-    "update": "make install",
+    "install": "make npmInstall",
+    "preuninstall": "make npmUninstall",
+    "preupdate": "make npmUninstall",
+    "update": "make npmInstall",
     "test": "make test"
   },
   "repository": {
@@ -44,6 +47,7 @@
   "keywords": [
     "node",
     "nodejs",
+    "java",
     "rhino",
     "rhinojs",
     "compatibility",

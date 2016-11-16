@@ -1,52 +1,55 @@
-QUnit.asyncTest( "async.call success", function() {
-    expect( 4 );
+QUnit.test( "async.call success", function(assert) {
+    assert.expect( 4 );
+    var done = assert.async();
 
-    QUnit.ok(
+    assert.ok(
         require('nodeschnaps/async.js').call instanceof Function,
         "Should be an instance of Function."
     );
 
     require('nodeschnaps/async.js').call(function() {
-        ok( true, "function should be called." );
+        assert.ok( true, "function should be called." );
         return 'test';
     },function(err,res) {
-        ok( err === null, "error should be null." );
-        ok( res === 'test', "result should be 'test'." );
-        start();
+        assert.ok( err === null, "error should be null." );
+        assert.ok( res === 'test', "result should be 'test'." );
+        done();
     });
 });
 
-QUnit.asyncTest( "async.call error", function() {
-    expect( 3 );
+QUnit.test( "async.call error", function(assert) {
+    assert.expect( 3 );
+    var done = assert.async();
 
     require('nodeschnaps/async.js').call(function() {
-        ok( true, "function should be called." );
+        assert.ok( true, "function should be called." );
         throw new Error('test');
         return 'test';
     },function(err,res) {
-        ok( err instanceof Error, "error should be an instance of Error." );
-        ok( res === undefined, "result should be undefined." );
-        start();
+        assert.ok( err instanceof Error, "error should be an instance of Error." );
+        assert.ok( res === undefined, "result should be undefined." );
+        done();
     });
 });
 
-QUnit.asyncTest( "async.call async-test", function() {
-    expect( 3 );
+QUnit.test( "async.call async-test", function(assert) {
+    assert.expect( 3 );
+    var done = assert.async();
     var called = false;
 
     require('nodeschnaps/async.js').call(function() {
-        ok( true, "function should be called." );
+        assert.ok( true, "function should be called." );
         return 'test';
     },function(err,res) {
-        ok( called === true, "called should be true" );
+        assert.ok( called === true, "called should be true" );
         if (err) {
             throw err;
         }
-        start();
+        done();
     });
 
     require('timers').setImmediate(function() {
-        ok( true, "should be called" );
+        assert.ok( true, "should be called" );
         called = true;
-    })
+    });
 });
