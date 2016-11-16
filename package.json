@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "browserify-zlib": "^0.1.4",
-    "buffer": "^3.5.1",
-    "crypto-browserify": "^3.9.14"
+    "buffer": "^4.9.1",
+    "crypto-browserify": "^3.11.0"
   },
   "devDependencies": {
     "qunitjs": "~1.20.0",
