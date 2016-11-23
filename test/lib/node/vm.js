@@ -17,6 +17,17 @@ QUnit.test( "vm.runInThisContext", function(assert) {
     );
 });
 
+QUnit.test( "vm.runInThisContext scope", function(assert) {
+    global.runInThisContext_testVar = 0;
+
+    require('vm').runInThisContext(
+        "runInThisContext_testVar = 1;"
+    );
+
+    assert.equal(global.runInThisContext_testVar, 1, 'variable test should be 1');
+    delete global.runInThisContext_testVar;
+});
+
 QUnit.test( "vm.runInDebugContext", function(assert) {
     assert.ok(
         require('vm').runInDebugContext instanceof Function,
@@ -49,6 +60,17 @@ QUnit.test( "vm.runInNewContext", function(assert) {
         ) == 'abc123',
         'Should be return "abc123" as string.'
     );
+});
+
+QUnit.test( "vm.runInNewContext scope", function(assert) {
+    global.runInNewContext_testVar = 0;
+
+    require('vm').runInNewContext(
+        "runInNewContext_testVar = 1;"
+    );
+
+    assert.equal(global.runInNewContext_testVar, 0, 'variable test should be 0');
+    delete global.runInNewContext_testVar;
 });
 
 QUnit.test( "vm.runInContext", function(assert) {

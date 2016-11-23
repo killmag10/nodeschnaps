@@ -58,39 +58,20 @@ var Manager = function(baseDir)
     {
         var result = [];
 
-        if (undefined !== JavaFile) {
-            file = new JavaFile(file);
+        var fs = require('fs');
+        var file = fs.realpathSync(file);
 
-            if (file.isDirectory()) {
-                var fileList = file.listFiles();
-                fileList.forEach(function(item){
-                    result = result.concat(
-                        getFiles(String(item.getCanonicalPath()))
-                    );
-                });
-            } else {
-                result.push(
-                    String(
-                        file.getCanonicalPath()
-                    ).substr(baseDir.length +1)
+        if (fs.statSync(file).isDirectory()) {
+            var fileList = fs.readdirSync(file);
+            fileList.forEach(function(item){
+                result = result.concat(
+                    getFiles(file + '/' + item)
                 );
-            }
+            });
         } else {
-            var fs = require('fs');
-            var file = fs.realpathSync(file);
-
-            if (fs.statSync(file).isDirectory()) {
-                var fileList = fs.readdirSync(file);
-                fileList.forEach(function(item){
-                    result = result.concat(
-                        getFiles(file + '/' + item)
-                    );
-                });
-            } else {
-                result.push(
-                    file.substr(baseDir.length +1)
-                );
-            }
+            result.push(
+                file.substr(baseDir.length +1)
+            );
         }
 
         return result;

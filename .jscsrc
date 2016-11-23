@@ -1,4 +1,11 @@
 {
+    "preset": "google",
     "validateIndentation": 4,
-    "requireSemicolons": true
+    "validateQuoteMarks": false,
+    "maximumLineLength": 120,
+    "requireSemicolons": true,
+    "requireTrailingComma": false,
+    "jsDoc": {
+        "checkAnnotations": "jsdoc3"
+    }
 }
