@@ -52,6 +52,10 @@ var Manager = function(baseDir)
             colors.bold(details.passed).green,
             colors.bold(details.runtime).cyan
         );
+
+        if (details.failed > 0) {
+            process.exit(1);
+        };
     });
 
     var getFiles = function getFiles(file)
