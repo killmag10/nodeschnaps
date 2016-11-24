@@ -21,10 +21,11 @@ to get a overview of what we done so far.
 
 * Rhino JS
     * Pentaho Data-Integration (Kettle)
+* Nashorn
+    * Pentaho Data-Integration (Kettle)
 
 We plan to support the following platforms in the next time:
 
-* Nashorn
 
 ### Installation
 
@@ -66,12 +67,39 @@ A path to a module, what will be loaded at the start to modify the environment.
 ```js
 load('../loader.js');
 
+// Your code here ...
+
 NodeJS();
 ```
 
 #### Pentaho Data-Integration (Kettle)
 
-Load on Job (JavaScript):
+##### Load on Transformation (Modified Java Script Value):
+
+**Start Script**
+```js
+LoadScriptFile(getEnvironmentVar('NODESCHNAPS_LOADER_FILE'));
+
+// Your code here ...
+
+NodeJS();
+```
+**Transform Script**
+```js
+
+// Your code here ...
+
+NodeJS();
+```
+
+**End Script**
+```js
+// Your code here ...
+
+NodeJS();
+```
+
+##### Load on Job (JavaScript):
 
 ```js
 new Function(
@@ -80,13 +108,7 @@ new Function(
     )
 )();
 
-NodeJS();
-```
-
-Load on Transformation (Modified Java Script Value):
-
-```js
-LoadScriptFile(getEnvironmentVar('NODESCHNAPS_LOADER_FILE'));
+// Your code here ...
 
 NodeJS();
 ```
