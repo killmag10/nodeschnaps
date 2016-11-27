@@ -24,9 +24,6 @@ to get a overview of what we done so far.
 * Nashorn
     * Pentaho Data-Integration (Kettle)
 
-We plan to support the following platforms in the next time:
-
-
 ### Installation
 
 ```sh
