@@ -54,12 +54,41 @@ make testNode
 #### Environment Variables
 
 ##### NODESCHNAPS_PATH
+*(required)*
 
 Path to search for modules/files (Last must be the nodeschnaps lib folder).
 
+One path of the variable **must** be set to the lib folder of nodeschnaps.
+The path separator is like in the other path variables ":".
+
+Nodeschnaps need to know his location to load his own modules.
+
+The paths **should** be absolute to be independent from applications CWD like in the case of Kettle.
+
+Example:
+```
+/home/you/project/node_modules:/home/you/project/node_modules/nodeschnaps/lib
+```
+
 ##### NODESCHNAPS_MODIFIER
+*(optional)*
 
 A path to a module, what will be loaded at the start to modify the environment.
+
+### Load nodeschnaps
+
+To load nodeschnaps the environment variable *NODESCHNAPS_PATH* **must** be set.
+
+**Optional** you can use for rhino the includet rhino jar in the deps/rhino/lib folder.
+
+Example for rhino:
+```sh
+java \
+    -cp ./node_modules/nodeschnaps/deps/rhino/lib/rhino-1.7.7.1.jar \
+    -DNODESCHNAPS_PATH=/home/you/project/node_modules/nodeschnaps/lib \
+    org.mozilla.javascript.tools.shell.Main \
+    test.js
+```
 
 #### Rhino JS
 
