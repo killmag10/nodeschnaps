@@ -1,3 +1,14 @@
+# Version 0.7.0
+* 1ca2689 [bug][core] Fix readed size of -1 in fs binding.
+* cf9ccdb [bug][docs] Fix travis build status.
+* a221dcd [bug][docs] Fix #13 - Cannot find module '/nodeschnaps/node.js'
+* b1825fe [bug][testing] Fix testing exit status.
+* a93e5f9 [core][deps] Update to nodejs 0.12.18.
+* 64ac4f5 [deps] Update npm dependencies.
+* ef6213a [deps] Update npm dev dependencies.
+* 13166ad [improvement][deps] Upgrade to NodeJS 0.12.17.
+* facbeec [testing] Use openjdk-7-jdk for travis.
+
 # Version 0.6.1
 * f14e5ff [core] Fix #11. Correct module loading for npm 3.
 
