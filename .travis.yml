@@ -1,7 +1,8 @@
 language: node_js
 node_js: "0.12"
+dist: trusty
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y openjdk-7-jdk
+  - sudo apt-get install -y openjdk-8-jdk
 install: make install
-script: make testRhino
+script: make test
