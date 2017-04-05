@@ -37,9 +37,9 @@ MKDIR := mkdir
 
 JAVA := java
 JAVA_RHINO := $(JAVA) \
-	-cp $(PATH_RHINO_JAR) \
-	-DNODESCHNAPS_PATH=$(NODESCHNAPS_PATH)
-JAVA_NASHORN := jrunscript
+	-DNODESCHNAPS_PATH=$(NODESCHNAPS_PATH) \
+	-cp $(PATH_RHINO_JAR)
+JAVA_NASHORN := jrunscript -DNODESCHNAPS_PATH=$(NODESCHNAPS_PATH)
 
 .PHONY: \
 	all \
@@ -80,15 +80,7 @@ clean: distclean
 distclean: .cleanHtml
 
 
-test:
-	########################################
-	# START TESTING
-	# NODESCHNAPS_PATH: $(NODESCHNAPS_PATH)
-	########################################
-	@$(CD) $(PATH_TEST) \
-		&& $(JAVA_RHINO) \
-			org.mozilla.javascript.tools.shell.Main \
-			test.rhino.js
+test: testRhino testNashorn
 
 $(TEST_FILES):
 	@$(CD) $(PATH_TEST) \
@@ -106,6 +98,16 @@ devTest:
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
 			development.rhino.js
+
+testRhino:
+	########################################
+	# START TESTING
+	# NODESCHNAPS_PATH: $(NODESCHNAPS_PATH)
+	########################################
+	@$(CD) $(PATH_TEST) \
+		&& $(JAVA_RHINO) \
+			org.mozilla.javascript.tools.shell.Main \
+			test.rhino.js
 
 testNashorn:
 	########################################

@@ -12,8 +12,8 @@ global = this;
     var JavaString = java.lang.String;
 
     // Constants
-    const NODE_MODULE_DIRNAME = 'node_modules';
-    const LOADER_MODULE_NAME = 'nodeschnaps';
+    var NODE_MODULE_DIRNAME = 'node_modules';
+    var LOADER_MODULE_NAME = 'nodeschnaps';
 
     var getFileContent = function(filename)
     {
@@ -33,9 +33,13 @@ global = this;
     var RequireConfig = new (function()
     {
         this.fileSeparator = '/';
-        this.paths = String(
-            JavaSystem.getProperty('NODESCHNAPS_PATH')
-        ).split(':');
+
+        var NODESCHNAPS_PATH = JavaSystem.getProperty('NODESCHNAPS_PATH');
+        if (!NODESCHNAPS_PATH) {
+            throw new Error('NODESCHNAPS_PATH is not set!');
+        }
+
+        this.paths = String(NODESCHNAPS_PATH).split(':');
         this.paths.push(
             this.paths[this.paths.length - 1] + '/../' + NODE_MODULE_DIRNAME
         );
@@ -371,7 +375,7 @@ global = this;
 
     global.module = {
             "id" : '.',
-            "filename" : String(JavaFile('.').getCanonicalPath() + '/.'),
+            "filename" : String(new JavaFile('.').getCanonicalPath() + '/.'),
             "loaded" : true,
             "parent" : null,
             "children" : [],

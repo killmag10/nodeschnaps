@@ -12,8 +12,9 @@ colors.enabled = true;
  *
  * @constructor
  */
-var Manager = function(baseDir)
-{
+var Manager = function(baseDir) {
+    var self = this;
+    this.skipped = 0;
     var testPaths = [];
 
     this.QUnit = require('qunitjs');
@@ -36,19 +37,35 @@ var Manager = function(baseDir)
 
         console.log(
             format,
-            details.result ? 'OK    '.green : 'FAILED'.red,
+            details.result ? 'OK     '.green : 'FAILED '.red,
             details.name,
             details.message.yellow
         );
     });
 
+    this.QUnit.testDone(function(details) {
+        if (details.skipped) {
+            var format = "    %s : [%s] %s";
+
+            console.log(
+                format,
+                colors.yellow('SKIPPED'),
+                details.name,
+                ''
+            );
+
+            self.skipped++;
+        }
+    });
+
     this.QUnit.done(function(details) {
-        var format = "\nTests Total: %s Failed: %s Passed: %s Runtime: %s ms\n";
+        var format = "\nTests Total: %s Failed: %s Skipped: %s Passed: %s Runtime: %s ms\n";
 
         console.log(
             format,
-            colors.bold(details.total),
+            colors.bold(details.total + self.skipped),
             colors.bold(details.failed).red,
+            colors.bold(self.skipped).yellow,
             colors.bold(details.passed).green,
             colors.bold(details.runtime).cyan
         );
@@ -62,39 +79,20 @@ var Manager = function(baseDir)
     {
         var result = [];
 
-        if (undefined !== JavaFile) {
-            file = new JavaFile(file);
+        var fs = require('fs');
+        var file = fs.realpathSync(file);
 
-            if (file.isDirectory()) {
-                var fileList = file.listFiles();
-                fileList.forEach(function(item){
-                    result = result.concat(
-                        getFiles(String(item.getCanonicalPath()))
-                    );
-                });
-            } else {
-                result.push(
-                    String(
-                        file.getCanonicalPath()
-                    ).substr(baseDir.length +1)
+        if (fs.statSync(file).isDirectory()) {
+            var fileList = fs.readdirSync(file);
+            fileList.forEach(function(item){
+                result = result.concat(
+                    getFiles(file + '/' + item)
                 );
-            }
+            });
         } else {
-            var fs = require('fs');
-            var file = fs.realpathSync(file);
-
-            if (fs.statSync(file).isDirectory()) {
-                var fileList = fs.readdirSync(file);
-                fileList.forEach(function(item){
-                    result = result.concat(
-                        getFiles(file + '/' + item)
-                    );
-                });
-            } else {
-                result.push(
-                    file.substr(baseDir.length +1)
-                );
-            }
+            result.push(
+                file.substr(baseDir.length +1)
+            );
         }
 
         return result;
