@@ -1,3 +1,16 @@
+# Version 0.8.0
+* 1f46fb4 [core] Add support for Nashorn Javascript.
+* 57b8925 [core] Add support for Nashorn Javascript.
+* 6ac7f78 [core] Add support for Nashorn Javascript.
+* c065a31 [core] Add support for Nashorn Javascript.
+* ec7737a [core] Add support for Nashorn Javascript.
+* b9e989e [core] Improve support for Nashorn JavaScript.
+* 41a5c0d [improvement][docs] Update README.md.
+* 0c543e6 [improvement][testing] Support skipped tests.
+* cd16abd [testing][bug] Run only testRhino on travis (Nashorn need java 8).
+* ee1f608 [testing][enhancement] Include nashorn testing in test target.
+* 2fd1cdf [testing][enhancement] Update travis configuration for nashorn testing.
+
 # Version 0.7.0
 * 1ca2689 [bug][core] Fix readed size of -1 in fs binding.
 * cf9ccdb [bug][docs] Fix travis build status.
