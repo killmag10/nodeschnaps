@@ -1,4 +1,4 @@
-NODESCHNAPS_DEPPENDENCY_NODE_DIST_URL ?= http://nodejs.org/dist/
+NODESCHNAPS_DEPPENDENCY_NODE_DIST_URL ?= https://nodejs.org/dist/
 NODESCHNAPS_DEPPENDENCY_NODE_VERSION := 0.12.18
 
 # Paths
@@ -39,7 +39,7 @@ JAVA := java
 JAVA_RHINO := $(JAVA) \
 	-DNODESCHNAPS_PATH=$(NODESCHNAPS_PATH) \
 	-cp $(PATH_RHINO_JAR)
-JAVA_NASHORN := jrunscript -DNODESCHNAPS_PATH=$(NODESCHNAPS_PATH)
+JAVA_NASHORN := jjs --language=es5 -DNODESCHNAPS_PATH=$(NODESCHNAPS_PATH)
 
 .PHONY: \
 	all \
@@ -83,38 +83,49 @@ distclean: .cleanHtml
 test: testRhino testNashorn
 
 $(TEST_FILES):
-	@$(CD) $(PATH_TEST) \
+	@$(MAKE) $(@:%=testRhino/%)  $(@:%=testNashorn/%)
+
+$(TEST_FILES:%=testRhino/%):
+	# Test Rhino
+	$(CD) $(PATH_TEST) \
 		&& $(JAVA_RHINO) \
-			-DTEST_FILE='$(subst test/,,$@)' \
+			-DTEST_FILE='$(@:testRhino/test/%=%)' \
 			org.mozilla.javascript.tools.shell.Main \
 			test.rhino.js
+
+$(TEST_FILES:%=testNashorn/%):
+	# Test Nashorn
+	$(CD) $(PATH_TEST) \
+		&& $(JAVA_NASHORN) \
+			-DTEST_FILE='$(@:testNashorn/test/%=%)' \
+			test.nashorn.js
 
 devTest:
 	########################################
 	# START DEVELOPMENT TESTING SCRIPT
 	# NODESCHNAPS_PATH: $(NODESCHNAPS_PATH)
 	########################################
-	@$(CD) $(PATH_TEST) \
+	$(CD) $(PATH_TEST) \
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
 			development.rhino.js
 
 testRhino:
 	########################################
-	# START TESTING
+	# START TESTING in Rhino
 	# NODESCHNAPS_PATH: $(NODESCHNAPS_PATH)
 	########################################
-	@$(CD) $(PATH_TEST) \
+	$(CD) $(PATH_TEST) \
 		&& $(JAVA_RHINO) \
 			org.mozilla.javascript.tools.shell.Main \
 			test.rhino.js
 
 testNashorn:
 	########################################
-	# START TESTING
+	# START TESTING in Nashorn
 	# NODESCHNAPS_PATH: $(NODESCHNAPS_PATH)
 	########################################
-	@$(CD) $(PATH_TEST) \
+	$(CD) $(PATH_TEST) \
 		&& $(JAVA_NASHORN) test.nashorn.js
 
 testNode:

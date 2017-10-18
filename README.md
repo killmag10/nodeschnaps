@@ -88,10 +88,10 @@ java \
     test.js
 ```
 
-#### Rhino JS
+#### Rhino JS / Nashorn
 
 ```js
-load('../loader.js');
+load('./node_modules/nodeschnaps/loader.js');
 
 // Your code here ...
 
@@ -140,6 +140,25 @@ NodeJS();
 ```
 
 For a example look at: [kitchen-stove](https://github.com/killmag10/kitchen-stove)
+
+### Start from Command-line
+
+#### Rhino
+```sh
+java \
+    -DNODESCHNAPS_PATH=./node_modules/nodeschnaps/lib \
+    -cp ./node_modules/nodeschnaps/deps/rhino/lib/rhino-1.7.7.1.jar \
+    org.mozilla.javascript.tools.shell.Main \
+    YOUR.js
+```
+
+#### Nashorn
+```sh
+jjs \
+    --language=es5 \
+    -DNODESCHNAPS_PATH=./node_modules/nodeschnaps/lib \
+    YOUR.js
+```
 
 ### Coding
 
