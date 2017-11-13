@@ -1,5 +1,5 @@
 # Version 0.9.0
-* 83c01d1 [deps] Update npm dependencies.
+* dc73f76 [deps] Update npm dependencies.
 * 8d26d31 [deps] Upgrade to Rhino 1.7.7.2 (https://github.com/mozilla/rhino/releases/tag/Rhino1_7_7_2_Release)
 
 # Version 0.8.0
