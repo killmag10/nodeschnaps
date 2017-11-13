@@ -42,6 +42,8 @@ final class Arguments extends IdScriptableObject
         } else {
             callerObj = NOT_FOUND;
         }
+
+        defineProperty(SymbolKey.ITERATOR, iteratorMethod, ScriptableObject.DONTENUM);
     }
 
     @Override
@@ -118,6 +120,10 @@ final class Arguments extends IdScriptableObject
 
     private boolean sharedWithActivation(int index)
     {
+        Context cx = Context.getContext();
+        if (cx.isStrictMode()) {
+            return false;
+        }
         NativeFunction f = activation.function;
         int definedCount = f.getParamCount();
         if (index < definedCount) {
@@ -144,6 +150,12 @@ final class Arguments extends IdScriptableObject
         } else {
           replaceArg(index, value);
         }
+    }
+
+    @Override
+    public void put(String name, Scriptable start, Object value)
+    {
+        super.put(name, start, value);
     }
 
     @Override
@@ -187,6 +199,13 @@ final class Arguments extends IdScriptableObject
             break L0;
         }
 // #/generated#
+        Context cx = Context.getContext();
+        if (cx.isStrictMode()) {
+            if (id == Id_callee || id == Id_caller) {
+                return super.findInstanceIdInfo(s);
+            }
+        }
+
 
         if (id == 0) return super.findInstanceIdInfo(s);
 
@@ -265,9 +284,9 @@ final class Arguments extends IdScriptableObject
     }
 
     @Override
-    Object[] getIds(boolean getAll)
+    Object[] getIds(boolean getNonEnumerable, boolean getSymbols)
     {
-        Object[] ids = super.getIds(getAll);
+        Object[] ids = super.getIds(getNonEnumerable, getSymbols);
         if (args.length != 0) {
             boolean[] present = new boolean[args.length];
             int extraCount = args.length;
@@ -283,7 +302,7 @@ final class Arguments extends IdScriptableObject
                     }
                 }
             }
-            if (!getAll) { // avoid adding args which were redefined to non-enumerable
+            if (!getNonEnumerable) { // avoid adding args which were redefined to non-enumerable
               for (int i = 0; i < present.length; i++) {
                 if (!present[i] && super.has(i, this)) {
                   present[i] = true;
@@ -310,6 +329,9 @@ final class Arguments extends IdScriptableObject
 
     @Override
     protected ScriptableObject getOwnPropertyDescriptor(Context cx, Object id) {
+        if (id instanceof Scriptable) {
+           return super.getOwnPropertyDescriptor(cx, id);
+        }
       double d = ScriptRuntime.toNumber(id);
       int index = (int) d;
       if (d != index) {
@@ -359,6 +381,52 @@ final class Arguments extends IdScriptableObject
       if (isFalse(getProperty(desc, "writable"))) {
         removeArg(index);
       }
+    }
+
+    // ECMAScript2015
+    // 9.4.4.6 CreateUnmappedArgumentsObject(argumentsList)
+    //   8. Perform DefinePropertyOrThrow(obj, "caller", PropertyDescriptor {[[Get]]: %ThrowTypeError%,
+    //      [[Set]]: %ThrowTypeError%, [[Enumerable]]: false, [[Configurable]]: false}).
+    //   9. Perform DefinePropertyOrThrow(obj, "callee", PropertyDescriptor {[[Get]]: %ThrowTypeError%,
+    //      [[Set]]: %ThrowTypeError%, [[Enumerable]]: false, [[Configurable]]: false}).
+    void defineAttributesForStrictMode() {
+        Context cx = Context.getContext();
+        if (!cx.isStrictMode()) {
+            return;
+        }
+        setGetterOrSetter("caller", 0, new ThrowTypeError("caller"), true);
+        setGetterOrSetter("caller", 0, new ThrowTypeError("caller"), false);
+        setGetterOrSetter("callee", 0, new ThrowTypeError("callee"), true);
+        setGetterOrSetter("callee", 0, new ThrowTypeError("callee"), false);
+        setAttributes("caller", DONTENUM | PERMANENT);
+        setAttributes("callee", DONTENUM | PERMANENT);
+        callerObj = null;
+        calleeObj = null;
+    }
+
+    private static BaseFunction iteratorMethod = new BaseFunction() {
+        @Override
+        public Object call(Context cx, Scriptable scope, Scriptable thisObj,
+                           Object[] args) {
+            // TODO : call %ArrayProto_values%
+            // 9.4.4.6 CreateUnmappedArgumentsObject(argumentsList)
+            //  1. Perform DefinePropertyOrThrow(obj, @@iterator, PropertyDescriptor {[[Value]]:%ArrayProto_values%,
+            //     [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}).
+            return new NativeArrayIterator(scope, thisObj);
+        }
+    };
+
+    private static class ThrowTypeError extends BaseFunction {
+        private String propertyName;
+
+        ThrowTypeError(String propertyName) {
+            this.propertyName = propertyName;
+        }
+
+        @Override
+        public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+            throw ScriptRuntime.typeError1("msg.arguments.not.access.strict", propertyName);
+        }
     }
 
 // Fields to hold caller, callee and length properties,

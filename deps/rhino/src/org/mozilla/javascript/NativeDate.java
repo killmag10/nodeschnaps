@@ -16,6 +16,9 @@ import java.util.TimeZone;
  * This class implements the Date native object.
  * See ECMA 15.9.
  * @author Mike McCabe
+ *
+ * Significant parts of this code are adapted from the venerable jsdate.cpp (also Mozilla):
+ * https://dxr.mozilla.org/mozilla-central/source/js/src/jsdate.cpp
  */
 final class NativeDate extends IdScriptableObject
 {
@@ -429,7 +432,7 @@ final class NativeDate extends IdScriptableObject
 
     private static int YearFromTime(double t)
     {
-       if (Double.isInfinite(t) || Double.isNaN(t)) {
+        if (Double.isInfinite(t) || Double.isNaN(t)) {
             return 0;
         }
 
@@ -536,7 +539,7 @@ final class NativeDate extends IdScriptableObject
 
         // d: date count from 1 March
         int mdays, mstart;
-        switch (d / 30) { // approx number of month since March
+        switch (Math.round(d / 30)) { // approx number of month since March
             case 0: return d + 1;
             case 1: mdays = 31; mstart = 31; break;
             case 2: mdays = 30; mstart = 31+30; break;
@@ -1780,5 +1783,4 @@ final class NativeDate extends IdScriptableObject
 
     private double date;
 }
-
 

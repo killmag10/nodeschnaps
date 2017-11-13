@@ -7,7 +7,7 @@ PATH_DEPS := deps
 PATH_NODE_MODULES := node_modules
 PATH_DOCS := docs
 
-PATH_RHINO_JAR := $(shell readlink -f $(PATH_DEPS)/rhino/lib/rhino-1.7.7.1.jar)
+PATH_RHINO_JAR := $(shell readlink -f $(PATH_DEPS)/rhino/lib/rhino-1.7.7.2.jar)
 NODESCHNAPS_PATH := $(shell readlink -f lib)
 
 # A test value for env tests

@@ -362,9 +362,13 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
                 }
             }
             else if (to.isInterface()) {
-                if (fromObj instanceof NativeObject || fromObj instanceof NativeFunction) {
+
+                if (fromObj instanceof NativeFunction) {
                     // See comments in createInterfaceAdapter
                     return 1;
+                }
+                if (fromObj instanceof NativeObject) {
+                    return 2;
                 }
                 return 12;
             }
@@ -803,8 +807,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
         else {
             Method meth;
             try {
-                meth = value.getClass().getMethod("doubleValue",
-                		                          (Class [])null);
+                meth = value.getClass().getMethod("doubleValue", (Class [])null);
             }
             catch (NoSuchMethodException e) {
                 meth = null;
@@ -814,8 +817,7 @@ public class NativeJavaObject implements Scriptable, Wrapper, Serializable
             }
             if (meth != null) {
                 try {
-                    return ((Number)meth.invoke(value,
-                    		                    (Object [])null)).doubleValue();
+                    return ((Number)meth.invoke(value, (Object [])null)).doubleValue();
                 }
                 catch (IllegalAccessException e) {
                     // XXX: ignore, or error message?

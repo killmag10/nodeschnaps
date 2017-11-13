@@ -12,7 +12,7 @@ import java.text.Collator;
 import java.text.Normalizer;
 
 import static org.mozilla.javascript.ScriptRuntime.rangeError;
-import static org.mozilla.javascript.ScriptRuntime.requireObjectCoercible;
+import static org.mozilla.javascript.ScriptRuntimeES6.requireObjectCoercible;
 
 /**
  * This class implements the String native object.
@@ -127,7 +127,12 @@ final class NativeString extends IdScriptableObject
     @Override
     protected void initPrototypeId(int id)
     {
-        String s;
+        if (id == SymbolId_iterator) {
+            initPrototypeMethod(STRING_TAG, id, SymbolKey.ITERATOR, "[Symbol.iterator]", 0);
+            return;
+        }
+
+        String s, fnName = null;
         int arity;
         switch (id) {
           case Id_constructor:       arity=1; s="constructor";       break;
@@ -177,7 +182,7 @@ final class NativeString extends IdScriptableObject
           case Id_codePointAt:       arity=1; s="codePointAt";       break;
           default: throw new IllegalArgumentException(String.valueOf(id));
         }
-        initPrototypeMethod(STRING_TAG, id, s, arity);
+        initPrototypeMethod(STRING_TAG, id, s, fnName, arity);
     }
 
     @Override
@@ -235,8 +240,17 @@ final class NativeString extends IdScriptableObject
                 }
 
                 case Id_constructor: {
-                    CharSequence s = (args.length >= 1)
-                        ? ScriptRuntime.toCharSequence(args[0]) : "";
+                    CharSequence s;
+                    if (args.length == 0) {
+                        s = "";
+                    } else if
+                        (ScriptRuntime.isSymbol(args[0]) &&
+                        (thisObj != null)) {
+                        // 19.4.3.2 et.al. Convert a symbol to a string with String() but not new String()
+                        s = args[0].toString();
+                    } else {
+                        s = ScriptRuntime.toCharSequence(args[0]);
+                    }
                     if (thisObj == null) {
                         // new String(val) creates a new String object.
                         return new NativeString(s);
@@ -276,8 +290,7 @@ final class NativeString extends IdScriptableObject
                 case Id_includes:
                 case Id_startsWith:
                 case Id_endsWith:
-                    String s = ScriptRuntime.toString(requireObjectCoercible(thisObj, f));
-
+                    String s = ScriptRuntime.toString(requireObjectCoercible(cx, thisObj, f));
                     if (args.length > 0 && args[0] instanceof NativeRegExp) {
                         throw ScriptRuntime.typeError2("msg.first.arg.not.regexp", String.class.getSimpleName(), f.getFunctionName());
                     }
@@ -407,7 +420,7 @@ final class NativeString extends IdScriptableObject
                         .toUpperCase(cx.getLocale());
                 }
                 case Id_trim: {
-                    String str = ScriptRuntime.toString(thisObj);
+                    String str = ScriptRuntime.toString(requireObjectCoercible(cx, thisObj, f));
                     char[] chars = str.toCharArray();
 
                     int start = 0;
@@ -447,7 +460,8 @@ final class NativeString extends IdScriptableObject
 
                     return str.substring(start, end);
                 }
-                case Id_normalize: {
+                case Id_normalize:
+                {
                     String formStr = ScriptRuntime.toString(args, 0);
 
                     Normalizer.Form form;
@@ -457,7 +471,7 @@ final class NativeString extends IdScriptableObject
                     else if (Normalizer.Form.NFC.name().equals(formStr) || args.length == 0) form = Normalizer.Form.NFC;
                     else throw rangeError("The normalization form should be one of NFC, NFD, NFKC, NFKD");
 
-                    return Normalizer.normalize(ScriptRuntime.toString(requireObjectCoercible(thisObj, f)), form);
+                    return Normalizer.normalize(ScriptRuntime.toString(requireObjectCoercible(cx, thisObj, f)), form);
                 }
 
                 case Id_repeat:
@@ -466,13 +480,17 @@ final class NativeString extends IdScriptableObject
                 }
                 case Id_codePointAt:
                 {
-                    String str = ScriptRuntime.toString(requireObjectCoercible(thisObj, f));
+                    String str = ScriptRuntime.toString(requireObjectCoercible(cx, thisObj, f));
                     double cnt = ScriptRuntime.toInteger(args, 0);
 
                     return (cnt < 0 || cnt >= str.length())
                         ? Undefined.instance
                         : str.codePointAt((int) cnt);
                 }
+
+              case SymbolId_iterator:
+                  return new NativeStringIterator(scope, thisObj);
+
             }
             throw new IllegalArgumentException("String.prototype has no method: " + f.getFunctionName());
         }
@@ -536,6 +554,32 @@ final class NativeString extends IdScriptableObject
             return;
         }
         super.put(index, start, value);
+    }
+
+    @Override
+    public boolean has(int index, Scriptable start) {
+        if (0 <= index && index < string.length()) {
+            return true;
+        }
+        return super.has(index, start);
+    }
+
+    @Override
+    protected Object[] getIds(boolean nonEnumerable, boolean getSymbols)
+    {
+        // In ES6, Strings have entries in the property map for each character.
+        Context cx = Context.getCurrentContext();
+        if ((cx != null) && (cx.getLanguageVersion() >= Context.VERSION_ES6)) {
+            Object[] sids = super.getIds(nonEnumerable, getSymbols);
+            Object[] a = new Object[sids.length + string.length()];
+            int i;
+            for (i = 0; i < string.length(); i++) {
+                a[i] = Integer.valueOf(i);
+            }
+            System.arraycopy(sids, 0, a, i, sids.length);
+            return a;
+        }
+        return super.getIds(nonEnumerable, getSymbols);
     }
 
     /*
@@ -718,7 +762,7 @@ final class NativeString extends IdScriptableObject
 
     private static String js_repeat(Context cx, Scriptable thisObj, IdFunctionObject f, Object[] args)
     {
-        String str = ScriptRuntime.toString(requireObjectCoercible(thisObj, f));
+        String str = ScriptRuntime.toString(requireObjectCoercible(cx, thisObj, f));
         double cnt = ScriptRuntime.toInteger(args, 0);
 
         if ((cnt < 0.0) || (cnt == Double.POSITIVE_INFINITY)) {
@@ -751,13 +795,22 @@ final class NativeString extends IdScriptableObject
         return retval.toString();
     }
 
+    @Override
+    protected int findPrototypeId(Symbol k)
+    {
+        if (SymbolKey.ITERATOR.equals(k)) {
+            return SymbolId_iterator;
+        }
+        return 0;
+    }
+
 // #string_id_map#
 
     @Override
     protected int findPrototypeId(String s)
     {
         int id;
-// #generated# Last update: 2015-05-06 14:41:38 PDT
+// #generated# Last update: 2016-03-04 20:51:44 GMT
         L0: { id = 0; String X = null; int c;
             L: switch (s.length()) {
             case 3: c=s.charAt(2);
@@ -883,7 +936,8 @@ final class NativeString extends IdScriptableObject
         Id_normalize                 = 43,
         Id_repeat                    = 44,
         Id_codePointAt               = 45,
-        MAX_PROTOTYPE_ID             = Id_codePointAt;
+        SymbolId_iterator            = 46,
+        MAX_PROTOTYPE_ID             = SymbolId_iterator;
 
 // #/string_id_map#
 
