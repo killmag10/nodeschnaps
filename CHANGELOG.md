@@ -1,3 +1,6 @@
+# Version 0.10.0
+* 4e4dbaf [deps] Upgrade to Rhino 1.7.8 (https://github.com/mozilla/rhino/releases/tag/Rhino1_7_8_Release)
+
 # Version 0.9.1
 * 669d554 [bug] Downgrade to node module buffer@4 for start issue.
 
