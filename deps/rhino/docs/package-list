@@ -5,8 +5,8 @@ org.mozilla.javascript.ast
 org.mozilla.javascript.commonjs.module
 org.mozilla.javascript.commonjs.module.provider
 org.mozilla.javascript.debug
-org.mozilla.javascript.jdk13
 org.mozilla.javascript.jdk15
+org.mozilla.javascript.jdk18
 org.mozilla.javascript.json
 org.mozilla.javascript.optimizer
 org.mozilla.javascript.regexp

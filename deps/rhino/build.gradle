@@ -1,17 +1,18 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 apply plugin: 'distribution'
 apply plugin: 'checkstyle'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 tasks.withType(JavaCompile) { options.encoding = "UTF-8" }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+    gradleVersion = '4.3.1'
 }
 
 repositories {
@@ -56,6 +57,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 
 test {
+    useJUnit()
     exclude "**/benchmarks/**"
     systemProperty 'java.awt.headless', 'true'
     systemProperty 'mozilla.js.tests', 'testsrc/tests'
@@ -66,6 +68,10 @@ test {
     systemProperty 'file.encoding', 'UTF-8'
     maxHeapSize = "256m"
     testLogging.showStandardStreams = true
+    // Many tests do not clean up contexts properly. This makes the tests much
+    // more resilient at the expense of performance.
+    forkEvery = 1
+    maxParallelForks = 10
 }
 
 task sunSpiderBenchmark(type: JavaExec) {
@@ -75,7 +81,7 @@ task sunSpiderBenchmark(type: JavaExec) {
     classpath sourceSets.test.runtimeClasspath
 }
 
-task testBenchmark(type: Test) {
+task v8Benchmark(type: Test) {
     jacoco {
         enabled = false
     }
@@ -87,14 +93,16 @@ task testBenchmark(type: Test) {
     testLogging.showStandardStreams = true
     forkEvery = 1
 }
+
+task testBenchmark() {}
 testBenchmark.dependsOn sunSpiderBenchmark
+testBenchmark.dependsOn v8Benchmark
 
 task microBenchmark(type: JavaExec) {
     main "com.google.caliper.runner.CaliperMain"
-    args "-i", "runtime", "org.mozilla.javascript.benchmarks.CaliperObjectBenchmark.FieldAccess", "-DstringKeys=100,1000", "-DintKeys=0,10,1000"
+    args "-i", "runtime", "org.mozilla.javascript.benchmarks.CaliperObjectBenchmark.FieldAccess", "-DstringKeys=100,1000", "-DintKeys=100,1000"
     classpath sourceSets.test.runtimeClasspath
 }
-
 
 
 idea {
@@ -200,13 +208,13 @@ publishing {
 }
 
 jacoco {
-    toolVersion = "0.7.4.201502262128"
+    toolVersion = "0.7.9"
 }
 
 jacocoTestReport.dependsOn test
 jacocoTestReport {
     reports {
-        html.destination "${buildDir}/jacocoHtml"
+        html.destination file("${buildDir}/jacocoHtml")
     }
 }
 
