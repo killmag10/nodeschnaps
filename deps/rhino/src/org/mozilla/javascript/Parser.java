@@ -237,6 +237,12 @@ public class Parser
                  ts.tokenEnd - ts.tokenBeg);
     }
 
+    void addError(String messageId, int c) {
+        String messageArg = Character.toString ((char) c);
+        addError(messageId, messageArg, ts.tokenBeg,
+                 ts.tokenEnd - ts.tokenBeg);
+    }
+
     void addError(String messageId, String messageArg, int position, int length)
     {
         ++syntaxErrorCount;
@@ -2253,6 +2259,13 @@ public class Parser
             tt = peekToken();
         }
         if (Token.FIRST_ASSIGN <= tt && tt <= Token.LAST_ASSIGN) {
+            if (inDestructuringAssignment) {
+                // default values inside destructuring assignments,
+                // like 'var [a = 10] = b' or 'var {a: b = 10} = c',
+                // are not supported
+                reportError("msg.destruct.default.vals");
+            }
+
             consumeToken();
 
             // Pull out JSDoc info and reset it before recursing.
@@ -3077,7 +3090,7 @@ public class Parser
 
           case Token.RESERVED:
               consumeToken();
-              reportError("msg.reserved.id");
+              reportError("msg.reserved.id", ts.getString());
               break;
 
           case Token.ERROR:
