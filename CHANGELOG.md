@@ -1,3 +1,7 @@
+# Version x.x.x
+* 88a65b8 [core] add os binding
+* ee853f4 [deps] Upgrade to Rhino 1.7.9 (https://github.com/mozilla/rhino/releases/tag/Rhino1_7_9_Release)
+
 # Version 0.10.0
 * 4e4dbaf [deps] Upgrade to Rhino 1.7.8 (https://github.com/mozilla/rhino/releases/tag/Rhino1_7_8_Release)
 

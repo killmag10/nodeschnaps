@@ -17,12 +17,12 @@ Rhino is licensed under the [MPL 2.0](./LICENSE.txt).
 <tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_7_1_RELEASE">Rhino 1.7.7.1</a></td><td>February 2, 2016</td></tr>
 <tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_7_2_Release">Rhino 1.7.7.2</a></td><td>August 24, 2017</td></tr>
 <tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_8_Release">Rhino 1.7.8</a></td><td>January 22, 2018</td></tr>
-
+<tr><td><a href="https://github.com/mozilla/rhino/releases/tag/Rhino1_7_9_Release">Rhino 1.7.9</a></td><td>March 15, 2018</td></tr>
 </table>
 
 [Release Notes](./RELEASE-NOTES.md) for recent releases.
 
-[Compatability table](http://mozilla.github.io/rhino/compat/engines.html) which shows which advanced JavaScript
+[Compatibility table](http://mozilla.github.io/rhino/compat/engines.html) which shows which advanced JavaScript
 features from ES5, 6, and 7 are implemented in Rhino.
 
 ## Documentation
@@ -80,8 +80,8 @@ mavenReleaseRepo=
 
 Rhino can run as a stand-alone interpreter from the command line:
 ```
-java -jar buildGradle/libs/rhino-1.7.8.jar
-Rhino 1.7.8 2017 08 24
+java -jar buildGradle/libs/rhino-1.7.9.jar
+Rhino 1.7.9 2018 03 15
 js> print('Hello, World!');
 Hello, World!
 js>
