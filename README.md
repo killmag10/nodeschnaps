@@ -82,7 +82,7 @@ To load nodeschnaps the environment variable *NODESCHNAPS_PATH* **must** be set.
 Example for rhino:
 ```sh
 java \
-    -cp ./node_modules/nodeschnaps/deps/rhino/lib/rhino-1.7.8.jar \
+    -cp ./node_modules/nodeschnaps/deps/rhino/lib/rhino-1.7.9.jar \
     -DNODESCHNAPS_PATH=/home/you/project/node_modules/nodeschnaps/lib \
     org.mozilla.javascript.tools.shell.Main \
     test.js
@@ -147,7 +147,7 @@ For a example look at: [kitchen-stove](https://github.com/killmag10/kitchen-stov
 ```sh
 java \
     -DNODESCHNAPS_PATH=./node_modules/nodeschnaps/lib \
-    -cp ./node_modules/nodeschnaps/deps/rhino/lib/rhino-1.7.8.jar \
+    -cp ./node_modules/nodeschnaps/deps/rhino/lib/rhino-1.7.9.jar \
     org.mozilla.javascript.tools.shell.Main \
     YOUR.js
 ```
