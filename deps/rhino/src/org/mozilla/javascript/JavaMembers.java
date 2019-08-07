@@ -6,11 +6,20 @@
 
 package org.mozilla.javascript;
 
-import java.lang.reflect.*;
-import java.util.*;
-
 import static java.lang.reflect.Modifier.isProtected;
 import static java.lang.reflect.Modifier.isPublic;
+
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -172,27 +181,25 @@ class JavaMembers
     {
         if (!type.isArray()) {
             return type.getName();
-        } else {
-            int arrayDimension = 0;
-            do {
-                ++arrayDimension;
-                type = type.getComponentType();
-            } while (type.isArray());
-            String name = type.getName();
-            String suffix = "[]";
-            if (arrayDimension == 1) {
-                return name.concat(suffix);
-            } else {
-                int length = name.length() + arrayDimension * suffix.length();
-                StringBuilder sb = new StringBuilder(length);
-                sb.append(name);
-                while (arrayDimension != 0) {
-                    --arrayDimension;
-                    sb.append(suffix);
-                }
-                return sb.toString();
-            }
         }
+        int arrayDimension = 0;
+        do {
+            ++arrayDimension;
+            type = type.getComponentType();
+        } while (type.isArray());
+        String name = type.getName();
+        String suffix = "[]";
+        if (arrayDimension == 1) {
+            return name.concat(suffix);
+        }
+        int length = name.length() + arrayDimension * suffix.length();
+        StringBuilder sb = new StringBuilder(length);
+        sb.append(name);
+        while (arrayDimension != 0) {
+            --arrayDimension;
+            sb.append(suffix);
+        }
+        return sb.toString();
     }
 
     static String liveConnectSignature(Class<?>[] argTypes)
@@ -876,7 +883,7 @@ class BeanProperty
 
 class FieldAndMethods extends NativeJavaMethod
 {
-    static final long serialVersionUID = -9222428244284796755L;
+    private static final long serialVersionUID = -9222428244284796755L;
 
     FieldAndMethods(Scriptable scope, MemberBox[] methods, Field field)
     {

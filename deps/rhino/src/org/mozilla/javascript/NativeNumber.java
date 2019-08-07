@@ -15,12 +15,16 @@ package org.mozilla.javascript;
  */
 final class NativeNumber extends IdScriptableObject
 {
-    static final long serialVersionUID = 3504516769741512101L;
+    private static final long serialVersionUID = 3504516769741512101L;
+
+    /**
+     * @see https://www.ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer
+     */
+    public static final double MAX_SAFE_INTEGER = 9007199254740991.0; // Math.pow(2, 53) - 1
 
     private static final Object NUMBER_TAG = "Number";
 
     private static final int MAX_PRECISION = 100;
-    private static final double MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
     private static final double MIN_SAFE_INTEGER = -MAX_SAFE_INTEGER;
 
     static void init(Scriptable scope, boolean sealed)
@@ -154,9 +158,7 @@ final class NativeNumber extends IdScriptableObject
                   if(value >= 0) {
                       return "Infinity";
                   }
-                  else {
-                      return "-Infinity";
-                  }
+                  return "-Infinity";
               }
               // General case
               return num_to(value, args, DToA.DTOSTR_STANDARD_EXPONENTIAL,
@@ -176,9 +178,7 @@ final class NativeNumber extends IdScriptableObject
                   if(value >= 0) {
                       return "Infinity";
                   }
-                  else {
-                      return "-Infinity";
-                  }
+                  return "-Infinity";
               }
               return num_to(value, args, DToA.DTOSTR_STANDARD,
                       DToA.DTOSTR_PRECISION, 1, 0);
@@ -316,10 +316,9 @@ final class NativeNumber extends IdScriptableObject
     {
         if (val instanceof Double) {
             return (Double)val;
-        } else {
-            double d = val.doubleValue();
-            return Double.valueOf(d);
         }
+        double d = val.doubleValue();
+        return Double.valueOf(d);
     }
 
 // #string_id_map#

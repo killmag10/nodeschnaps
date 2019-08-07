@@ -6,18 +6,18 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Token;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.mozilla.javascript.Token;
+
 /**
  * AST node for an Object literal (also called an Object initialiser in
  * Ecma-262).  The elements list will always be non-{@code null}, although
- * the list will have no elements if the Object literal is empty.<p>
+ * the list will have no elements if the Object literal is empty.
  *
- * Node type is {@link Token#OBJECTLIT}.<p>
+ * <p>Node type is {@link Token#OBJECTLIT}.</p>
  *
  * <pre><i>ObjectLiteral</i> :
  *       <b>{}</b>
@@ -96,6 +96,7 @@ public class ObjectLiteral extends AstNode implements DestructuringForm {
      * in a context such as {@code for ([a, b] in ...)} where it's the
      * target of a destructuring assignment.
      */
+    @Override
     public void setIsDestructuring(boolean destructuring) {
         isDestructuring = destructuring;
     }
@@ -105,6 +106,7 @@ public class ObjectLiteral extends AstNode implements DestructuringForm {
      * a function parameter, the target of a variable initializer, the
      * iterator of a for..in loop, etc.
      */
+    @Override
     public boolean isDestructuring() {
         return isDestructuring;
     }

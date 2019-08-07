@@ -6,28 +6,39 @@
 
 package org.mozilla.javascript.regexp;
 
-import org.mozilla.javascript.*;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Kit;
+import org.mozilla.javascript.RegExpProxy;
+import org.mozilla.javascript.ScriptRuntime;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 
 /**
  *
  */
 public class RegExpImpl implements RegExpProxy {
 
+    @Override
     public boolean isRegExp(Scriptable obj) {
         return obj instanceof NativeRegExp;
     }
 
+    @Override
     public Object compileRegExp(Context cx, String source, String flags)
     {
         return NativeRegExp.compileRE(cx, source, flags, false);
     }
 
+    @Override
     public Scriptable wrapRegExp(Context cx, Scriptable scope,
                                  Object compiled)
     {
         return new NativeRegExp(scope, (RECompiled) compiled);
     }
 
+    @Override
     public Object action(Context cx, Scriptable scope,
                          Scriptable thisObj, Object[] args,
                          int actionType)
@@ -199,6 +210,7 @@ public class RegExpImpl implements RegExpProxy {
 
 
 
+    @Override
     public int find_split(Context cx, Scriptable scope, String target,
                           String separator, Scriptable reObj,
                           int[] ip, int[] matchlen,
@@ -512,6 +524,7 @@ public class RegExpImpl implements RegExpProxy {
      * a limit argument and accepts a regular expression as the split
      * argument.
      */
+    @Override
     public Object js_split(Context cx, Scriptable scope,
                                    String target, Object[] args)
     {

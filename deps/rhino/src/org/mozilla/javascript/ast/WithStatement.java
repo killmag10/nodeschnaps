@@ -9,7 +9,7 @@ package org.mozilla.javascript.ast;
 import org.mozilla.javascript.Token;
 
 /**
- * With statement.  Node type is {@link Token#WITH}.<p>
+ * With statement.  Node type is {@link Token#WITH}.
  *
  * <pre><i>WithStatement</i> :
  *      <b>with</b> ( Expression ) Statement ;</pre>
@@ -113,7 +113,13 @@ public class WithStatement extends AstNode {
         sb.append("with (");
         sb.append(expression.toSource(0));
         sb.append(") ");
+        if(this.getInlineComment() != null) {
+            sb.append(this.getInlineComment().toSource(depth + 1));
+        }
         if (statement.getType() == Token.BLOCK) {
+            if(this.getInlineComment() != null) {
+                sb.append("\n");
+            }
             sb.append(statement.toSource(depth).trim());
             sb.append("\n");
         } else {

@@ -6,6 +6,13 @@
 
 package org.mozilla.javascript.typedarrays;
 
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.RandomAccess;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ExternalArrayData;
 import org.mozilla.javascript.IdFunctionObject;
@@ -16,13 +23,8 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Symbol;
 import org.mozilla.javascript.SymbolKey;
 import org.mozilla.javascript.Undefined;
-
-import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.RandomAccess;
+import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.NativeArrayIterator.ARRAY_ITERATOR_TYPE;
 
 /**
  * This class is the abstract parent for all of the various typed arrays. Each one
@@ -59,7 +61,7 @@ public abstract class NativeTypedArrayView<T>
     @Override
     public boolean has(int index, Scriptable start)
     {
-        return ((index > 0) && (index < length));
+        return !checkIndex(index);
     }
 
     @Override
@@ -96,10 +98,10 @@ public abstract class NativeTypedArrayView<T>
      */
     public abstract int getBytesPerElement();
 
-    protected abstract NativeTypedArrayView construct(NativeArrayBuffer ab, int off, int len);
+    protected abstract NativeTypedArrayView<T> construct(NativeArrayBuffer ab, int off, int len);
     protected abstract Object js_get(int index);
     protected abstract Object js_set(int index, Object c);
-    protected abstract NativeTypedArrayView realThis(Scriptable thisObj, IdFunctionObject f);
+    protected abstract NativeTypedArrayView<T> realThis(Scriptable thisObj, IdFunctionObject f);
 
     private NativeArrayBuffer makeArrayBuffer(Context cx, Scriptable scope, int length)
     {
@@ -107,31 +109,39 @@ public abstract class NativeTypedArrayView<T>
                                                new Object[] { length });
     }
 
-    private NativeTypedArrayView js_constructor(Context cx, Scriptable scope, Object[] args)
+    private NativeTypedArrayView<T> js_constructor(Context cx, Scriptable scope, Object[] args)
     {
         if (!isArg(args, 0)) {
             return construct(NativeArrayBuffer.EMPTY_BUFFER, 0, 0);
+        }
 
-        } else if ((args[0] instanceof Number) || (args[0] instanceof String)) {
+        final Object arg0 = args[0];
+        if (arg0 == null) {
+            return construct(NativeArrayBuffer.EMPTY_BUFFER, 0, 0);
+        }
+
+        if ((arg0 instanceof Number) || (arg0 instanceof String)) {
             // Create a zeroed-out array of a certain length
-            int length = ScriptRuntime.toInt32(args[0]);
+            int length = ScriptRuntime.toInt32(arg0);
             NativeArrayBuffer buffer = makeArrayBuffer(cx, scope, length * getBytesPerElement());
             return construct(buffer, 0, length);
+        }
 
-        } else if (args[0] instanceof NativeTypedArrayView) {
+        if (arg0 instanceof NativeTypedArrayView) {
             // Copy elements from the old array and convert them into our own
-            NativeTypedArrayView src = (NativeTypedArrayView)args[0];
+            NativeTypedArrayView<T> src = (NativeTypedArrayView<T>)arg0;
             NativeArrayBuffer na = makeArrayBuffer(cx, scope, src.length * getBytesPerElement());
-            NativeTypedArrayView v = construct(na, 0, src.length);
+            NativeTypedArrayView<T> v = construct(na, 0, src.length);
 
             for (int i = 0; i < src.length; i++) {
                 v.js_set(i, src.js_get(i));
             }
             return v;
+        }
 
-        } else if (args[0] instanceof NativeArrayBuffer) {
+        if (arg0 instanceof NativeArrayBuffer) {
             // Make a slice of an existing buffer, with shared storage
-            NativeArrayBuffer na = (NativeArrayBuffer)args[0];
+            NativeArrayBuffer na = (NativeArrayBuffer)arg0;
             int byteOff = isArg(args, 1) ? ScriptRuntime.toInt32(args[1]) : 0;
 
             int byteLen;
@@ -155,25 +165,46 @@ public abstract class NativeTypedArrayView<T>
             }
 
             return construct(na, byteOff, byteLen / getBytesPerElement());
+        }
 
-        } else if (args[0] instanceof NativeArray) {
+        if (arg0 instanceof NativeArray) {
             // Copy elements of the array and convert them to the correct type
-            List l = (List)args[0];
-            NativeArrayBuffer na = makeArrayBuffer(cx, scope, l.size() * getBytesPerElement());
-            NativeTypedArrayView v = construct(na, 0, l.size());
-            int p = 0;
-            for (Object o : l) {
-                v.js_set(p, o);
-                p++;
+            NativeArray array = (NativeArray) arg0;
+
+            NativeArrayBuffer na = makeArrayBuffer(cx, scope, array.size() * getBytesPerElement());
+            NativeTypedArrayView<T> v = construct(na, 0, array.size());
+            for (int i = 0; i < array.size(); i++) {
+                // we have to call this here to get the raw value;
+                // null has to be forewoded as null
+                final Object value = array.get(i, array);
+                if (value == Scriptable.NOT_FOUND || value == Undefined.instance) {
+                    v.js_set(i, Double.NaN);
+                }
+                else if (value instanceof Wrapper) {
+                    v.js_set(i, ((Wrapper) value).unwrap());
+                }
+                else {
+                    v.js_set(i, value);
+                }
             }
             return v;
-
-        } else {
-            throw ScriptRuntime.constructError("Error", "invalid argument");
         }
+
+        if (ScriptRuntime.isArrayObject(arg0)) {
+            // Copy elements of the array and convert them to the correct type
+            Object[] arrayElements = ScriptRuntime.getArrayElements((Scriptable)arg0);
+
+            NativeArrayBuffer na = makeArrayBuffer(cx, scope, arrayElements.length * getBytesPerElement());
+            NativeTypedArrayView<T> v = construct(na, 0, arrayElements.length);
+            for (int i = 0; i < arrayElements.length; i++) {
+                v.js_set(i, arrayElements[i]);
+            }
+            return v;
+        }
+        throw ScriptRuntime.constructError("Error", "invalid argument");
     }
 
-    private void setRange(NativeTypedArrayView v, int off)
+    private void setRange(NativeTypedArrayView<T> v, int off)
     {
         if (off >= length) {
             throw ScriptRuntime.constructError("RangeError", "offset out of range");
@@ -245,19 +276,31 @@ public abstract class NativeTypedArrayView<T>
         case Id_constructor:
             return js_constructor(cx, scope, args);
 
+        case Id_toString:
+            NativeTypedArrayView<T> realThis = realThis(thisObj, f);
+            final int arrayLength = realThis.getArrayLength();
+            final StringBuilder builder = new StringBuilder();
+            if (arrayLength > 0) {
+                builder.append(ScriptRuntime.toString(realThis.js_get(0)));
+            }
+            for (int i = 1; i < arrayLength; i++) {
+                builder.append(',');
+                builder.append(ScriptRuntime.toString(realThis.js_get(i)));
+            }
+            return builder.toString();
+
         case Id_get:
             if (args.length > 0) {
                 return realThis(thisObj, f).js_get(ScriptRuntime.toInt32(args[0]));
-            } else {
-                throw ScriptRuntime.constructError("Error", "invalid arguments");
             }
+            throw ScriptRuntime.constructError("Error", "invalid arguments");
 
         case Id_set:
             if (args.length > 0) {
-                NativeTypedArrayView self = realThis(thisObj, f);
+                NativeTypedArrayView<T> self = realThis(thisObj, f);
                 if (args[0] instanceof NativeTypedArrayView) {
                     int offset = isArg(args, 1) ? ScriptRuntime.toInt32(args[1]) : 0;
-                    self.setRange((NativeTypedArrayView)args[0], offset);
+                    self.setRange((NativeTypedArrayView<T>)args[0], offset);
                     return Undefined.instance;
                 }
                 if (args[0] instanceof NativeArray) {
@@ -277,16 +320,15 @@ public abstract class NativeTypedArrayView<T>
 
         case Id_subarray:
             if (args.length > 0) {
-                NativeTypedArrayView self = realThis(thisObj, f);
+                NativeTypedArrayView<T> self = realThis(thisObj, f);
                 int start = ScriptRuntime.toInt32(args[0]);
                 int end = isArg(args, 1) ? ScriptRuntime.toInt32(args[1]) : self.length;
                 return self.js_subarray(cx, scope, start, end);
-            } else {
-                throw ScriptRuntime.constructError("Error", "invalid arguments");
             }
+            throw ScriptRuntime.constructError("Error", "invalid arguments");
 
         case SymbolId_iterator:
-            return new NativeArrayIterator(scope, thisObj);
+            return new NativeArrayIterator(scope, thisObj, ARRAY_ITERATOR_TYPE.VALUES);
         }
         throw new IllegalArgumentException(String.valueOf(id));
     }
@@ -303,6 +345,7 @@ public abstract class NativeTypedArrayView<T>
         int arity;
         switch (id) {
         case Id_constructor:        arity = 1; s = "constructor"; break;
+        case Id_toString:           arity = 0; s = "toString"; break;
         case Id_get:                arity = 1; s = "get"; break;
         case Id_set:                arity = 2; s = "set"; break;
         case Id_subarray:           arity = 2; s = "subarray"; break;
@@ -326,7 +369,7 @@ public abstract class NativeTypedArrayView<T>
     protected int findPrototypeId(String s)
     {
         int id;
-// #generated# Last update: 2016-03-04 20:59:23 GMT
+// #generated# Last update: 2018-05-13 12:51:10 MESZ
         L0: { id = 0; String X = null; int c;
             int s_length = s.length();
             if (s_length==3) {
@@ -334,7 +377,11 @@ public abstract class NativeTypedArrayView<T>
                 if (c=='g') { if (s.charAt(2)=='t' && s.charAt(1)=='e') {id=Id_get; break L0;} }
                 else if (c=='s') { if (s.charAt(2)=='t' && s.charAt(1)=='e') {id=Id_set; break L0;} }
             }
-            else if (s_length==8) { X="subarray";id=Id_subarray; }
+            else if (s_length==8) {
+                c=s.charAt(0);
+                if (c=='s') { X="subarray";id=Id_subarray; }
+                else if (c=='t') { X="toString";id=Id_toString; }
+            }
             else if (s_length==11) { X="constructor";id=Id_constructor; }
             if (X!=null && X!=s && !X.equals(s)) id = 0;
             break L0;
@@ -346,10 +393,11 @@ public abstract class NativeTypedArrayView<T>
     // Table of all functions
     private static final int
         Id_constructor          = 1,
-        Id_get                  = 2,
-        Id_set                  = 3,
-        Id_subarray             = 4,
-        SymbolId_iterator       = 5;
+        Id_toString             = 2,
+        Id_get                  = 3,
+        Id_set                  = 4,
+        Id_subarray             = 5,
+        SymbolId_iterator       = 6;
 
     protected static final int
         MAX_PROTOTYPE_ID        = SymbolId_iterator;
@@ -401,7 +449,7 @@ public abstract class NativeTypedArrayView<T>
     protected int findInstanceIdInfo(String s)
     {
         int id;
-// #generated# Last update: 2014-12-08 17:33:28 PST
+// #generated# Last update: 2018-05-13 12:51:10 MESZ
         L0: { id = 0; String X = null;
             int s_length = s.length();
             if (s_length==6) { X="length";id=Id_length; }
@@ -420,8 +468,8 @@ public abstract class NativeTypedArrayView<T>
      * These must not conflict with ids in the parent since we delegate there for property dispatching.
      */
     private static final int
-        Id_length               = 10,
-        Id_BYTES_PER_ELEMENT    = 11,
+        Id_length               = NativeArrayBufferView.MAX_INSTANCE_ID + 1,
+        Id_BYTES_PER_ELEMENT    = Id_length + 1,
         MAX_INSTANCE_ID         = Id_BYTES_PER_ELEMENT;
 
 // #/string_id_map#
@@ -448,24 +496,28 @@ public abstract class NativeTypedArrayView<T>
     // Abstract List implementation
 
     @SuppressWarnings("unused")
+    @Override
     public int size()
     {
         return length;
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean isEmpty()
     {
         return (length == 0);
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean contains(Object o)
     {
         return (indexOf(o) >= 0);
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean containsAll(Collection<?> objects)
     {
         for (Object o : objects) {
@@ -477,6 +529,7 @@ public abstract class NativeTypedArrayView<T>
     }
 
     @SuppressWarnings("unused")
+    @Override
     public int indexOf(Object o)
     {
         for (int i = 0; i < length; i++) {
@@ -488,6 +541,7 @@ public abstract class NativeTypedArrayView<T>
     }
 
     @SuppressWarnings("unused")
+    @Override
     public int lastIndexOf(Object o)
     {
         for (int i = length - 1; i >= 0; i--) {
@@ -499,6 +553,7 @@ public abstract class NativeTypedArrayView<T>
     }
 
     @SuppressWarnings("unused")
+    @Override
     public Object[] toArray()
     {
         Object[] a = new Object[length];
@@ -509,6 +564,7 @@ public abstract class NativeTypedArrayView<T>
     }
 
     @SuppressWarnings("unused")
+    @Override
     public <U> U[] toArray(U[] ts)
     {
         U[] a;
@@ -559,18 +615,21 @@ public abstract class NativeTypedArrayView<T>
     }
 
     @SuppressWarnings("unused")
+    @Override
     public Iterator<T> iterator()
     {
         return new NativeTypedArrayIterator<T>(this, 0);
     }
 
     @SuppressWarnings("unused")
+    @Override
     public ListIterator<T> listIterator()
     {
         return new NativeTypedArrayIterator<T>(this, 0);
     }
 
     @SuppressWarnings("unused")
+    @Override
     public ListIterator<T> listIterator(int start)
     {
         if (checkIndex(start)) {
@@ -580,60 +639,70 @@ public abstract class NativeTypedArrayView<T>
     }
 
     @SuppressWarnings("unused")
+    @Override
     public List<T> subList(int i, int i2)
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean add(T aByte)
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public void add(int i, T aByte)
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean addAll(Collection<? extends T> bytes)
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean addAll(int i, Collection<? extends T> bytes)
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public void clear()
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public T remove(int i)
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean remove(Object o)
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean removeAll(Collection<?> objects)
     {
         throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unused")
+    @Override
     public boolean retainAll(Collection<?> objects)
     {
         throw new UnsupportedOperationException();

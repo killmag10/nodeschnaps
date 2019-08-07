@@ -10,7 +10,6 @@ package org.mozilla.javascript;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 
 public abstract class VMBridge
 {
@@ -22,7 +21,6 @@ public abstract class VMBridge
         String[] classNames = {
             "org.mozilla.javascript.VMBridge_custom",
             "org.mozilla.javascript.jdk18.VMBridge_jdk18",
-            "org.mozilla.javascript.jdk15.VMBridge_jdk15",
         };
         for (int i = 0; i != classNames.length; ++i) {
             String className = classNames[i];
@@ -108,16 +106,4 @@ public abstract class VMBridge
                                        InterfaceAdapter adapter,
                                        Object target,
                                        Scriptable topScope);
-
-    /**
-     * If "obj" is a java.util.Iterator or a java.lang.Iterable, return a
-     * wrapping as a JavaScript Iterator. Otherwise, return null.
-     * This method is in VMBridge since Iterable is a JDK 1.5 addition.
-     */
-    protected abstract Iterator<?> getJavaIterator(Context cx, Scriptable scope, Object obj);
-
-    /**
-     * Support checking to see if this is the default method for Java 8.
-     */
-    public abstract boolean isDefaultMethod(Method method);
 }

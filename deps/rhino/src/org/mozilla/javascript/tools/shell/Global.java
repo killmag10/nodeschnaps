@@ -6,23 +6,54 @@
 
 package org.mozilla.javascript.tools.shell;
 
-import java.io.*;
-import java.net.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import org.mozilla.javascript.*;
+import java.util.regex.Pattern;
+
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextAction;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.ErrorReporter;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.RhinoException;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.ScriptRuntime;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Synchronizer;
+import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.commonjs.module.Require;
 import org.mozilla.javascript.commonjs.module.RequireBuilder;
 import org.mozilla.javascript.commonjs.module.provider.SoftCachingModuleScriptProvider;
 import org.mozilla.javascript.commonjs.module.provider.UrlModuleSourceProvider;
+import org.mozilla.javascript.serialize.ScriptableInputStream;
+import org.mozilla.javascript.serialize.ScriptableOutputStream;
 import org.mozilla.javascript.tools.ToolErrorReporter;
-import org.mozilla.javascript.serialize.*;
 
 /**
  * This class provides for sharing functions across multiple threads.
@@ -74,13 +105,10 @@ public class Global extends ImporterTopLevel
 
     public void init(ContextFactory factory)
     {
-        factory.call(new ContextAction() {
-                public Object run(Context cx)
-                {
-                    init(cx);
-                    return null;
-                }
-            });
+        factory.call(cx -> {
+            init(cx);
+            return null;
+        });
     }
 
     public void init(Context cx)
@@ -244,12 +272,11 @@ public class Global extends ImporterTopLevel
     public static double version(Context cx, Scriptable thisObj,
                                  Object[] args, Function funObj)
     {
-        double result = cx.getLanguageVersion();
         if (args.length > 0) {
             double d = Context.toNumber(args[0]);
             cx.setLanguageVersion((int) d);
         }
-        return result;
+        return cx.getLanguageVersion();
     }
 
     /**
@@ -413,7 +440,7 @@ public class Global extends ImporterTopLevel
     }
 
     /**
-     * Example: doctest("js> function f() {\n  >   return 3;\n  > }\njs> f();\n3\n"); returns 2
+     * Example: doctest("js&gt; function f() {\n  &gt;   return 3;\n  &gt; }\njs&gt; f();\n3\n"); returns 2
      * (since 2 tests were executed).
      */
     public static Object doctest(Context cx, Scriptable thisObj,
@@ -552,12 +579,12 @@ public class Global extends ImporterTopLevel
      * The spawn function runs a given function or script in a different
      * thread.
      *
-     * js> function g() { a = 7; }
-     * js> a = 3;
+     * js&gt; function g() { a = 7; }
+     * js&gt; a = 3;
      * 3
-     * js> spawn(g)
+     * js&gt; spawn(g)
      * Thread[Thread-1,5,main]
-     * js> a
+     * js&gt; a
      * 3
      */
     public static Object spawn(Context cx, Scriptable thisObj, Object[] args,
@@ -589,17 +616,17 @@ public class Global extends ImporterTopLevel
      * new function synchronizes on the the second argument if it is
      * defined, or otherwise the <code>this</code> object of
      * its invocation.
-     * js> var o = { f : sync(function(x) {
+     * js&gt; var o = { f : sync(function(x) {
      *       print("entry");
      *       Packages.java.lang.Thread.sleep(x*1000);
      *       print("exit");
      *     })};
-     * js> spawn(function() {o.f(5);});
+     * js&gt; spawn(function() {o.f(5);});
      * Thread[Thread-0,5,main]
      * entry
-     * js> spawn(function() {o.f(5);});
+     * js&gt; spawn(function() {o.f(5);});
      * Thread[Thread-1,5,main]
-     * js>
+     * js&gt;
      * exit
      * entry
      * exit
@@ -1218,7 +1245,7 @@ public class Global extends ImporterTopLevel
 }
 
 
-class Runner implements Runnable, ContextAction {
+class Runner implements Runnable, ContextAction<Object> {
 
     Runner(Scriptable scope, Function func, Object[] args) {
         this.scope = scope;

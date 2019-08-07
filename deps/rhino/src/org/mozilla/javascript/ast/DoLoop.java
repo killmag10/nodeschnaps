@@ -9,7 +9,7 @@ package org.mozilla.javascript.ast;
 import org.mozilla.javascript.Token;
 
 /**
- * Do statement.  Node type is {@link Token#DO}.<p>
+ * Do statement.  Node type is {@link Token#DO}.
  *
  * <pre><i>DoLoop</i>:
  * <b>do</b> Statement <b>while</b> <b>(</b> Expression <b>)</b> <b>;</b></pre>
@@ -70,6 +70,9 @@ public class DoLoop extends Loop {
         StringBuilder sb = new StringBuilder();
         sb.append(makeIndent(depth));
         sb.append("do ");
+        if(this.getInlineComment() != null) {
+            sb.append(this.getInlineComment().toSource(depth + 1)).append("\n");
+        }
         sb.append(body.toSource(depth).trim());
         sb.append(" while (");
         sb.append(condition.toSource(0));

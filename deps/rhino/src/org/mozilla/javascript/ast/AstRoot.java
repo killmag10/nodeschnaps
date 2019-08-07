@@ -6,18 +6,18 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Node;
-import org.mozilla.javascript.Token;
-
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import org.mozilla.javascript.Node;
+import org.mozilla.javascript.Token;
 
 /**
  * Node for the root of a parse tree.  It contains the statements and functions
  * in the script, and a list of {@link Comment} nodes associated with the script
- * as a whole.  Node type is {@link Token#SCRIPT}. <p>
+ * as a whole.  Node type is {@link Token#SCRIPT}.
  *
- * Note that the tree itself does not store errors.  To collect the parse errors
+ * <p>Note that the tree itself does not store errors. To collect the parse errors
  * and warnings, pass an {@link org.mozilla.javascript.ErrorReporter} to the
  * {@link org.mozilla.javascript.Parser} via the
  * {@link org.mozilla.javascript.CompilerEnvirons}.
@@ -107,6 +107,9 @@ public class AstRoot extends ScriptNode {
         StringBuilder sb = new StringBuilder();
         for (Node node : this) {
             sb.append(((AstNode)node).toSource(depth));
+            if(node.getType() == Token.COMMENT) {
+                sb.append("\n");
+            }
         }
         return sb.toString();
     }
@@ -128,6 +131,7 @@ public class AstRoot extends ScriptNode {
      */
     public void checkParentLinks() {
         this.visit(new NodeVisitor() {
+            @Override
             public boolean visit(AstNode node) {
                 int type = node.getType();
                 if (type == Token.SCRIPT)

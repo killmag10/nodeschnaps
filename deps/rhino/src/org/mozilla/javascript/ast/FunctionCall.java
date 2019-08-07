@@ -6,14 +6,14 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Token;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.mozilla.javascript.Token;
+
 /**
- * AST node for a function call.  Node type is {@link Token#CALL}.<p>
+ * AST node for a function call.  Node type is {@link Token#CALL}.
  */
 public class FunctionCall extends AstNode {
 
@@ -146,6 +146,9 @@ public class FunctionCall extends AstNode {
             printList(arguments, sb);
         }
         sb.append(")");
+        if(this.getInlineComment() != null) {
+            sb.append(this.getInlineComment().toSource(depth)).append("\n");
+        }
         return sb.toString();
     }
 

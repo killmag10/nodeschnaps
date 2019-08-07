@@ -16,8 +16,8 @@ import org.mozilla.javascript.debug.DebuggableScript;
 public abstract class NativeFunction extends BaseFunction
 {
 
-    static final long serialVersionUID = 8713897114082216401L;
-    
+    private static final long serialVersionUID = 8713897114082216401L;
+
     public final void initScriptFunction(Context cx, Scriptable scope)
     {
         ScriptRuntime.setFunctionProtoAndParent(this, scope);
@@ -34,11 +34,10 @@ public abstract class NativeFunction extends BaseFunction
         String encodedSource = getEncodedSource();
         if (encodedSource == null) {
             return super.decompile(indent, flags);
-        } else {
-            UintMap properties = new UintMap(1);
-            properties.put(Decompiler.INITIAL_INDENT_PROP, indent);
-            return Decompiler.decompile(encodedSource, flags, properties);
         }
+        UintMap properties = new UintMap(1);
+        properties.put(Decompiler.INITIAL_INDENT_PROP, indent);
+        return Decompiler.decompile(encodedSource, flags, properties);
     }
 
     @Override
@@ -117,14 +116,14 @@ public abstract class NativeFunction extends BaseFunction
 
     /**
      * Get parameter or variable name.
-     * If <tt>index < {@link #getParamCount()}</tt>, then return the name of the
+     * If <tt>index &lt; {@link #getParamCount()}</tt>, then return the name of the
      * corresponding parameter. Otherwise return the name of variable.
      */
     protected abstract String getParamOrVarName(int index);
 
     /**
      * Get parameter or variable const-ness.
-     * If <tt>index < {@link #getParamCount()}</tt>, then return the const-ness
+     * If <tt>index &lt; {@link #getParamCount()}</tt>, then return the const-ness
      * of the corresponding parameter. Otherwise return whether the variable is
      * const.
      */

@@ -77,13 +77,7 @@ public class InterfaceAdapter
                          final Method method,
                          final Object[] args)
     {
-        ContextAction action = new ContextAction() {
-                public Object run(Context cx)
-                {
-                    return invokeImpl(cx, target, topScope, thisObject, method, args);
-                }
-            };
-        return cf.call(action);
+        return cf.call(cx -> invokeImpl(cx, target, topScope, thisObject, method, args));
     }
 
     Object invokeImpl(Context cx,
@@ -109,9 +103,8 @@ public class InterfaceAdapter
                 Class<?> resultType = method.getReturnType();
                 if (resultType == Void.TYPE) {
                     return null;
-                } else {
-                    return Context.jsToJava(null, resultType);
                 }
+                return Context.jsToJava(null, resultType);
             }
             if (!(value instanceof Callable)) {
                 throw Context.reportRuntimeError1(

@@ -25,12 +25,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.mozilla.javascript.debug.DebuggableObject;
 import org.mozilla.javascript.annotations.JSConstructor;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 import org.mozilla.javascript.annotations.JSStaticFunction;
+import org.mozilla.javascript.debug.DebuggableObject;
 
 /**
  * This is the default implementation of the Scriptable interface. This
@@ -53,8 +53,8 @@ public abstract class ScriptableObject implements Scriptable,
                                                   ConstProperties
 {
 
-    static final long serialVersionUID = 2829861078851942586L;
-    
+    private static final long serialVersionUID = 2829861078851942586L;
+
     /**
      * The empty property attribute.
      *
@@ -182,9 +182,8 @@ public abstract class ScriptableObject implements Scriptable,
             if (owner == start) {
                 this.value = value;
                 return true;
-            } else {
-                return false;
             }
+            return false;
         }
 
         Object getValue(Scriptable start) {
@@ -226,7 +225,7 @@ public abstract class ScriptableObject implements Scriptable,
      */
     static final class GetterSlot extends Slot
     {
-        static final long serialVersionUID = -4900574849788797588L;
+        private static final long serialVersionUID = -4900574849788797588L;
 
         Object getter;
         Object setter;
@@ -246,20 +245,22 @@ public abstract class ScriptableObject implements Scriptable,
             if (getter == null && setter == null) {
                 desc.defineProperty("writable", (attr & READONLY) == 0, EMPTY);
             }
+
+            String fName = name == null ? "f" : name.toString();
             if (getter != null) {
-                if( getter instanceof MemberBox ) {
-                    desc.defineProperty("get", new FunctionObject("f", ((MemberBox)getter).member(),scope), EMPTY);
-                } else if( getter instanceof Member ) {
-                    desc.defineProperty("get", new FunctionObject("f",(Member)getter,scope), EMPTY);
+                if ( getter instanceof MemberBox ) {
+                    desc.defineProperty("get", new FunctionObject(fName, ((MemberBox)getter).member(), scope), EMPTY);
+                } else if ( getter instanceof Member ) {
+                    desc.defineProperty("get", new FunctionObject(fName, (Member)getter, scope), EMPTY);
                 } else {
                     desc.defineProperty("get", getter, EMPTY);
                 }
             }
             if (setter != null) {
-                if( setter instanceof MemberBox ) {
-                    desc.defineProperty("set", new FunctionObject("f", ((MemberBox)setter).member(),scope), EMPTY);
-                } else if( setter instanceof Member ) {
-                    desc.defineProperty("set", new FunctionObject("f",(Member)setter,scope), EMPTY);
+                if ( setter instanceof MemberBox ) {
+                    desc.defineProperty("set", new FunctionObject(fName, ((MemberBox) setter).member(), scope), EMPTY);
+                } else if ( setter instanceof Member ) {
+                    desc.defineProperty("set", new FunctionObject(fName, (Member) setter, scope), EMPTY);
                 } else {
                     desc.defineProperty("set", setter, EMPTY);
                 }
@@ -276,7 +277,12 @@ public abstract class ScriptableObject implements Scriptable,
                         // Based on TC39 ES3.1 Draft of 9-Feb-2009, 8.12.4, step 2,
                         // we should throw a TypeError in this case.
                         cx.hasFeature(Context.FEATURE_STRICT_MODE)) {
-                        throw ScriptRuntime.typeError1("msg.set.prop.no.setter", name);
+
+                        String prop = "";
+                        if (name != null) {
+                            prop = "[" + start.getClassName() + "]." + name.toString();
+                        }
+                        throw ScriptRuntime.typeError2("msg.set.prop.no.setter", prop, Context.toString(value));
                     }
                     // Assignment to a property with only a getter defined. The
                     // assignment is ignored. See bug 478047.
@@ -396,6 +402,7 @@ public abstract class ScriptableObject implements Scriptable,
      * Classes extending ScriptableObject must implement this abstract
      * method.
      */
+    @Override
     public abstract String getClassName();
 
     /**
@@ -405,6 +412,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @param start the object in which the lookup began
      * @return true if and only if the property was found in the object
      */
+    @Override
     public boolean has(String name, Scriptable start)
     {
         return null != slotMap.query(name, 0);
@@ -417,6 +425,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @param start the object in which the lookup began
      * @return true if and only if the property was found in the object
      */
+    @Override
     public boolean has(int index, Scriptable start)
     {
         if (externalData != null) {
@@ -428,6 +437,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * A version of "has" that supports symbols.
      */
+    @Override
     public boolean has(Symbol key, Scriptable start)
     {
         return null != slotMap.query(key, 0);
@@ -443,6 +453,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @param start the object in which the lookup began
      * @return the value of the property (may be null), or NOT_FOUND
      */
+    @Override
     public Object get(String name, Scriptable start)
     {
         Slot slot = slotMap.query(name, 0);
@@ -459,6 +470,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @param start the object in which the lookup began
      * @return the value of the property (may be null), or NOT_FOUND
      */
+    @Override
     public Object get(int index, Scriptable start)
     {
         if (externalData != null) {
@@ -478,6 +490,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Another version of Get that supports Symbol keyed properties.
      */
+    @Override
     public Object get(Symbol key, Scriptable start)
     {
         Slot slot = slotMap.query(key, 0);
@@ -502,6 +515,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @param start the object whose property is being set
      * @param value value to set the property to
      */
+    @Override
     public void put(String name, Scriptable start, Object value)
     {
         if (putImpl(name, 0, start, value))
@@ -518,6 +532,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @param start the object whose property is being set
      * @param value value to set the property to
      */
+    @Override
     public void put(int index, Scriptable start, Object value)
     {
         if (externalData != null) {
@@ -543,6 +558,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Implementation of put required by SymbolScriptable objects.
      */
+    @Override
     public void put(Symbol key, Scriptable start, Object value)
     {
         if (putImpl(key, 0, start, value))
@@ -560,6 +576,7 @@ public abstract class ScriptableObject implements Scriptable,
      *
      * @param name the name of the property
      */
+    @Override
     public void delete(String name)
     {
         checkNotSealed(name, 0);
@@ -574,6 +591,7 @@ public abstract class ScriptableObject implements Scriptable,
      *
      * @param index the numeric index for the property
      */
+    @Override
     public void delete(int index)
     {
         checkNotSealed(null, index);
@@ -583,6 +601,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Removes an object like the others, but using a Symbol as the key.
      */
+    @Override
     public void delete(Symbol key)
     {
         checkNotSealed(key, 0);
@@ -604,6 +623,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @param start the object whose property is being set
      * @param value value to set the property to
      */
+    @Override
     public void putConst(String name, Scriptable start, Object value)
     {
         if (putConstImpl(name, 0, start, value, READONLY))
@@ -616,6 +636,7 @@ public abstract class ScriptableObject implements Scriptable,
             start.put(name, start, value);
     }
 
+    @Override
     public void defineConst(String name, Scriptable start)
     {
         if (putConstImpl(name, 0, start, Undefined.instance, UNINITIALIZED_CONST))
@@ -632,6 +653,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @return true if the named property is defined as a const, false
      * otherwise.
      */
+    @Override
     public boolean isConst(String name)
     {
         Slot slot = slotMap.query(name, 0);
@@ -850,8 +872,8 @@ public abstract class ScriptableObject implements Scriptable,
             GetterSlot gslot = (GetterSlot)slot;
             Object result = isSetter ? gslot.setter : gslot.getter;
             return result != null ? result : Undefined.instance;
-        } else
-            return Undefined.instance;
+        }
+        return Undefined.instance;
     }
 
     /**
@@ -929,6 +951,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Returns the prototype of the object.
      */
+    @Override
     public Scriptable getPrototype()
     {
         return prototypeObject;
@@ -937,6 +960,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Sets the prototype of the object.
      */
+    @Override
     public void setPrototype(Scriptable m)
     {
         prototypeObject = m;
@@ -945,6 +969,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Returns the parent (enclosing) scope of the object.
      */
+    @Override
     public Scriptable getParentScope()
     {
         return parentScopeObject;
@@ -953,6 +978,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Sets the parent (enclosing) scope of the object.
      */
+    @Override
     public void setParentScope(Scriptable m)
     {
         parentScopeObject = m;
@@ -969,6 +995,7 @@ public abstract class ScriptableObject implements Scriptable,
      * Integer entry in the returned array. Properties accessed by
      * a String will have a String entry in the returned array.
      */
+    @Override
     public Object[] getIds() {
         return getIds(false, false);
     }
@@ -984,6 +1011,7 @@ public abstract class ScriptableObject implements Scriptable,
      * Integer entry in the returned array. Properties accessed by
      * a String will have a String entry in the returned array.
      */
+    @Override
     public Object[] getAllIds() {
         return getIds(true, false);
     }
@@ -1002,6 +1030,7 @@ public abstract class ScriptableObject implements Scriptable,
      *
      * See ECMA 8.6.2.6.
      */
+    @Override
     public Object getDefaultValue(Class<?> typeHint)
     {
         return getDefaultValue(this, typeHint);
@@ -1019,52 +1048,19 @@ public abstract class ScriptableObject implements Scriptable,
             }
 
             String methodName;
-            Object[] args;
             if (tryToString) {
                 methodName = "toString";
-                args = ScriptRuntime.emptyArgs;
             } else {
                 methodName = "valueOf";
-                args = new Object[1];
-                String hint;
-                if (typeHint == null) {
-                    hint = "undefined";
-                } else if (typeHint == ScriptRuntime.StringClass) {
-                    hint = "string";
-                } else if (typeHint == ScriptRuntime.ScriptableClass) {
-                    hint = "object";
-                } else if (typeHint == ScriptRuntime.FunctionClass) {
-                    hint = "function";
-                } else if (typeHint == ScriptRuntime.BooleanClass
-                           || typeHint == Boolean.TYPE)
-                {
-                    hint = "boolean";
-                } else if (typeHint == ScriptRuntime.NumberClass ||
-                         typeHint == ScriptRuntime.ByteClass ||
-                         typeHint == Byte.TYPE ||
-                         typeHint == ScriptRuntime.ShortClass ||
-                         typeHint == Short.TYPE ||
-                         typeHint == ScriptRuntime.IntegerClass ||
-                         typeHint == Integer.TYPE ||
-                         typeHint == ScriptRuntime.FloatClass ||
-                         typeHint == Float.TYPE ||
-                         typeHint == ScriptRuntime.DoubleClass ||
-                         typeHint == Double.TYPE)
-                {
-                    hint = "number";
-                } else {
-                    throw Context.reportRuntimeError1(
-                        "msg.invalid.type", typeHint.toString());
-                }
-                args[0] = hint;
             }
             Object v = getProperty(object, methodName);
             if (!(v instanceof Function))
                 continue;
             Function fun = (Function) v;
-            if (cx == null)
+            if (cx == null) {
                 cx = Context.getContext();
-            v = fun.call(cx, fun.getParentScope(), object, args);
+            }
+            v = fun.call(cx, fun.getParentScope(), object, ScriptRuntime.emptyArgs);
             if (v != null) {
                 if (!(v instanceof Scriptable)) {
                     return v;
@@ -1098,6 +1094,7 @@ public abstract class ScriptableObject implements Scriptable,
      * @return true if "this" appears in value's prototype chain
      *
      */
+    @Override
     public boolean hasInstance(Scriptable instance) {
         // Default for JS objects (other than Function) is to do prototype
         // chasing.  This will be overridden in NativeFunction and non-JS
@@ -1481,7 +1478,7 @@ public abstract class ScriptableObject implements Scriptable,
                     prefix = staticFunctionPrefix;
                 } else if (name.startsWith(getterPrefix)) {
                     prefix = getterPrefix;
-                } else if (annotation == null) {
+                } else {
                     // note that setterPrefix is among the unhandled names here -
                     // we deal with that when we see the getter
                     continue;
@@ -1644,6 +1641,9 @@ public abstract class ScriptableObject implements Scriptable,
 
     /**
      * A version of defineProperty that uses a Symbol key.
+     * @param key symbol of the property to define.
+     * @param value the initial value of the property
+     * @param attributes the attributes of the JavaScript property
      */
     public void defineProperty(Symbol key, Object value,
                                int attributes)
@@ -1658,6 +1658,10 @@ public abstract class ScriptableObject implements Scriptable,
      * If destination is instance of ScriptableObject, calls
      * defineProperty there, otherwise calls put in destination
      * ignoring attributes
+     * @param destination ScriptableObject to define the property on
+     * @param propertyName the name of the property to define.
+     * @param value the initial value of the property
+     * @param attributes the attributes of the JavaScript property
      */
     public static void defineProperty(Scriptable destination,
                                       String propertyName, Object value,
@@ -1676,6 +1680,8 @@ public abstract class ScriptableObject implements Scriptable,
      * If destination is instance of ScriptableObject, calls
      * defineProperty there, otherwise calls put in destination
      * ignoring attributes
+     * @param destination ScriptableObject to define the property on
+     * @param propertyName the name of the property to define.
      */
     public static void defineConstProperty(Scriptable destination,
                                            String propertyName)
@@ -2013,9 +2019,8 @@ public abstract class ScriptableObject implements Scriptable,
                     if (isDataDescriptor(current))
                         throw ScriptRuntime.typeError1(
                             "msg.change.property.data.to.accessor.with.configurable.false", id);
-                    else
-                        throw ScriptRuntime.typeError1(
-                            "msg.change.property.accessor.to.data.with.configurable.false", id);
+                    throw ScriptRuntime.typeError1(
+                        "msg.change.property.accessor.to.data.with.configurable.false", id);
                 }
             }
         }
@@ -2159,6 +2164,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Get the Object.prototype property.
      * See ECMA 15.2.4.
+     * @param scope an object in the scope chain
      */
     public static Scriptable getObjectPrototype(Scriptable scope) {
         return TopLevel.getBuiltinPrototype(getTopLevelScope(scope),
@@ -2168,6 +2174,7 @@ public abstract class ScriptableObject implements Scriptable,
     /**
      * Get the Function.prototype property.
      * See ECMA 15.3.4.
+     * @param scope an object in the scope chain
      */
     public static Scriptable getFunctionPrototype(Scriptable scope) {
         return TopLevel.getBuiltinPrototype(getTopLevelScope(scope),
@@ -2684,9 +2691,8 @@ public abstract class ScriptableObject implements Scriptable,
         Scriptable scope = ScriptableObject.getTopLevelScope(obj);
         if (cx != null) {
             return fun.call(cx, scope, obj, args);
-        } else {
-            return Context.call(null, fun, scope, obj, args);
         }
+        return Context.call(null, fun, scope, obj, args);
     }
 
     private static Scriptable getBase(Scriptable obj, String name)
@@ -2995,9 +3001,8 @@ public abstract class ScriptableObject implements Scriptable,
         String name = ScriptRuntime.toStringIdOrIndex(cx, id);
         if (name == null) {
             return slotMap.get(null, ScriptRuntime.lastIndexResult(cx), accessType);
-        } else {
-            return slotMap.get(name, 0, accessType);
         }
+        return slotMap.get(name, 0, accessType);
     }
 
     // Partial implementation of java.util.Map. See NativeObject for

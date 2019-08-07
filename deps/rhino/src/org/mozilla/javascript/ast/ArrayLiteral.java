@@ -6,18 +6,18 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Token;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.mozilla.javascript.Token;
+
 /**
  * AST node for an Array literal.  The elements list will always be
  * non-{@code null}, although the list will have no elements if the Array literal
- * is empty.<p>
+ * is empty.
  *
- * Node type is {@link Token#ARRAYLIT}.<p>
+ * <p>Node type is {@link Token#ARRAYLIT}.
  *
  * <pre><i>ArrayLiteral</i> :
  *        <b>[</b> Elisionopt <b>]</b>
@@ -153,6 +153,7 @@ public class ArrayLiteral extends AstNode implements DestructuringForm {
      * in a context such as {@code for ([a, b] in ...)} where it's the
      * target of a destructuring assignment.
      */
+    @Override
     public void setIsDestructuring(boolean destructuring) {
         isDestructuring = destructuring;
     }
@@ -162,6 +163,7 @@ public class ArrayLiteral extends AstNode implements DestructuringForm {
      * a function parameter, the target of a variable initializer, the
      * iterator of a for..in loop, etc.
      */
+    @Override
     public boolean isDestructuring() {
         return isDestructuring;
     }

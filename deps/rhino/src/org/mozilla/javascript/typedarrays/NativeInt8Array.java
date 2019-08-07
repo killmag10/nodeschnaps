@@ -13,7 +13,7 @@ import org.mozilla.javascript.Undefined;
 
 /**
  * An array view that stores 8-bit quantities and implements the JavaScript "Int8Array" interface.
- * It also implements List<Byte> for direct manipulation in Java.
+ * It also implements List&lt;Byte&gt; for direct manipulation in Java.
  */
 
 public class NativeInt8Array
@@ -50,7 +50,7 @@ public class NativeInt8Array
     }
 
     @Override
-    protected NativeTypedArrayView construct(NativeArrayBuffer ab, int off, int len)
+    protected NativeInt8Array construct(NativeArrayBuffer ab, int off, int len)
     {
         return new NativeInt8Array(ab, off, len);
     }
@@ -62,7 +62,7 @@ public class NativeInt8Array
     }
 
     @Override
-    protected NativeTypedArrayView realThis(Scriptable thisObj, IdFunctionObject f)
+    protected NativeInt8Array realThis(Scriptable thisObj, IdFunctionObject f)
     {
         if (!(thisObj instanceof NativeInt8Array)) {
             throw incompatibleCallError(f);

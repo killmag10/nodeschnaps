@@ -89,10 +89,10 @@ public abstract class SecurityController
      * The method uses the SecurityController instance associated with the
      * current {@link Context} to construct proper dynamic domain and create
      * corresponding class loader.
-     * <par>
+     * <p>
      * If no SecurityController is associated with the current {@link Context} ,
      * the method calls {@link Context#createClassLoader(ClassLoader parent)}.
-     *
+     * </p>
      * @param parent parent class loader. If null,
      *        {@link Context#getApplicationClassLoader()} will be used.
      * @param staticDomain static security domain.
@@ -155,6 +155,7 @@ public abstract class SecurityController
     {
         return execWithDomain(cx, scope, new Script()
         {
+            @Override
             public Object exec(Context cx, Scriptable scope)
             {
                 return callable.call(cx, scope, thisObj, args);

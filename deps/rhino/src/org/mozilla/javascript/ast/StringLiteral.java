@@ -6,12 +6,12 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ScriptRuntime;
+import org.mozilla.javascript.Token;
 
 /**
  * AST node for a single- or double-quoted string literal.
- * Node type is {@link Token#STRING}.<p>
+ * Node type is {@link Token#STRING}.
  */
 public class StringLiteral extends AstNode {
 

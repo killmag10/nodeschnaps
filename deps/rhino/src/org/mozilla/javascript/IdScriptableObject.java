@@ -12,7 +12,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
-Base class for native object implementation that uses IdFunctionObject to export its methods to script via <class-name>.prototype object.
+Base class for native object implementation that uses IdFunctionObject to export its methods
+to script via &lt;class-name&gt;.prototype object.
 
 Any descendant should implement at least the following methods:
     findInstanceIdInfo
@@ -37,7 +38,7 @@ public abstract class IdScriptableObject extends ScriptableObject
 
     private static final class PrototypeValues implements Serializable
     {
-        static final long serialVersionUID = 3038645279153854371L;
+        private static final long serialVersionUID = 3038645279153854371L;
 
         private static final int NAME_SLOT = 1;
         private static final int SLOT_SPAN = 2;
@@ -111,10 +112,10 @@ public abstract class IdScriptableObject extends ScriptableObject
                 return;
             }
 
-            initSlot(id, "", value, attributes);
+            initSlot(id, key, value, attributes);
         }
 
-        private void initSlot(int id, String name, Object value,
+        private void initSlot(int id, Object name, Object value,
                               int attributes)
         {
             Object[] array = valueArray;
@@ -210,8 +211,14 @@ public abstract class IdScriptableObject extends ScriptableObject
                 }
                 else {
                     int nameSlot = (id  - 1) * SLOT_SPAN + NAME_SLOT;
-                    String name = (String)valueArray[nameSlot];
-                    start.put(name, start, value);
+                    Object name = valueArray[nameSlot];
+                    if (name instanceof Symbol) {
+                        if (start instanceof SymbolScriptable) {
+                            ((SymbolScriptable)start).put((Symbol) name, start, value);
+                        }
+                    } else {
+                        start.put((String)name, start, value);
+                    }
                 }
             }
         }
@@ -252,7 +259,7 @@ public abstract class IdScriptableObject extends ScriptableObject
             }
         }
 
-        final Object[] getNames(boolean getAll, Object[] extraEntries)
+        final Object[] getNames(boolean getAll, boolean getSymbols, Object[] extraEntries)
         {
             Object[] names = null;
             int count = 0;
@@ -261,11 +268,18 @@ public abstract class IdScriptableObject extends ScriptableObject
                 if (getAll || (attributeArray[id - 1] & DONTENUM) == 0) {
                     if (value != NOT_FOUND) {
                         int nameSlot = (id  - 1) * SLOT_SPAN + NAME_SLOT;
-                        String name = (String)valueArray[nameSlot];
-                        if (names == null) {
-                            names = new Object[maxId];
+                        Object name = valueArray[nameSlot];
+                        if (name instanceof String) {
+                            if (names == null) {
+                                names = new Object[maxId];
+                            }
+                            names[count++] = name;
+                        } else if (getSymbols && (name instanceof Symbol)) {
+                            if (names == null) {
+                                names = new Object[maxId];
+                            }
+                            names[count++] = name.toString();
                         }
-                        names[count++] = name;
                     }
                 }
             }
@@ -588,6 +602,23 @@ public abstract class IdScriptableObject extends ScriptableObject
     }
 
     @Override
+    public int getAttributes(Symbol key)
+    {
+        int info = findInstanceIdInfo(key);
+        if (info != 0) {
+            int attr = (info >>> 16);
+            return attr;
+        }
+        if (prototypeValues != null) {
+            int id = prototypeValues.findId(key);
+            if (id != 0) {
+                return prototypeValues.getAttributes(id);
+            }
+        }
+        return super.getAttributes(key);
+    }
+
+    @Override
     public void setAttributes(String name, int attributes)
     {
         ScriptableObject.checkValidAttributes(attributes);
@@ -616,7 +647,7 @@ public abstract class IdScriptableObject extends ScriptableObject
         Object[] result = super.getIds(getNonEnumerable, getSymbols);
 
         if (prototypeValues != null) {
-            result = prototypeValues.getNames(getNonEnumerable, result);
+            result = prototypeValues.getNames(getNonEnumerable, getSymbols, result);
         }
 
         int maxInstanceId = getMaxInstanceId();
@@ -734,6 +765,7 @@ public abstract class IdScriptableObject extends ScriptableObject
 
     /** 'thisObj' will be null if invoked as constructor, in which case
      ** instance of Scriptable should be returned. */
+    @Override
     public Object execIdCall(IdFunctionObject f, Context cx, Scriptable scope,
                              Scriptable thisObj, Object[] args)
     {
@@ -938,6 +970,13 @@ public abstract class IdScriptableObject extends ScriptableObject
                   }
                 }
                 prototypeValues.setAttributes(id, applyDescriptorToAttributeBitset(attr, desc));
+
+                // Handle the regular slot that was created if this property was previously replaced
+                // with an accessor descriptor.
+                if (super.has(name, this)) {
+                  super.delete(name);
+                }
+
                 return;
               }
             }

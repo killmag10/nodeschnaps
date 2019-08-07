@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
  */
 final class NativeError extends IdScriptableObject
 {
-    static final long serialVersionUID = -5338413581437645187L;
+    private static final long serialVersionUID = -5338413581437645187L;
 
     private static final Object ERROR_TAG = "Error";
 
@@ -382,9 +382,8 @@ final class NativeError extends IdScriptableObject
         public Object getStackTraceLimit(Scriptable thisObj) {
             if (stackTraceLimit >= 0) {
                 return stackTraceLimit;
-            } else {
-                return Double.POSITIVE_INFINITY;
             }
+            return Double.POSITIVE_INFINITY;
         }
 
         public int getStackTraceLimit() {

@@ -7,12 +7,13 @@
 package org.mozilla.javascript;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.mozilla.javascript.debug.DebuggableScript;
 
 final class InterpreterData implements Serializable, DebuggableScript
 {
-    static final long serialVersionUID = 5067677351589230234L;
+    private static final long serialVersionUID = 5067677351589230234L;
 
     static final int INITIAL_MAX_ICODE_LENGTH = 1024;
     static final int INITIAL_STRINGTABLE_SIZE = 64;
@@ -89,31 +90,39 @@ final class InterpreterData implements Serializable, DebuggableScript
 
     boolean evalScriptFlag; // true if script corresponds to eval() code
 
+    private int icodeHashCode = 0;
+
+    @Override
     public boolean isTopLevel()
     {
         return topLevel;
     }
 
+    @Override
     public boolean isFunction()
     {
         return itsFunctionType != 0;
     }
 
+    @Override
     public String getFunctionName()
     {
         return itsName;
     }
 
+    @Override
     public int getParamCount()
     {
         return argCount;
     }
 
+    @Override
     public int getParamAndVarCount()
     {
         return argNames.length;
     }
 
+    @Override
     public String getParamOrVarName(int index)
     {
         return argNames[index];
@@ -124,33 +133,48 @@ final class InterpreterData implements Serializable, DebuggableScript
         return argIsConst[index];
     }
 
+    @Override
     public String getSourceName()
     {
         return itsSourceFile;
     }
 
+    @Override
     public boolean isGeneratedScript()
     {
         return ScriptRuntime.isGeneratedScript(itsSourceFile);
     }
 
+    @Override
     public int[] getLineNumbers()
     {
         return Interpreter.getLineNumbers(this);
     }
 
+    @Override
     public int getFunctionCount()
     {
         return (itsNestedFunctions == null) ? 0 : itsNestedFunctions.length;
     }
 
+    @Override
     public DebuggableScript getFunction(int index)
     {
         return itsNestedFunctions[index];
     }
 
+    @Override
     public DebuggableScript getParent()
     {
          return parentData;
+    }
+
+    public int icodeHashCode()
+    {
+        int h = icodeHashCode;
+        if (h == 0) {
+            icodeHashCode = h = Arrays.hashCode(itsICode);
+        }
+        return h;
     }
 }

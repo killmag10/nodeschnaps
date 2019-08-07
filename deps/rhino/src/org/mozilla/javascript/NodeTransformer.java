@@ -6,13 +6,13 @@
 
 package org.mozilla.javascript;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.Jump;
 import org.mozilla.javascript.ast.Scope;
 import org.mozilla.javascript.ast.ScriptNode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class transforms a tree to a lower-level representation for codegen.
@@ -278,9 +278,8 @@ public class NodeTransformer
                       || ((FunctionNode)tree).requiresActivation();
                   node = visitLet(createWith, parent, previous, node);
                   break;
-                } else {
-                  // fall through to process let declaration...
                 }
+                // fall through to process let declaration...
               }
               /* fall through */
               case Token.CONST:

@@ -80,7 +80,7 @@ import java.security.PrivilegedAction;
  *     {
  *         MyContext mcx = (MyContext)cx;
  *         long currentTime = System.currentTimeMillis();
- *         if (currentTime - mcx.startTime > 10*1000) {
+ *         if (currentTime - mcx.startTime &gt; 10*1000) {
  *             // More then 10 seconds from Context creation time:
  *             // it is time to stop the script.
  *             // Throw Error instance to ensure that script will never
@@ -103,7 +103,6 @@ import java.security.PrivilegedAction;
  *     }
  *
  * }
- *
  * </pre>
  */
 
@@ -191,9 +190,11 @@ public class ContextFactory
         }
         hasCustomGlobal = true;
         class GlobalSetterImpl implements GlobalSetter {
+            @Override
             public void setContextFactoryGlobal(ContextFactory factory) {
                 global = factory == null ? new ContextFactory() : factory;
             }
+            @Override
             public ContextFactory getContextFactoryGlobal() {
                 return global;
             }
@@ -294,6 +295,9 @@ public class ContextFactory
 
           case Context.FEATURE_INTEGER_WITHOUT_DECIMAL_PLACE:
               return false;
+
+          case Context.FEATURE_LITTLE_ENDIAN:
+              return false;
         }
         // It is a bug to call the method with unknown featureIndex
         throw new IllegalArgumentException(String.valueOf(featureIndex));
@@ -336,9 +340,8 @@ public class ContextFactory
             return org.mozilla.javascript.xml.XMLLib.Factory.create(
                 "org.mozilla.javascript.xmlimpl.XMLLibImpl"
             );
-        } else {
-            return null;
         }
+        return null;
     }
 
 
@@ -353,6 +356,7 @@ public class ContextFactory
     protected GeneratedClassLoader createClassLoader(final ClassLoader parent)
     {
         return AccessController.doPrivileged(new PrivilegedAction<DefiningClassLoader>() {
+            @Override
             public DefiningClassLoader run(){
                 return new DefiningClassLoader(parent);
             }
@@ -510,7 +514,7 @@ public class ContextFactory
      *                   Scriptable scope, Scriptable thisObj,
      *                   Object[] args)
      */
-    public final Object call(ContextAction action)
+    public final <T> T call(ContextAction<T> action)
     {
         return Context.call(this, action);
     }

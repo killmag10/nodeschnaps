@@ -14,7 +14,7 @@ import org.mozilla.javascript.Undefined;
 
 /**
  * An array view that stores 64-bit quantities and implements the JavaScript "Float64Array" interface.
- * It also implements List<Double> for direct manipulation in Java.
+ * It also implements List&lt;Double&gt; for direct manipulation in Java.
  */
 
 public class NativeFloat64Array
@@ -52,7 +52,7 @@ public class NativeFloat64Array
     }
 
     @Override
-    protected NativeTypedArrayView construct(NativeArrayBuffer ab, int off, int len)
+    protected NativeFloat64Array construct(NativeArrayBuffer ab, int off, int len)
     {
         return new NativeFloat64Array(ab, off, len);
     }
@@ -64,7 +64,7 @@ public class NativeFloat64Array
     }
 
     @Override
-    protected NativeTypedArrayView realThis(Scriptable thisObj, IdFunctionObject f)
+    protected NativeFloat64Array realThis(Scriptable thisObj, IdFunctionObject f)
     {
         if (!(thisObj instanceof NativeFloat64Array)) {
             throw incompatibleCallError(f);
@@ -78,7 +78,7 @@ public class NativeFloat64Array
         if (checkIndex(index)) {
             return Undefined.instance;
         }
-        long base = ByteIo.readUint64Primitive(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, false);
+        long base = ByteIo.readUint64Primitive(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, useLittleEndian());
         return Double.longBitsToDouble(base);
     }
 
@@ -90,7 +90,7 @@ public class NativeFloat64Array
         }
         double val = ScriptRuntime.toNumber(c);
         long base = Double.doubleToLongBits(val);
-        ByteIo.writeUint64(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, base, false);
+        ByteIo.writeUint64(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, base, useLittleEndian());
         return null;
     }
 

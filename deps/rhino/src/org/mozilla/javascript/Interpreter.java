@@ -6,17 +6,19 @@
 
 package org.mozilla.javascript;
 
+import static org.mozilla.javascript.UniqueTag.DOUBLE_MARK;
+
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
+import org.mozilla.javascript.ScriptRuntime.NoSuchMethodShim;
 import org.mozilla.javascript.ast.FunctionNode;
 import org.mozilla.javascript.ast.ScriptNode;
-import org.mozilla.javascript.ScriptRuntime.NoSuchMethodShim;
 import org.mozilla.javascript.debug.DebugFrame;
-
-import static org.mozilla.javascript.UniqueTag.DOUBLE_MARK;
 
 public final class Interpreter extends Icode implements Evaluator
 {
@@ -38,16 +40,18 @@ public final class Interpreter extends Icode implements Evaluator
      */
     private static class CallFrame implements Cloneable, Serializable
     {
-        static final long serialVersionUID = -2843792508994958978L;
+        private static final long serialVersionUID = -2843792508994958978L;
 
-        CallFrame parentFrame;
+        // fields marked "final" in a comment are effectively final except when they're modified immediately after cloning.
+
+        /*final*/ CallFrame parentFrame;
         // amount of stack frames before this one on the interpretation stack
-        int frameIndex;
+        /*final*/ int frameIndex;
         // If true indicates read-only frame that is a part of continuation
         boolean frozen;
 
-        InterpretedFunction fnOrScript;
-        InterpreterData idata;
+        final InterpretedFunction fnOrScript;
+        final InterpreterData idata;
 
 // Stack structure
 // stack[0 <= i < localShift]: arguments and local variables
@@ -55,18 +59,19 @@ public final class Interpreter extends Icode implements Evaluator
 // stack[emptyStackTop < i < stack.length]: stack data
 // sDbl[i]: if stack[i] is UniqueTag.DOUBLE_MARK, sDbl[i] holds the number value
 
-        Object[] stack;
-        int[] stackAttributes;
-        double[] sDbl;
-        CallFrame varSource; // defaults to this unless continuation frame
-        int localShift;
-        int emptyStackTop;
+        /*final*/ Object[] stack;
+        /*final*/ int[] stackAttributes;
+        /*final*/ double[] sDbl;
 
-        DebugFrame debuggerFrame;
-        boolean useActivation;
+        final CallFrame varSource; // defaults to this unless continuation frame
+        final int localShift;
+        final int emptyStackTop;
+
+        final DebugFrame debuggerFrame;
+        final boolean useActivation;
         boolean isContinuationsTopFrame;
 
-        Scriptable thisObj;
+        final Scriptable thisObj;
 
 // The values that change during interpretation
 
@@ -80,6 +85,100 @@ public final class Interpreter extends Icode implements Evaluator
         int savedStackTop;
         int savedCallOp;
         Object throwable;
+
+        CallFrame(Context cx, Scriptable thisObj, InterpretedFunction fnOrScript, CallFrame parentFrame) {
+            idata = fnOrScript.idata;
+
+            debuggerFrame = cx.debugger != null ? cx.debugger.getFrame(cx, idata) : null;
+            useActivation = debuggerFrame != null || idata.itsNeedsActivation;
+
+            emptyStackTop = idata.itsMaxVars + idata.itsMaxLocals - 1;
+            this.fnOrScript = fnOrScript;
+            varSource = this;
+            localShift = idata.itsMaxVars;
+            this.thisObj = thisObj;
+
+            this.parentFrame = parentFrame;
+            frameIndex = (parentFrame == null) ? 0 : parentFrame.frameIndex + 1;
+            if(frameIndex > cx.getMaximumInterpreterStackDepth()) {
+                throw Context.reportRuntimeError("Exceeded maximum stack depth");
+            }
+
+            // Initialize initial values of variables that change during
+            // interpretation.
+            result = Undefined.instance;
+            pcSourceLineStart = idata.firstLinePC;
+
+            savedStackTop = emptyStackTop;
+        }
+
+        void initializeArgs(Context cx, Scriptable callerScope, Object[] args, double[] argsDbl, int argShift, int argCount) {
+            if (useActivation) {
+                // Copy args to new array to pass to enterActivationFunction
+                // or debuggerFrame.onEnter
+                if (argsDbl != null) {
+                    args = getArgsArray(args, argsDbl, argShift, argCount);
+                }
+                argShift = 0;
+                argsDbl = null;
+            }
+
+            if (idata.itsFunctionType != 0) {
+                scope = fnOrScript.getParentScope();
+
+                if (useActivation) {
+                    if (idata.itsFunctionType == FunctionNode.ARROW_FUNCTION) {
+                        scope = ScriptRuntime.createArrowFunctionActivation(fnOrScript, scope, args, idata.isStrict);
+                    } else {
+                        scope = ScriptRuntime.createFunctionActivation(fnOrScript, scope, args, idata.isStrict);
+                    }
+                }
+            } else {
+                scope = callerScope;
+                ScriptRuntime.initScript(fnOrScript, thisObj, cx, scope,
+                                         fnOrScript.idata.evalScriptFlag);
+            }
+
+            if (idata.itsNestedFunctions != null) {
+                if (idata.itsFunctionType != 0 && !idata.itsNeedsActivation)
+                    Kit.codeBug();
+                for (int i = 0; i < idata.itsNestedFunctions.length; i++) {
+                    InterpreterData fdata = idata.itsNestedFunctions[i];
+                    if (fdata.itsFunctionType == FunctionNode.FUNCTION_STATEMENT) {
+                        initFunction(cx, scope, fnOrScript, i);
+                    }
+                }
+            }
+
+            final int maxFrameArray = idata.itsMaxFrameArray;
+            // TODO: move this check into InterpreterData construction
+            if (maxFrameArray != emptyStackTop + idata.itsMaxStack + 1)
+                Kit.codeBug();
+
+            // Initialize args, vars, locals and stack
+
+            stack = new Object[maxFrameArray];
+            stackAttributes = new int[maxFrameArray];
+            sDbl = new double[maxFrameArray];
+
+            int varCount = idata.getParamAndVarCount();
+            for (int i = 0; i < varCount; i++) {
+                if (idata.getParamOrVarConst(i))
+                    stackAttributes[i] = ScriptableObject.CONST;
+            }
+            int definedArgs = idata.argCount;
+            if (definedArgs > argCount) { definedArgs = argCount; }
+
+            // Fill the frame structure
+
+            System.arraycopy(args, argShift, stack, 0, definedArgs);
+            if (argsDbl != null) {
+                System.arraycopy(argsDbl, argShift, sDbl, 0, definedArgs);
+            }
+            for (int i = definedArgs; i != idata.itsMaxVars; ++i) {
+                stack[i] = Undefined.instance;
+            }
+        }
 
         CallFrame cloneFrozen()
         {
@@ -102,11 +201,101 @@ public final class Interpreter extends Icode implements Evaluator
             copy.frozen = false;
             return copy;
         }
+
+        @Override
+        public boolean equals(Object other) {
+            // Overridden for semantic equality comparison. These objects
+            // are typically exposed as NativeContinuation.implementation,
+            // comparing them allows establishing whether the continuations
+            // are semantically equal.
+            if (other instanceof CallFrame) {
+                // If the call is not within a Context with a top call, we force
+                // one. It is required as some objects within fully initialized
+                // global scopes (notably, XMLLibImpl) need to have a top scope
+                // in order to evaluate their attributes.
+                final Context cx = Context.enter();
+                try {
+                    if (ScriptRuntime.hasTopCall(cx)) {
+                        return equalsInTopScope(other);
+                    }
+                    final Scriptable top = ScriptableObject.getTopLevelScope(scope);
+                    return (Boolean)ScriptRuntime.doTopCall(
+                            (Callable)(c, scope, thisObj, args) -> equalsInTopScope(other),
+                            cx, top, top, ScriptRuntime.emptyArgs, isStrictTopFrame());
+                } finally {
+                    Context.exit();
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            // Overridden for consistency with equals.
+            // Trying to strike a balance between speed of calculation and
+            // distribution. Not hashing stack variables as those could have
+            // unbounded computational cost and limit it to topmost 8 frames.
+            int depth = 0;
+            CallFrame f = this;
+            int h = 0;
+            do {
+                h = 31 * (31 * h + f.pc) + f.idata.icodeHashCode();
+                f = f.parentFrame;
+            } while(f != null && depth++ < 8);
+            return h;
+        }
+
+        private boolean equalsInTopScope(Object other) {
+            return EqualObjectGraphs.withThreadLocal(eq -> equals(this, (CallFrame)other, eq));
+        }
+
+        private boolean isStrictTopFrame() {
+            CallFrame f = this;
+            for(;;) {
+                final CallFrame p = f.parentFrame;
+                if (p == null) {
+                    return f.idata.isStrict;
+                }
+                f = p;
+            }
+        }
+
+        private static boolean equals(CallFrame f1, CallFrame f2, EqualObjectGraphs equal) {
+            // Iterative instead of recursive, as interpreter stack depth can
+            // be larger than JVM stack depth.
+            for(;;) {
+                if (f1 == f2) {
+                    return true;
+                } else if (f1 == null || f2 == null) {
+                    return false;
+                } else if (!f1.fieldsEqual(f2, equal)) {
+                    return false;
+                } else {
+                    f1 = f1.parentFrame;
+                    f2 = f2.parentFrame;
+                }
+            }
+        }
+
+        private boolean fieldsEqual(CallFrame other, EqualObjectGraphs equal) {
+            return frameIndex == other.frameIndex &&
+                    pc == other.pc &&
+                    compareIdata(idata, other.idata) &&
+                    equal.equalGraphs(varSource.stack, other.varSource.stack) &&
+                    Arrays.equals(varSource.sDbl, other.varSource.sDbl) &&
+                    equal.equalGraphs(thisObj, other.thisObj) &&
+                    equal.equalGraphs(fnOrScript, other.fnOrScript) &&
+                    equal.equalGraphs(scope, other.scope);
+        }
+    }
+
+    private static boolean compareIdata(InterpreterData i1, InterpreterData i2) {
+        return i1 == i2 || Objects.equals(getEncodedSource(i1), getEncodedSource(i2));
     }
 
     private static final class ContinuationJump implements Serializable
     {
-        static final long serialVersionUID = 7687739156004308247L;
+        private static final long serialVersionUID = 7687739156004308247L;
 
         CallFrame capturedFrame;
         CallFrame branchFrame;
@@ -185,6 +374,7 @@ public final class Interpreter extends Icode implements Evaluator
         }
     }
 
+    @Override
     public Object compile(CompilerEnvirons compilerEnv,
                           ScriptNode tree,
                           String encodedSource,
@@ -195,6 +385,7 @@ public final class Interpreter extends Icode implements Evaluator
         return itsData;
     }
 
+    @Override
     public Script createScriptObject(Object bytecode, Object staticSecurityDomain)
     {
         if(bytecode != itsData)
@@ -205,11 +396,12 @@ public final class Interpreter extends Icode implements Evaluator
                                                 staticSecurityDomain);
     }
 
+    @Override
     public void setEvalScriptFlag(Script script) {
         ((InterpretedFunction)script).idata.evalScriptFlag = true;
     }
 
-
+    @Override
     public Function createFunctionObject(Context cx, Scriptable scope,
             Object bytecode, Object staticSecurityDomain)
     {
@@ -591,6 +783,7 @@ public final class Interpreter extends Icode implements Evaluator
         return presentLines.getKeys();
     }
 
+    @Override
     public void captureStackInfo(RhinoException ex)
     {
         Context cx = Context.getCurrentContext();
@@ -646,6 +839,7 @@ public final class Interpreter extends Icode implements Evaluator
         ex.interpreterLineData = linePC;
     }
 
+    @Override
     public String getSourcePositionFromStack(Context cx, int[] linep)
     {
         CallFrame frame = (CallFrame)cx.lastInterpreterFrame;
@@ -658,6 +852,7 @@ public final class Interpreter extends Icode implements Evaluator
         return idata.itsSourceFile;
     }
 
+    @Override
     public String getPatchedStack(RhinoException ex,
                                   String nativeStackTrace)
     {
@@ -717,6 +912,7 @@ public final class Interpreter extends Icode implements Evaluator
         return sb.toString();
     }
 
+    @Override
     public List<String> getScriptStack(RhinoException ex) {
         ScriptStackElement[][] stack = getScriptStackElements(ex);
         List<String> list = new ArrayList<String>(stack.length);
@@ -806,9 +1002,8 @@ public final class Interpreter extends Icode implements Evaluator
             }
         }
 
-        CallFrame frame = new CallFrame();
-        initFrame(cx, scope, thisObj, args, null, 0, args.length,
-                  ifun, null, frame);
+        CallFrame frame = initFrame(cx, scope, thisObj, args, null, 0, args.length,
+                  ifun, null);
         frame.isContinuationsTopFrame = cx.isContinuationsTopCall;
         cx.isContinuationsTopCall = false;
 
@@ -983,22 +1178,20 @@ switch (op) {
               generatorFrame.fnOrScript, generatorFrame);
           frame.result = generator;
           break Loop;
-        } else {
-          // We are now resuming execution. Fall through to YIELD case.
         }
+        // We are now resuming execution. Fall through to YIELD case.
     }
     // fall through...
     case Token.YIELD: {
         if (!frame.frozen) {
             return freezeGenerator(cx, frame, stackTop, generatorState);
-        } else {
-            Object obj = thawGenerator(frame, stackTop, generatorState, op);
-            if (obj != Scriptable.NOT_FOUND) {
-                throwable = obj;
-                break withoutExceptions;
-            }
-            continue Loop;
         }
+        Object obj = thawGenerator(frame, stackTop, generatorState, op);
+        if (obj != Scriptable.NOT_FOUND) {
+            throwable = obj;
+            break withoutExceptions;
+        }
+        continue Loop;
     }
     case Icode_GENERATOR_END: {
       // throw StopIteration
@@ -1379,7 +1572,6 @@ switch (op) {
             InterpretedFunction ifun = (InterpretedFunction)fun;
             if (frame.fnOrScript.securityDomain == ifun.securityDomain) {
                 CallFrame callParentFrame = frame;
-                CallFrame calleeFrame = new CallFrame();
                 if (op == Icode_TAIL_CALL) {
                     // In principle tail call can re-use the current
                     // frame and its stack arrays but it is hard to
@@ -1401,9 +1593,8 @@ switch (op) {
                     // it is being done here.
                     exitFrame(cx, frame, null);
                 }
-                initFrame(cx, calleeScope, funThisObj, stack, sDbl,
-                          stackTop + 2, indexReg, ifun, callParentFrame,
-                          calleeFrame);
+                CallFrame calleeFrame = initFrame(cx, calleeScope, funThisObj, stack, sDbl,
+                          stackTop + 2, indexReg, ifun, callParentFrame);
                 if (op != Icode_TAIL_CALL) {
                     frame.savedStackTop = stackTop;
                     frame.savedCallOp = op;
@@ -1494,10 +1685,8 @@ switch (op) {
             InterpretedFunction f = (InterpretedFunction)lhs;
             if (frame.fnOrScript.securityDomain == f.securityDomain) {
                 Scriptable newInstance = f.createObject(cx, frame.scope);
-                CallFrame calleeFrame = new CallFrame();
-                initFrame(cx, frame.scope, newInstance, stack, sDbl,
-                          stackTop + 1, indexReg, f, frame,
-                          calleeFrame);
+                CallFrame calleeFrame = initFrame(cx, frame.scope, newInstance, stack, sDbl,
+                          stackTop + 1, indexReg, f, frame);
 
                 stack[stackTop] = newInstance;
                 frame.savedStackTop = stackTop;
@@ -2085,10 +2274,9 @@ switch (op) {
         if (throwable != null) {
             if (throwable instanceof RuntimeException) {
                 throw (RuntimeException)throwable;
-            } else {
-                // Must be instance of Error or code bug
-                throw (Error)throwable;
             }
+            // Must be instance of Error or code bug
+            throw (Error)throwable;
         }
 
         return (interpreterResult != DBL_MRK)
@@ -2472,15 +2660,14 @@ switch (op) {
 
         // exactly the same as if it's a regular InterpretedFunction
         CallFrame callParentFrame = frame;
-        CallFrame calleeFrame = new CallFrame();
         if (op == Icode_TAIL_CALL) {
             callParentFrame = frame.parentFrame;
             exitFrame(cx, frame, null);
         }
         // init the frame with the underlying method with the
         // adjusted args array and shim's function
-        initFrame(cx, calleeScope, funThisObj, argsArray, null,
-          0, 2, ifun, callParentFrame, calleeFrame);
+        CallFrame calleeFrame = initFrame(cx, calleeScope, funThisObj, argsArray, null,
+          0, 2, ifun, callParentFrame);
         if (op != Icode_TAIL_CALL) {
             frame.savedStackTop = stackTop;
             frame.savedCallOp = op;
@@ -2495,16 +2682,13 @@ switch (op) {
         if (rhs == DOUBLE_MARK) {
             if (lhs == DOUBLE_MARK) {
                 return (sDbl[stackTop] == sDbl[stackTop + 1]);
-            } else {
-                return ScriptRuntime.eqNumber(sDbl[stackTop + 1], lhs);
             }
-        } else {
-            if (lhs == DOUBLE_MARK) {
-                return ScriptRuntime.eqNumber(sDbl[stackTop], rhs);
-            } else {
-                return ScriptRuntime.eq(lhs, rhs);
-            }
+            return ScriptRuntime.eqNumber(sDbl[stackTop + 1], lhs);
         }
+        if (lhs == DOUBLE_MARK) {
+            return ScriptRuntime.eqNumber(sDbl[stackTop], rhs);
+        }
+        return ScriptRuntime.eq(lhs, rhs);
     }
 
     private static boolean doShallowEquals(Object[] stack, double[] sDbl,
@@ -2597,7 +2781,7 @@ switch (op) {
             CallFrame x = cjump.capturedFrame;
             for (int i = 0; i != rewindCount; ++i) {
                 if (!x.frozen) Kit.codeBug();
-                if (isFrameEnterExitRequired(x)) {
+                if (x.useActivation) {
                     if (enterFrames == null) {
                         // Allocate enough space to store the rest
                         // of rewind frames in case all of them
@@ -2703,12 +2887,12 @@ switch (op) {
             frame.savedStackTop = stackTop;
             frame.savedCallOp = op;
         }
-        CallFrame calleeFrame = new CallFrame();
+        final CallFrame calleeFrame;
         if(BaseFunction.isApply(ifun)) {
             Object[] callArgs = indexReg < 2 ? ScriptRuntime.emptyArgs :
                 ScriptRuntime.getApplyArguments(cx, stack[stackTop + 3]);
-            initFrame(cx, calleeScope, applyThis, callArgs, null, 0,
-                    callArgs.length, iApplyCallable, frame, calleeFrame);
+            calleeFrame = initFrame(cx, calleeScope, applyThis, callArgs, null, 0,
+                    callArgs.length, iApplyCallable, frame);
         }
         else {
             // Shift args left
@@ -2717,160 +2901,24 @@ switch (op) {
                 sDbl[stackTop + 1 + i] = sDbl[stackTop + 2 + i];
             }
             int argCount = indexReg < 2 ? 0 : indexReg - 1;
-            initFrame(cx, calleeScope, applyThis, stack, sDbl, stackTop + 2,
-                    argCount, iApplyCallable, frame, calleeFrame);
+            calleeFrame = initFrame(cx, calleeScope, applyThis, stack, sDbl, stackTop + 2,
+                    argCount, iApplyCallable, frame);
         }
 
-        frame = calleeFrame;
-        return frame;
+        return calleeFrame;
     }
 
-    private static void initFrame(Context cx, Scriptable callerScope,
+    private static CallFrame initFrame(Context cx, Scriptable callerScope,
                                   Scriptable thisObj,
                                   Object[] args, double[] argsDbl,
                                   int argShift, int argCount,
                                   InterpretedFunction fnOrScript,
-                                  CallFrame parentFrame, CallFrame frame)
+                                  CallFrame parentFrame)
     {
-        InterpreterData idata = fnOrScript.idata;
-
-        boolean useActivation = idata.itsNeedsActivation;
-        DebugFrame debuggerFrame = null;
-        if (cx.debugger != null) {
-            debuggerFrame = cx.debugger.getFrame(cx, idata);
-            if (debuggerFrame != null) {
-                useActivation = true;
-            }
-        }
-
-        if (useActivation) {
-            // Copy args to new array to pass to enterActivationFunction
-            // or debuggerFrame.onEnter
-            if (argsDbl != null) {
-                args = getArgsArray(args, argsDbl, argShift, argCount);
-            }
-            argShift = 0;
-            argsDbl = null;
-        }
-
-        Scriptable scope;
-        if (idata.itsFunctionType != 0) {
-            scope = fnOrScript.getParentScope();
-
-            if (useActivation) {
-                if (idata.itsFunctionType == FunctionNode.ARROW_FUNCTION) {
-                    scope = ScriptRuntime.createArrowFunctionActivation(fnOrScript, scope, args, idata.isStrict);
-                } else {
-                    scope = ScriptRuntime.createFunctionActivation(fnOrScript, scope, args, idata.isStrict);
-                }
-            }
-        } else {
-            scope = callerScope;
-            ScriptRuntime.initScript(fnOrScript, thisObj, cx, scope,
-                                     fnOrScript.idata.evalScriptFlag);
-        }
-
-        if (idata.itsNestedFunctions != null) {
-            if (idata.itsFunctionType != 0 && !idata.itsNeedsActivation)
-                Kit.codeBug();
-            for (int i = 0; i < idata.itsNestedFunctions.length; i++) {
-                InterpreterData fdata = idata.itsNestedFunctions[i];
-                if (fdata.itsFunctionType == FunctionNode.FUNCTION_STATEMENT) {
-                    initFunction(cx, scope, fnOrScript, i);
-                }
-            }
-        }
-
-        // Initialize args, vars, locals and stack
-
-        int emptyStackTop = idata.itsMaxVars + idata.itsMaxLocals - 1;
-        int maxFrameArray = idata.itsMaxFrameArray;
-        if (maxFrameArray != emptyStackTop + idata.itsMaxStack + 1)
-            Kit.codeBug();
-
-        Object[] stack;
-        int[] stackAttributes;
-        double[] sDbl;
-        boolean stackReuse;
-        if (frame.stack != null && maxFrameArray <= frame.stack.length) {
-            // Reuse stacks from old frame
-            stackReuse = true;
-            stack = frame.stack;
-            stackAttributes = frame.stackAttributes;
-            sDbl = frame.sDbl;
-        } else {
-            stackReuse = false;
-            stack = new Object[maxFrameArray];
-            stackAttributes = new int[maxFrameArray];
-            sDbl = new double[maxFrameArray];
-        }
-
-        int varCount = idata.getParamAndVarCount();
-        for (int i = 0; i < varCount; i++) {
-            if (idata.getParamOrVarConst(i))
-                stackAttributes[i] = ScriptableObject.CONST;
-        }
-        int definedArgs = idata.argCount;
-        if (definedArgs > argCount) { definedArgs = argCount; }
-
-        // Fill the frame structure
-
-        frame.parentFrame = parentFrame;
-        frame.frameIndex = (parentFrame == null)
-                           ? 0 : parentFrame.frameIndex + 1;
-        if(frame.frameIndex > cx.getMaximumInterpreterStackDepth())
-        {
-            throw Context.reportRuntimeError("Exceeded maximum stack depth");
-        }
-        frame.frozen = false;
-
-        frame.fnOrScript = fnOrScript;
-        frame.idata = idata;
-
-        frame.stack = stack;
-        frame.stackAttributes = stackAttributes;
-        frame.sDbl = sDbl;
-        frame.varSource = frame;
-        frame.localShift = idata.itsMaxVars;
-        frame.emptyStackTop = emptyStackTop;
-
-        frame.debuggerFrame = debuggerFrame;
-        frame.useActivation = useActivation;
-
-        frame.thisObj = thisObj;
-
-        // Initialize initial values of variables that change during
-        // interpretation.
-        frame.result = Undefined.instance;
-        frame.pc = 0;
-        frame.pcPrevBranch = 0;
-        frame.pcSourceLineStart = idata.firstLinePC;
-        frame.scope = scope;
-
-        frame.savedStackTop = emptyStackTop;
-        frame.savedCallOp = 0;
-
-        System.arraycopy(args, argShift, stack, 0, definedArgs);
-        if (argsDbl != null) {
-            System.arraycopy(argsDbl, argShift, sDbl, 0, definedArgs);
-        }
-        for (int i = definedArgs; i != idata.itsMaxVars; ++i) {
-            stack[i] = Undefined.instance;
-        }
-        if (stackReuse) {
-            // Clean the stack part and space beyond stack if any
-            // of the old array to allow to GC objects there
-            for (int i = emptyStackTop + 1; i != stack.length; ++i) {
-                stack[i] = null;
-            }
-        }
-
+        CallFrame frame = new CallFrame(cx, thisObj, fnOrScript, parentFrame);
+        frame.initializeArgs(cx, callerScope, args, argsDbl, argShift, argCount);
         enterFrame(cx, frame, args, false);
-    }
-
-    private static boolean isFrameEnterExitRequired(CallFrame frame)
-    {
-        return frame.debuggerFrame != null || frame.idata.itsNeedsActivation;
+        return frame;
     }
 
     private static void enterFrame(Context cx, CallFrame frame, Object[] args,
@@ -3041,9 +3089,8 @@ switch (op) {
         Object x = frame.stack[i];
         if (x == UniqueTag.DOUBLE_MARK) {
             return ScriptRuntime.toInt32(frame.sDbl[i]);
-        } else {
-            return ScriptRuntime.toInt32(x);
         }
+        return ScriptRuntime.toInt32(x);
     }
 
     private static double stack_double(CallFrame frame, int i)
@@ -3051,9 +3098,8 @@ switch (op) {
         Object x = frame.stack[i];
         if (x != UniqueTag.DOUBLE_MARK) {
             return ScriptRuntime.toNumber(x);
-        } else {
-            return frame.sDbl[i];
         }
+        return frame.sDbl[i];
     }
 
     private static boolean stack_boolean(CallFrame frame, int i)

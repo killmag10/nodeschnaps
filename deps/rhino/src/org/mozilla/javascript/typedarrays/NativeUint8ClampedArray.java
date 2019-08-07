@@ -13,8 +13,8 @@ import org.mozilla.javascript.Undefined;
 
 /**
  * An array view that stores 8-bit quantities and implements the JavaScript "Uint8ClampedArray" interface.
- * It also implements List<Integer> for direct manipulation in Java. Bytes inserted that fall out of the range
- * (0 <= X < 256) will be adjusted so that they match before insertion.
+ * It also implements List&lt;Integer&gt; for direct manipulation in Java. Bytes inserted that fall out of the range
+ * (0 &lt;= X &lt; 256) will be adjusted so that they match before insertion.
  */
 
 public class NativeUint8ClampedArray
@@ -51,7 +51,7 @@ public class NativeUint8ClampedArray
     }
 
     @Override
-    protected NativeTypedArrayView construct(NativeArrayBuffer ab, int off, int len)
+    protected NativeUint8ClampedArray construct(NativeArrayBuffer ab, int off, int len)
     {
         return new NativeUint8ClampedArray(ab, off, len);
     }
@@ -63,7 +63,7 @@ public class NativeUint8ClampedArray
     }
 
     @Override
-    protected NativeTypedArrayView realThis(Scriptable thisObj, IdFunctionObject f)
+    protected NativeUint8ClampedArray realThis(Scriptable thisObj, IdFunctionObject f)
     {
         if (!(thisObj instanceof NativeUint8ClampedArray)) {
             throw incompatibleCallError(f);

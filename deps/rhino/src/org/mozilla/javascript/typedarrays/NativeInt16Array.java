@@ -13,7 +13,7 @@ import org.mozilla.javascript.Undefined;
 
 /**
  * An array view that stores 16-bit quantities and implements the JavaScript "Int16Array" interface.
- * It also implements List<Short> for direct manipulation in Java.
+ * It also implements List&lt;Short&gt; for direct manipulation in Java.
  */
 
 public class NativeInt16Array
@@ -51,7 +51,7 @@ public class NativeInt16Array
     }
 
     @Override
-    protected NativeTypedArrayView construct(NativeArrayBuffer ab, int off, int len)
+    protected NativeInt16Array construct(NativeArrayBuffer ab, int off, int len)
     {
         return new NativeInt16Array(ab, off, len);
     }
@@ -63,7 +63,7 @@ public class NativeInt16Array
     }
 
     @Override
-    protected NativeTypedArrayView realThis(Scriptable thisObj, IdFunctionObject f)
+    protected NativeInt16Array realThis(Scriptable thisObj, IdFunctionObject f)
     {
         if (!(thisObj instanceof NativeInt16Array)) {
             throw incompatibleCallError(f);
@@ -77,7 +77,7 @@ public class NativeInt16Array
         if (checkIndex(index)) {
             return Undefined.instance;
         }
-        return ByteIo.readInt16(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, false);
+        return ByteIo.readInt16(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, useLittleEndian());
     }
 
     @Override
@@ -87,7 +87,7 @@ public class NativeInt16Array
             return Undefined.instance;
         }
         int val = Conversions.toInt16(c);
-        ByteIo.writeInt16(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, val, false);
+        ByteIo.writeInt16(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, val, useLittleEndian());
         return null;
     }
 

@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import org.mozilla.classfile.ClassFileWriter.ClassFileFormatException;
 import org.mozilla.javascript.ast.AstRoot;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.debug.DebuggableScript;
@@ -67,6 +68,10 @@ public class Context
 
     /**
      * The unknown version.
+     * <p>Be aware, this version will not support many of the newer
+     * language features and will not change in the future.</p>
+     * <p>Please use one of the other constants like VERSION_ES6 to
+     * get support for recent language features.</p>
      */
     public static final int VERSION_UNKNOWN =   -1;
 
@@ -128,7 +133,7 @@ public class Context
     /**
      * Controls behaviour of <tt>Date.prototype.getYear()</tt>.
      * If <tt>hasFeature(FEATURE_NON_ECMA_GET_YEAR)</tt> returns true,
-     * Date.prototype.getYear subtructs 1900 only if 1900 <= date < 2000.
+     * Date.prototype.getYear subtructs 1900 only if 1900 &lt;= date &lt; 2000.
      * The default behavior of {@link #hasFeature(int)} is always to subtruct
      * 1900 as rquired by ECMAScript B.2.4.
      */
@@ -304,7 +309,7 @@ public class Context
     /**
      * Defines how an undefined  "this" parameter is handled in certain calls. Previously Rhino
      * would convert an undefined "this" to null, whereas recent specs call for it to be treated
-     * differently. Default is to be set if language version <= 1.7.
+     * differently. Default is to be set if language version &lt;= 1.7.
      * @since 1.7.7
      */
     public static final int FEATURE_OLD_UNDEF_NULL_THIS = 15;
@@ -312,7 +317,7 @@ public class Context
     /**
      * If set, then the order of property key enumeration will be first numeric keys in numeric order,
      * followed by string keys in order of creation, and finally Symbol keys, as specified in ES6.
-     * Default is true for language version >= "ES6" and false otherwise.
+     * Default is true for language version &gt;= "ES6" and false otherwise.
      * @since 1.7.7.1
      */
     public static final int FEATURE_ENUMERATE_IDS_FIRST = 16;
@@ -334,6 +339,13 @@ public class Context
      * 5 will be returned if feature is set, 5.0 otherwise.
      */
     public static final int FEATURE_INTEGER_WITHOUT_DECIMAL_PLACE = 18;
+
+    /**
+     * TypedArray buffer uses little/big endian depending on the platform.
+     * The default is big endian for Rhino.
+     * @since 1.7 Release 11
+     */
+    public static final int FEATURE_LITTLE_ENDIAN = 19;
 
     public static final String languageVersionProperty = "language version";
     public static final String errorReporterProperty   = "error reporter";
@@ -501,7 +513,7 @@ public class Context
      * @return The result of {@link ContextAction#run(Context)}.
      */
     @Deprecated
-    public static Object call(ContextAction action)
+    public static <T> T call(ContextAction<T> action)
     {
         return call(ContextFactory.getGlobal(), action);
     }
@@ -528,17 +540,13 @@ public class Context
         if(factory == null) {
             factory = ContextFactory.getGlobal();
         }
-        return call(factory, new ContextAction() {
-            public Object run(Context cx) {
-                return callable.call(cx, scope, thisObj, args);
-            }
-        });
+        return call(factory, cx -> callable.call(cx, scope, thisObj, args));
     }
 
     /**
      * The method implements {@link ContextFactory#call(ContextAction)} logic.
      */
-    static Object call(ContextFactory factory, ContextAction action) {
+    static <T> T call(ContextFactory factory, ContextAction<T> action) {
         Context cx = enter(null, factory);
         try {
             return action.run(cx);
@@ -568,9 +576,7 @@ public class Context
                 Method m = cl.getMethod("attachTo", sig);
                 m.invoke(listener, args);
             } catch (Exception ex) {
-                RuntimeException rex = new RuntimeException();
-                Kit.initCause(rex, ex);
-                throw rex;
+                throw new RuntimeException(ex);
             }
             return;
         }
@@ -997,10 +1003,8 @@ public class Context
             return cx.getErrorReporter().
                             runtimeError(message, sourceName, lineno,
                                          lineSource, lineOffset);
-        } else {
-            throw new EvaluatorException(message, sourceName, lineno,
-                                         lineSource, lineOffset);
         }
+        throw new EvaluatorException(message, sourceName, lineno, lineSource, lineOffset);
     }
 
     static EvaluatorException reportRuntimeError0(String messageId)
@@ -1260,9 +1264,8 @@ public class Context
                                       securityDomain);
         if (script != null) {
             return script.exec(this, scope);
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
@@ -1291,9 +1294,8 @@ public class Context
                                       securityDomain);
         if (script != null) {
             return script.exec(this, scope);
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
@@ -1515,9 +1517,9 @@ public class Context
             return (Script) compileImpl(null, null, source, sourceName, lineno,
                                         securityDomain, false,
                                         compiler, compilationErrorReporter);
-        } catch (IOException ex) {
+        } catch (IOException ioe) {
             // Should not happen when dealing with source as string
-            throw new RuntimeException();
+            throw new RuntimeException(ioe);
         }
     }
 
@@ -1560,7 +1562,7 @@ public class Context
         catch (IOException ioe) {
             // Should never happen because we just made the reader
             // from a String
-            throw new RuntimeException();
+            throw new RuntimeException(ioe);
         }
     }
 
@@ -1596,9 +1598,8 @@ public class Context
     {
         if (fun instanceof BaseFunction)
             return ((BaseFunction)fun).decompile(indent, 0);
-        else
-            return "function " + fun.getClassName() +
-                   "() {\n\t[native code]\n}\n";
+
+        return "function " + fun.getClassName() + "() {\n\t[native code]\n}\n";
     }
 
     /**
@@ -1888,10 +1889,7 @@ public class Context
         try {
             return jsToJava(value, desiredType);
         } catch (EvaluatorException ex) {
-            IllegalArgumentException
-                ex2 = new IllegalArgumentException(ex.getMessage());
-            Kit.initCause(ex2, ex);
-            throw ex2;
+            throw new IllegalArgumentException(ex.getMessage(), ex);
         }
     }
 
@@ -2146,9 +2144,13 @@ public class Context
             return null;
         hasClassShutter = true;
         return new ClassShutterSetter() {
+
+            @Override
             public void setClassShutter(ClassShutter shutter) {
                 classShutter = shutter;
             }
+
+            @Override
             public ClassShutter getClassShutter() {
                 return classShutter;
             }
@@ -2353,7 +2355,7 @@ public class Context
      * When the threshold is zero, instruction counting is disabled,
      * otherwise each time the run-time executes at least the threshold value
      * of script instructions, <code>observeInstructionCount()</code> will
-     * be called.<p/>
+     * be called.<br>
      * Note that the meaning of "instruction" is not guaranteed to be
      * consistent between compiled and interpretive modes: executing a given
      * script or function in the different modes will result in different
@@ -2518,6 +2520,50 @@ public class Context
             }
         }
 
+        ScriptNode tree = parse(sourceReader, sourceString, sourceName, lineno,
+                                    compilerEnv, compilationErrorReporter, returnFunction);
+
+        Object bytecode;
+        try {
+            if (compiler == null) {
+                compiler = createCompiler();
+            }
+
+            bytecode = compiler.compile(compilerEnv, tree, tree.getEncodedSource(), returnFunction);
+        } catch (ClassFileFormatException e) {
+            // we hit some class file limit, fall back to interpreter or report
+            compiler = createInterpreter();
+
+            // we have to recreate the tree because the compile call might have changed the tree already
+            tree = parse(sourceReader, sourceString, sourceName, lineno,
+                            compilerEnv, compilationErrorReporter, returnFunction);
+            bytecode = compiler.compile(compilerEnv, tree, tree.getEncodedSource(), returnFunction);
+        }
+
+        if (debugger != null) {
+            if (sourceString == null) Kit.codeBug();
+            if (bytecode instanceof DebuggableScript) {
+                DebuggableScript dscript = (DebuggableScript)bytecode;
+                notifyDebugger_r(this, dscript, sourceString);
+            } else {
+                throw new RuntimeException("NOT SUPPORTED");
+            }
+        }
+
+        Object result;
+        if (returnFunction) {
+            result = compiler.createFunctionObject(this, scope, bytecode, securityDomain);
+        } else {
+            result = compiler.createScriptObject(bytecode, securityDomain);
+        }
+
+        return result;
+    }
+
+    private ScriptNode parse(Reader sourceReader, String sourceString,
+            String sourceName, int lineno,
+            CompilerEnvirons compilerEnv, ErrorReporter compilationErrorReporter,
+            boolean returnFunction) throws IOException {
         Parser p = new Parser(compilerEnv, compilationErrorReporter);
         if (returnFunction) {
             p.calledByCompileFunction = true;
@@ -2525,6 +2571,7 @@ public class Context
         if (isStrictMode()) {
             p.setDefaultUseStrictDirective(true);
         }
+
         AstRoot ast;
         if (sourceString != null) {
             ast = p.parse(sourceString, sourceName, lineno);
@@ -2546,37 +2593,7 @@ public class Context
 
         IRFactory irf = new IRFactory(compilerEnv, compilationErrorReporter);
         ScriptNode tree = irf.transformTree(ast);
-
-        // discard everything but the IR tree
-        p = null;
-        ast = null;
-        irf = null;
-
-        if (compiler == null) {
-            compiler = createCompiler();
-        }
-
-        Object bytecode = compiler.compile(compilerEnv,
-                                           tree, tree.getEncodedSource(),
-                                           returnFunction);
-        if (debugger != null) {
-            if (sourceString == null) Kit.codeBug();
-            if (bytecode instanceof DebuggableScript) {
-                DebuggableScript dscript = (DebuggableScript)bytecode;
-                notifyDebugger_r(this, dscript, sourceString);
-            } else {
-                throw new RuntimeException("NOT SUPPORTED");
-            }
-        }
-
-        Object result;
-        if (returnFunction) {
-            result = compiler.createFunctionObject(this, scope, bytecode, securityDomain);
-        } else {
-            result = compiler.createScriptObject(bytecode, securityDomain);
-        }
-
-        return result;
+        return tree;
     }
 
     private static void notifyDebugger_r(Context cx, DebuggableScript dscript,

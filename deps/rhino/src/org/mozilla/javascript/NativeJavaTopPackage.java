@@ -22,7 +22,7 @@ package org.mozilla.javascript;
 public class NativeJavaTopPackage
     extends NativeJavaPackage implements Function, IdFunctionCall
 {
-    static final long serialVersionUID = -1455787259477709999L;
+    private static final long serialVersionUID = -1455787259477709999L;
 
     // we know these are packages so we can skip the class check
     // note that this is ok even if the package isn't present.
@@ -42,12 +42,14 @@ public class NativeJavaTopPackage
         super(true, "", loader);
     }
 
+    @Override
     public Object call(Context cx, Scriptable scope, Scriptable thisObj,
                        Object[] args)
     {
         return construct(cx, scope, args);
     }
 
+    @Override
     public Scriptable construct(Context cx, Scriptable scope, Object[] args)
     {
         ClassLoader loader = null;
@@ -111,6 +113,7 @@ public class NativeJavaTopPackage
         }
     }
 
+    @Override
     public Object execIdCall(IdFunctionObject f, Context cx, Scriptable scope,
                              Scriptable thisObj, Object[] args)
     {

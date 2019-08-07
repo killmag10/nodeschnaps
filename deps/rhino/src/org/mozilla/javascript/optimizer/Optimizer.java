@@ -6,7 +6,9 @@
 
 package org.mozilla.javascript.optimizer;
 
-import org.mozilla.javascript.*;
+import org.mozilla.javascript.Node;
+import org.mozilla.javascript.ObjArray;
+import org.mozilla.javascript.Token;
 import org.mozilla.javascript.ast.ScriptNode;
 
 class Optimizer
@@ -180,8 +182,7 @@ class Optimizer
                             markDCPNumberContext(rChild);
                             return NoType;
                         }
-                        else
-                            return rType;
+                        return rType;
                     }
                     else if (theFunction.isNumberVar(varIndex)) {
                         if (rType != NumberType) {
@@ -257,10 +258,8 @@ class Optimizer
                         if (convertParameter(rChild)) {
                             return NoType;
                         }
-                        else {
-                            if (rType == NumberType) {
-                                n.putIntProp(Node.ISNUMBER_PROP, Node.RIGHT);
-                            }
+                        if (rType == NumberType) {
+                            n.putIntProp(Node.ISNUMBER_PROP, Node.RIGHT);
                         }
                     }
                     else {
@@ -275,9 +274,7 @@ class Optimizer
                                     n.putIntProp(Node.ISNUMBER_PROP, Node.BOTH);
                                     return NumberType;
                                 }
-                                else {
-                                    n.putIntProp(Node.ISNUMBER_PROP, Node.LEFT);
-                                }
+                                n.putIntProp(Node.ISNUMBER_PROP, Node.LEFT);
                             }
                             else {
                                 if (rType == NumberType) {
@@ -310,41 +307,35 @@ class Optimizer
                             n.putIntProp(Node.ISNUMBER_PROP, Node.BOTH);
                             return NumberType;
                         }
-                        else {
-                            if (!convertParameter(rChild)) {
-                                n.removeChild(rChild);
-                                n.addChildToBack(
-                                    new Node(Token.TO_DOUBLE, rChild));
-                                n.putIntProp(Node.ISNUMBER_PROP, Node.BOTH);
-                            }
-                            return NumberType;
-                        }
-                    }
-                    else {
-                        if (rType == NumberType) {
-                            if (!convertParameter(lChild)) {
-                                n.removeChild(lChild);
-                                n.addChildToFront(
-                                    new Node(Token.TO_DOUBLE, lChild));
-                                n.putIntProp(Node.ISNUMBER_PROP, Node.BOTH);
-                            }
-                            return NumberType;
-                        }
-                        else {
-                            if (!convertParameter(lChild)) {
-                                n.removeChild(lChild);
-                                n.addChildToFront(
-                                    new Node(Token.TO_DOUBLE, lChild));
-                            }
-                            if (!convertParameter(rChild)) {
-                                n.removeChild(rChild);
-                                n.addChildToBack(
-                                    new Node(Token.TO_DOUBLE, rChild));
-                            }
+                        if (!convertParameter(rChild)) {
+                            n.removeChild(rChild);
+                            n.addChildToBack(
+                                new Node(Token.TO_DOUBLE, rChild));
                             n.putIntProp(Node.ISNUMBER_PROP, Node.BOTH);
-                            return NumberType;
                         }
+                        return NumberType;
                     }
+                    if (rType == NumberType) {
+                        if (!convertParameter(lChild)) {
+                            n.removeChild(lChild);
+                            n.addChildToFront(
+                                new Node(Token.TO_DOUBLE, lChild));
+                            n.putIntProp(Node.ISNUMBER_PROP, Node.BOTH);
+                        }
+                        return NumberType;
+                    }
+                    if (!convertParameter(lChild)) {
+                        n.removeChild(lChild);
+                        n.addChildToFront(
+                            new Node(Token.TO_DOUBLE, lChild));
+                    }
+                    if (!convertParameter(rChild)) {
+                        n.removeChild(rChild);
+                        n.addChildToBack(
+                            new Node(Token.TO_DOUBLE, rChild));
+                    }
+                    n.putIntProp(Node.ISNUMBER_PROP, Node.BOTH);
+                    return NumberType;
                 }
             case Token.SETELEM :
             case Token.SETELEM_OP : {

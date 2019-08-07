@@ -6,13 +6,13 @@
 
 package org.mozilla.javascript;
 
-import org.mozilla.javascript.regexp.NativeRegExp;
+import static org.mozilla.javascript.ScriptRuntime.rangeError;
+import static org.mozilla.javascript.ScriptRuntimeES6.requireObjectCoercible;
 
 import java.text.Collator;
 import java.text.Normalizer;
 
-import static org.mozilla.javascript.ScriptRuntime.rangeError;
-import static org.mozilla.javascript.ScriptRuntimeES6.requireObjectCoercible;
+import org.mozilla.javascript.regexp.NativeRegExp;
 
 /**
  * This class implements the String native object.
@@ -25,10 +25,11 @@ import static org.mozilla.javascript.ScriptRuntimeES6.requireObjectCoercible;
  *
  * @author Mike McCabe
  * @author Norris Boyd
+ * @author Ronald Brill
  */
 final class NativeString extends IdScriptableObject
 {
-    static final long serialVersionUID = 920268368584188687L;
+    private static final long serialVersionUID = 920268368584188687L;
 
     private static final Object STRING_TAG = "String";
 
@@ -180,6 +181,8 @@ final class NativeString extends IdScriptableObject
           case Id_normalize:         arity=0; s="normalize";         break;
           case Id_repeat:            arity=1; s="repeat";            break;
           case Id_codePointAt:       arity=1; s="codePointAt";       break;
+          case Id_padStart:          arity=1; s="padStart";          break;
+          case Id_padEnd:            arity=1; s="padEnd";            break;
           default: throw new IllegalArgumentException(String.valueOf(id));
         }
         initPrototypeMethod(STRING_TAG, id, s, fnName, arity);
@@ -277,11 +280,11 @@ final class NativeString extends IdScriptableObject
                     double pos = ScriptRuntime.toInteger(args, 0);
                     if (pos < 0 || pos >= target.length()) {
                         if (id == Id_charAt) return "";
-                        else return ScriptRuntime.NaNobj;
+                        return ScriptRuntime.NaNobj;
                     }
                     char c = target.charAt((int) pos);
                     if (id == Id_charAt) return String.valueOf(c);
-                    else return ScriptRuntime.wrapInt(c);
+                    return ScriptRuntime.wrapInt(c);
                 }
 
                 case Id_indexOf:
@@ -299,12 +302,18 @@ final class NativeString extends IdScriptableObject
 
                     if (id == Id_includes) {
                         return idx != -1;
-                    } else if (id == Id_startsWith) {
+                    }
+                    if (id == Id_startsWith) {
                         return idx == 0;
-                    } else if (id == Id_endsWith) {
+                    }
+                    if (id == Id_endsWith) {
                         return idx != -1;
                     }
                     // fallthrough
+
+                case Id_padStart:
+                case Id_padEnd:
+                    return js_pad(cx, thisObj, f, args, id == Id_padStart);
 
                 case Id_lastIndexOf:
                     return ScriptRuntime.wrapInt(js_lastIndexOf(
@@ -594,19 +603,19 @@ final class NativeString extends IdScriptableObject
 
         if (position > target.length() && methodId != Id_startsWith && methodId != Id_endsWith) {
             return -1;
-        } else {
-            if (position < 0) position = 0;
-            else if (position > target.length()) position = target.length();
-            else if (methodId == Id_endsWith && (position != position  || position > target.length())) position = target.length();
-
-            if (Id_endsWith == methodId) {
-                if (args.length == 0 || args.length == 1 || (args.length == 2 && args[1] == Undefined.instance)) position = target.length();
-                return target.substring(0, (int)position).endsWith(searchStr) ? 0 : -1;
-            }
-            return methodId == Id_startsWith
-                    ? target.startsWith(searchStr, (int)position) ? 0 : -1
-                    : target.indexOf(searchStr, (int)position);
         }
+
+        if (position < 0) position = 0;
+        else if (position > target.length()) position = target.length();
+        else if (methodId == Id_endsWith && (position != position  || position > target.length())) position = target.length();
+
+        if (Id_endsWith == methodId) {
+            if (args.length == 0 || args.length == 1 || (args.length == 2 && args[1] == Undefined.instance)) position = target.length();
+            return target.substring(0, (int)position).endsWith(searchStr) ? 0 : -1;
+        }
+        return methodId == Id_startsWith
+                ? target.startsWith(searchStr, (int)position) ? 0 : -1
+                : target.indexOf(searchStr, (int)position);
     }
 
     /*
@@ -796,6 +805,41 @@ final class NativeString extends IdScriptableObject
         return retval.toString();
     }
 
+    /**
+     * @see https://www.ecma-international.org/ecma-262/8.0/#sec-string.prototype.padstart
+     * @see https://www.ecma-international.org/ecma-262/8.0/#sec-string.prototype.padend
+     */
+    private static String js_pad(Context cx, Scriptable thisObj, IdFunctionObject f, Object[] args, Boolean atStart)
+    {
+        String pad = ScriptRuntime.toString(requireObjectCoercible(cx, thisObj, f));
+        long intMaxLength = ScriptRuntime.toLength(args, 0);
+        if (intMaxLength <= pad.length()) {
+            return pad;
+        }
+
+        String filler = " ";
+        if (args.length >= 2 && !Undefined.isUndefined(args[1])) {
+            filler = ScriptRuntime.toString(args[1]);
+            if (filler.length() < 1) {
+                return pad;
+            }
+        }
+
+        // cast is not really correct here
+        int fillLen = (int) (intMaxLength - pad.length());
+        StringBuilder concat = new StringBuilder();
+        do {
+            concat.append(filler);
+        } while (concat.length() < fillLen);
+        concat.setLength(fillLen);
+
+        if (atStart) {
+            return concat.append(pad).toString();
+        }
+
+        return concat.insert(0, pad).toString();
+    }
+
     @Override
     protected int findPrototypeId(Symbol k)
     {
@@ -811,7 +855,7 @@ final class NativeString extends IdScriptableObject
     protected int findPrototypeId(String s)
     {
         int id;
-// #generated# Last update: 2016-03-04 20:51:44 GMT
+// #generated# Last update: 2019-02-16 09:39:44 MEZ
         L0: { id = 0; String X = null; int c;
             L: switch (s.length()) {
             case 3: c=s.charAt(2);
@@ -833,6 +877,7 @@ final class NativeString extends IdScriptableObject
                 case 't': X="split";id=Id_split; break L;
                 } break L;
             case 6: switch (s.charAt(1)) {
+                case 'a': X="padEnd";id=Id_padEnd; break L;
                 case 'e': c=s.charAt(0);
                     if (c=='r') { X="repeat";id=Id_repeat; }
                     else if (c=='s') { X="search";id=Id_search; }
@@ -855,6 +900,7 @@ final class NativeString extends IdScriptableObject
                 case 'e': X="includes";id=Id_includes; break L;
                 case 'f': X="trimLeft";id=Id_trimLeft; break L;
                 case 'n': X="toString";id=Id_toString; break L;
+                case 'r': X="padStart";id=Id_padStart; break L;
                 case 't': X="endsWith";id=Id_endsWith; break L;
                 case 'z': X="fontsize";id=Id_fontsize; break L;
                 } break L;
@@ -937,7 +983,9 @@ final class NativeString extends IdScriptableObject
         Id_normalize                 = 43,
         Id_repeat                    = 44,
         Id_codePointAt               = 45,
-        SymbolId_iterator            = 46,
+        Id_padStart                  = 46,
+        Id_padEnd                    = 47,
+        SymbolId_iterator            = 48,
         MAX_PROTOTYPE_ID             = SymbolId_iterator;
 
 // #/string_id_map#

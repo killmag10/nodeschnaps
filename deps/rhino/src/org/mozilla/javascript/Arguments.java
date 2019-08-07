@@ -6,6 +6,8 @@
 
 package org.mozilla.javascript;
 
+import org.mozilla.javascript.NativeArrayIterator.ARRAY_ITERATOR_TYPE;
+
 /**
  * This class implements the "arguments" object.
  *
@@ -16,7 +18,7 @@ package org.mozilla.javascript;
  */
 final class Arguments extends IdScriptableObject
 {
-    static final long serialVersionUID = 4275508002492040609L;
+    private static final long serialVersionUID = 4275508002492040609L;
 
     private static final String FTAG = "Arguments";
 
@@ -109,13 +111,11 @@ final class Arguments extends IdScriptableObject
       final Object value = arg(index);
       if (value == NOT_FOUND) {
         return super.get(index, start);
-      } else {
-        if (sharedWithActivation(index)) {
-          return getFromActivation(index);
-        } else {
-          return value;
-        }
       }
+      if (sharedWithActivation(index)) {
+        return getFromActivation(index);
+      }
+      return value;
     }
 
     private boolean sharedWithActivation(int index)
@@ -316,7 +316,7 @@ final class Arguments extends IdScriptableObject
                 ids = tmp;
                 int offset = 0;
                 for (int i = 0; i != args.length; ++i) {
-                    if (present == null || !present[i]) {
+                    if (!present[i]) {
                         ids[offset] = Integer.valueOf(i);
                         ++offset;
                     }
@@ -348,11 +348,10 @@ final class Arguments extends IdScriptableObject
         ScriptableObject desc = super.getOwnPropertyDescriptor(cx, id);
         desc.put("value", desc, value);
         return desc;
-      } else {
-        Scriptable scope = getParentScope();
-        if (scope == null) scope = this;
-        return buildDataDescriptor(scope, value, EMPTY);
       }
+      Scriptable scope = getParentScope();
+      if (scope == null) scope = this;
+      return buildDataDescriptor(scope, value, EMPTY);
     }
 
     @Override
@@ -412,7 +411,7 @@ final class Arguments extends IdScriptableObject
             // 9.4.4.6 CreateUnmappedArgumentsObject(argumentsList)
             //  1. Perform DefinePropertyOrThrow(obj, @@iterator, PropertyDescriptor {[[Value]]:%ArrayProto_values%,
             //     [[Writable]]: true, [[Enumerable]]: false, [[Configurable]]: true}).
-            return new NativeArrayIterator(scope, thisObj);
+            return new NativeArrayIterator(scope, thisObj, ARRAY_ITERATOR_TYPE.VALUES);
         }
     };
 

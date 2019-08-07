@@ -6,15 +6,15 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Token;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.mozilla.javascript.Token;
 
 /**
  * Switch-case AST node type.  The switch case is always part of a
  * switch statement.
- * Node type is {@link Token#CASE}.<p>
+ * Node type is {@link Token#CASE}.
  *
  * <pre><i>CaseBlock</i> :
  *        { [CaseClauses] }
@@ -124,11 +124,18 @@ public class SwitchCase extends AstNode {
         } else {
             sb.append("case ");
             sb.append(expression.toSource(0));
-            sb.append(":\n");
+            sb.append(":");
+            if(this.getInlineComment() != null) {
+                sb.append(this.getInlineComment().toSource(depth + 1));
+            }
+            sb.append("\n");
         }
         if (statements != null) {
             for (AstNode s : statements) {
                 sb.append(s.toSource(depth+1));
+                if(s.getType() == Token.COMMENT && ((Comment)s).getCommentType() == Token.CommentType.LINE) {
+                    sb.append("\n");
+                }
             }
         }
         return sb.toString();

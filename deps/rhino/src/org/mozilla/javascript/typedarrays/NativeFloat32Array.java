@@ -14,7 +14,7 @@ import org.mozilla.javascript.Undefined;
 
 /**
  * An array view that stores 32-bit quantities and implements the JavaScript "loat32Array" interface.
- * It also implements List<Float> for direct manipulation in Java.
+ * It also implements List&lt;Float&gt; for direct manipulation in Java.
  */
 
 public class NativeFloat32Array
@@ -52,7 +52,7 @@ public class NativeFloat32Array
     }
 
     @Override
-    protected NativeTypedArrayView construct(NativeArrayBuffer ab, int off, int len)
+    protected NativeFloat32Array construct(NativeArrayBuffer ab, int off, int len)
     {
         return new NativeFloat32Array(ab, off, len);
     }
@@ -64,7 +64,7 @@ public class NativeFloat32Array
     }
 
     @Override
-    protected NativeTypedArrayView realThis(Scriptable thisObj, IdFunctionObject f)
+    protected NativeFloat32Array realThis(Scriptable thisObj, IdFunctionObject f)
     {
         if (!(thisObj instanceof NativeFloat32Array)) {
             throw incompatibleCallError(f);
@@ -78,7 +78,7 @@ public class NativeFloat32Array
         if (checkIndex(index)) {
             return Undefined.instance;
         }
-        return ByteIo.readFloat32(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, false);
+        return ByteIo.readFloat32(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, useLittleEndian());
     }
 
     @Override
@@ -88,7 +88,7 @@ public class NativeFloat32Array
             return Undefined.instance;
         }
         double val = ScriptRuntime.toNumber(c);
-        ByteIo.writeFloat32(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, val, false);
+        ByteIo.writeFloat32(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, val, useLittleEndian());
         return null;
     }
 

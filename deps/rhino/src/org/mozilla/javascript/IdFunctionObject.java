@@ -11,7 +11,7 @@ package org.mozilla.javascript;
 public class IdFunctionObject extends BaseFunction
 {
 
-    static final long serialVersionUID = -5332312783643935019L;
+    private static final long serialVersionUID = -5332312783643935019L;
 
     public IdFunctionObject(IdFunctionCall idcall, Object tag, int id, int arity)
     {
@@ -22,7 +22,6 @@ public class IdFunctionObject extends BaseFunction
         this.tag = tag;
         this.methodId = id;
         this.arity = arity;
-        if (arity < 0) throw new IllegalArgumentException();
     }
 
     public IdFunctionObject(IdFunctionCall idcall, Object tag, int id,
@@ -157,6 +156,10 @@ public class IdFunctionObject extends BaseFunction
         // It is program error to call id-like methods for unknown function
         return new IllegalArgumentException(
             "BAD FUNCTION ID="+methodId+" MASTER="+idcall);
+    }
+
+    static boolean equalObjectGraphs(IdFunctionObject f1, IdFunctionObject f2, EqualObjectGraphs eq) {
+        return f1.methodId == f2.methodId && f1.hasTag(f2.tag) && eq.equalGraphs(f1.idcall, f2.idcall);
     }
 
     private final IdFunctionCall idcall;

@@ -12,9 +12,9 @@ package org.mozilla.javascript;
  * @author Raphael Speyer
  */
 public class BoundFunction extends BaseFunction {
-    
-  static final long serialVersionUID = 2118137342826470729L;
-    
+
+  private static final long serialVersionUID = 2118137342826470729L;
+
   private final Callable targetFunction;
   private final Scriptable boundThis;
   private final Object[] boundArgs;
@@ -79,5 +79,9 @@ public class BoundFunction extends BaseFunction {
     System.arraycopy(first, 0, args, 0, first.length);
     System.arraycopy(second, 0, args, first.length, second.length);
     return args;
+  }
+
+  static boolean equalObjectGraphs(BoundFunction f1, BoundFunction f2, EqualObjectGraphs eq) {
+      return  eq.equalGraphs(f1.boundThis, f2.boundThis) && eq.equalGraphs(f1.targetFunction, f2.targetFunction) && eq.equalGraphs(f1.boundArgs, f2.boundArgs);
   }
 }

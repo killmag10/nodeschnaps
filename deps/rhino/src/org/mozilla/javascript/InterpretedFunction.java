@@ -10,7 +10,7 @@ import org.mozilla.javascript.debug.DebuggableScript;
 
 final class InterpretedFunction extends NativeFunction implements Script
 {
-    static final long serialVersionUID = 541475680333911468L;
+    private static final long serialVersionUID = 541475680333911468L;
 
     InterpreterData idata;
     SecurityController securityController;
@@ -109,6 +109,7 @@ final class InterpretedFunction extends NativeFunction implements Script
         return Interpreter.interpret(this, cx, scope, thisObj, args);
     }
 
+    @Override
     public Object exec(Context cx, Scriptable scope)
     {
         if (!isScript()) {

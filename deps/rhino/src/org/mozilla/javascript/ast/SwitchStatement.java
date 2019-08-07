@@ -6,15 +6,15 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Token;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.mozilla.javascript.Token;
+
 /**
  * Switch statement AST node type.
- * Node type is {@link Token#SWITCH}.<p>
+ * Node type is {@link Token#SWITCH}.
  *
  * <pre><i>SwitchStatement</i> :
  *        <b>switch</b> ( Expression ) CaseBlock

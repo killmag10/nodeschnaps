@@ -10,7 +10,7 @@ import org.mozilla.javascript.Token;
 
 /**
  * C-style for-loop statement.
- * Node type is {@link Token#FOR}.<p>
+ * Node type is {@link Token#FOR}.
  *
  * <pre><b>for</b> ( ExpressionNoInopt; Expressionopt ; Expressionopt ) Statement</pre>
  * <pre><b>for</b> ( <b>var</b> VariableDeclarationListNoIn; Expressionopt ; Expressionopt ) Statement</pre>
@@ -110,10 +110,20 @@ public class ForLoop extends Loop {
         sb.append("; ");
         sb.append(increment.toSource(0));
         sb.append(") ");
+        if(this.getInlineComment() != null) {
+            sb.append(this.getInlineComment().toSource()).append("\n");
+        }
         if (body.getType() == Token.BLOCK) {
-            sb.append(body.toSource(depth).trim()).append("\n");
+            String bodySource = body.toSource(depth);
+            if(this.getInlineComment() == null) {
+                bodySource = bodySource.trim();
+            }
+            sb.append(bodySource).append("\n");
         } else {
-            sb.append("\n").append(body.toSource(depth+1));
+            if(this.getInlineComment() == null) {
+                sb.append("\n");
+            }
+            sb.append(body.toSource(depth+1));
         }
         return sb.toString();
     }

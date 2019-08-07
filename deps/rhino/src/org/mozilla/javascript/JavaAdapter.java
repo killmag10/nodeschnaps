@@ -6,11 +6,23 @@
 
 package org.mozilla.javascript;
 
-import org.mozilla.classfile.*;
-import java.lang.reflect.*;
-import java.io.*;
-import java.security.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+
+import org.mozilla.classfile.ByteCode;
+import org.mozilla.classfile.ClassFileWriter;
 
 public final class JavaAdapter implements IdFunctionCall
 {
@@ -78,6 +90,7 @@ public final class JavaAdapter implements IdFunctionCall
         ctor.exportAsScopeProperty();
     }
 
+    @Override
     public Object execIdCall(IdFunctionObject f, Context cx, Scriptable scope,
                              Scriptable thisObj, Object[] args)
     {
@@ -384,8 +397,7 @@ public final class JavaAdapter implements IdFunctionCall
             for (int j = 0; j < methods.length; j++) {
                 Method method = methods[j];
                 int mods = method.getModifiers();
-                if (Modifier.isStatic(mods) || Modifier.isFinal(mods) ||
-                    VMBridge.instance.isDefaultMethod(method)) {
+                if (Modifier.isStatic(mods) || Modifier.isFinal(mods) || method.isDefault()) {
                     continue;
                 }
                 String methodName = method.getName();
@@ -580,14 +592,8 @@ public final class JavaAdapter implements IdFunctionCall
         Context cx = Context.getCurrentContext();
         if (cx != null) {
             return doCall(cx, scope, thisObj, f, args, argsToWrap);
-        } else {
-            return factory.call(new ContextAction() {
-                public Object run(Context cx)
-                {
-                    return doCall(cx, scope, thisObj, f, args, argsToWrap);
-                }
-            });
         }
+        return factory.call(cx2 -> doCall(cx2, scope, thisObj, f, args, argsToWrap));
     }
 
     private static Object doCall(Context cx, Scriptable scope,
@@ -609,15 +615,11 @@ public final class JavaAdapter implements IdFunctionCall
 
     public static Scriptable runScript(final Script script)
     {
-        return (Scriptable)ContextFactory.getGlobal().call(
-            new ContextAction() {
-                public Object run(Context cx)
-                {
-                    ScriptableObject global = ScriptRuntime.getGlobal(cx);
-                    script.exec(cx, global);
-                    return global;
-                }
-            });
+        return ContextFactory.getGlobal().call(cx -> {
+            ScriptableObject global = ScriptRuntime.getGlobal(cx);
+            script.exec(cx, global);
+            return global;
+        });
     }
 
     private static void generateCtor(ClassFileWriter cfw, String adapterName,

@@ -59,9 +59,14 @@ public class NativeSymbol
         }
     }
 
+    /**
+     * This has to be used only for constructing the prototype instance.
+     * This sets symbolData to null (see isSymbol() for more).
+     * @param desc the description
+     */
     private NativeSymbol(String desc) {
         this.key = new SymbolKey(desc);
-        this.symbolData = this;
+        this.symbolData = null;
     }
 
     private NativeSymbol(SymbolKey key) {
@@ -191,13 +196,11 @@ public class NativeSymbol
                 if (cx.getThreadLocal(CONSTRUCTOR_SLOT) == null) {
                     // We should never get to this via "new".
                     throw ScriptRuntime.typeError0("msg.no.symbol.new");
-                } else {
-                    // Unless we are being called by our own internal "new"
-                    return js_constructor(args);
                 }
-            } else {
-                return construct(cx, scope, args);
+                // Unless we are being called by our own internal "new"
+                return js_constructor(args);
             }
+            return construct(cx, scope, args);
 
         case Id_toString:
             return getSelf(thisObj).toString();
@@ -209,7 +212,7 @@ public class NativeSymbol
         }
     }
 
-    private NativeSymbol getSelf(Object thisObj) {
+    private static NativeSymbol getSelf(Object thisObj) {
         try {
             return (NativeSymbol)thisObj;
         } catch (ClassCastException cce) {
@@ -233,7 +236,7 @@ public class NativeSymbol
             return new NativeSymbol((SymbolKey) args[1]);
         }
 
-        return new NativeSymbol(desc);
+        return new NativeSymbol(new SymbolKey(desc));
     }
 
     private Object js_valueOf() {
@@ -277,12 +280,17 @@ public class NativeSymbol
 
     // Symbol objects have a special property that one cannot add properties.
 
+    private boolean isStrictMode() {
+        final Context cx = Context.getCurrentContext();
+        return (cx != null) && cx.isStrictMode();
+    }
+
     @Override
     public void put(String name, Scriptable start, Object value)
     {
         if (!isSymbol()) {
             super.put(name, start, value);
-        } else if (Context.getCurrentContext().isStrictMode()) {
+        } else if (isStrictMode()) {
             throw ScriptRuntime.typeError0("msg.no.assign.symbol.strict");
         }
     }
@@ -292,7 +300,7 @@ public class NativeSymbol
     {
         if (!isSymbol()) {
             super.put(index, start, value);
-        } else if (Context.getCurrentContext().isStrictMode()) {
+        } else if (isStrictMode()) {
             throw ScriptRuntime.typeError0("msg.no.assign.symbol.strict");
         }
     }
@@ -302,7 +310,7 @@ public class NativeSymbol
     {
         if (!isSymbol()) {
             super.put(key, start, value);
-        } else if (Context.getCurrentContext().isStrictMode()) {
+        } else if (isStrictMode()) {
             throw ScriptRuntime.typeError0("msg.no.assign.symbol.strict");
         }
     }

@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class NativeJavaPackage extends ScriptableObject
 {
-    static final long serialVersionUID = 7445054382212031523L;
+    private static final long serialVersionUID = 7445054382212031523L;
 
     NativeJavaPackage(boolean internalUsage, String packageName,
                       ClassLoader classLoader)
@@ -96,15 +96,14 @@ public class NativeJavaPackage extends ScriptableObject
         Object cached = super.get(name, this);
         if (cached != null && cached instanceof NativeJavaPackage) {
             return (NativeJavaPackage) cached;
-        } else {
-            String newPackage = packageName.length() == 0
-                                ? name
-                                : packageName + "." + name;
-            NativeJavaPackage pkg = new NativeJavaPackage(true, newPackage, classLoader);
-            ScriptRuntime.setObjectProtoAndParent(pkg, scope);
-            super.put(name, this, pkg);
-            return pkg;
         }
+        String newPackage = packageName.length() == 0
+                            ? name
+                            : packageName + "." + name;
+        NativeJavaPackage pkg = new NativeJavaPackage(true, newPackage, classLoader);
+        ScriptRuntime.setObjectProtoAndParent(pkg, scope);
+        super.put(name, this, pkg);
+        return pkg;
     }
 
     synchronized Object getPkgProperty(String name, Scriptable start,

@@ -6,12 +6,12 @@
 
 package org.mozilla.javascript.json;
 
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptRuntime;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptRuntime;
+import org.mozilla.javascript.Scriptable;
 
 /**
  * This class converts a stream of JSON tokens into a JSON value.
@@ -311,9 +311,8 @@ public class JsonParser {
         final int ival = (int)dval;
         if (ival == dval) {
             return Integer.valueOf(ival);
-        } else {
-            return Double.valueOf(dval);
         }
+        return Double.valueOf(dval);
     }
 
     private ParseException numberError(int start, int end) {
@@ -394,15 +393,14 @@ public class JsonParser {
         char c = src.charAt(pos++);
         if (c == token) {
             return;
-        } else {
-            throw new ParseException("Expected " + token + " found " + c);
         }
+        throw new ParseException("Expected " + token + " found " + c);
     }
 
     public static class ParseException extends Exception {
-        
-        static final long serialVersionUID = 4804542791749920772L;
-        
+
+        private static final long serialVersionUID = 4804542791749920772L;
+
         ParseException(String message) {
             super(message);
         }

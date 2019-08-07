@@ -257,10 +257,9 @@ public abstract class ShellConsole {
             if (line != null) {
                 buffer = line.getBytes(cs);
                 return buffer.length;
-            } else {
-                buffer = EMPTY;
-                return -1;
             }
+            buffer = EMPTY;
+            return -1;
         }
     }
 
@@ -326,8 +325,8 @@ public abstract class ShellConsole {
 
     /**
      * Provides a specialized {@link ShellConsole} to handle line editing,
-     * history and completion. Relies on the JLine library (see
-     * <http://jline.sourceforge.net>).
+     * history and completion. Relies on the JLine library
+     * (see <a href="http://jline.sourceforge.net">http://jline.sourceforge.net</a>).
      */
     public static ShellConsole getConsole(Scriptable scope, Charset cs) {
         // We don't want a compile-time dependency on the JLine jar, so use
@@ -426,6 +425,7 @@ class FlexibleCompletor implements java.lang.reflect.InvocationHandler {
     }
 
     @SuppressWarnings({"unchecked"})
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
         if (method.equals(this.completeMethod)) {
             int result = complete((String)args[0], ((Integer) args[1]).intValue(),

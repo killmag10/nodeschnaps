@@ -6,10 +6,10 @@
 
 package org.mozilla.javascript;
 
-import java.io.Serializable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * Map to associate non-negative integers to objects or integers.
@@ -23,7 +23,7 @@ import java.io.ObjectOutputStream;
 
 public class UintMap implements Serializable
 {
-    static final long serialVersionUID = 4242698212885848444L;
+    private static final long serialVersionUID = 4242698212885848444L;
 
 // Map implementation via hashtable,
 // follows "The Art of Computer Programming" by Donald E. Knuth
@@ -188,9 +188,7 @@ public class UintMap implements Serializable
         if (shift >= 0) {
             return ((fraction >>> shift) & mask) | 1;
         }
-        else {
-            return (fraction & (mask >>> -shift)) | 1;
-        }
+        return (fraction & (mask >>> -shift)) | 1;
     }
 
     private int findIndex(int key) {

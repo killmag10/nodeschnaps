@@ -6,11 +6,18 @@
 
 package org.mozilla.javascript;
 
-import java.lang.reflect.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
- * Wrappper class for Method and Constructor instances to cache
+ * Wrapper class for Method and Constructor instances to cache
  * getParameterTypes() results, recover from IllegalAccessException
  * in some cases and provide serialization support.
  *
@@ -19,7 +26,7 @@ import java.io.*;
 
 final class MemberBox implements Serializable
 {
-    static final long serialVersionUID = 6358550398665688245L;
+    private static final long serialVersionUID = 6358550398665688245L;
 
     private transient Member memberObject;
     transient Class<?>[] argTypes;
@@ -79,6 +86,11 @@ final class MemberBox implements Serializable
     boolean isStatic()
     {
         return Modifier.isStatic(memberObject.getModifiers());
+    }
+
+    boolean isPublic()
+    {
+        return Modifier.isPublic(memberObject.getModifiers());
     }
 
     String getName()
@@ -267,9 +279,8 @@ final class MemberBox implements Serializable
         try {
             if (isMethod) {
                 return declaring.getMethod(name, parms);
-            } else {
-                return declaring.getConstructor(parms);
             }
+            return declaring.getConstructor(parms);
         } catch (NoSuchMethodException e) {
             throw new IOException("Cannot find member: " + e);
         }

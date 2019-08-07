@@ -16,7 +16,7 @@ package org.mozilla.javascript;
  */
 public class JavaScriptException extends RhinoException
 {
-    static final long serialVersionUID = -7666130513694669293L;
+    private static final long serialVersionUID = -7666130513694669293L;
 
     /**
      * @deprecated
@@ -68,9 +68,8 @@ public class JavaScriptException extends RhinoException
             // ScriptRuntime.toString may throw a RuntimeException
             if (value instanceof Scriptable) {
                 return ScriptRuntime.defaultObjectToString((Scriptable)value);
-            } else {
-                return value.toString();
             }
+            return value.toString();
         }
     }
 

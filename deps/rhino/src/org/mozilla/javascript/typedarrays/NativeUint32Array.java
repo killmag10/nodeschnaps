@@ -13,7 +13,7 @@ import org.mozilla.javascript.Undefined;
 
 /**
  * An array view that stores 32-bit quantities and implements the JavaScript "Uint32Array" interface.
- * It also implements List<Long> for direct manipulation in Java.
+ * It also implements List&lt;Long&gt; for direct manipulation in Java.
  */
 
 public class NativeUint32Array
@@ -51,7 +51,7 @@ public class NativeUint32Array
     }
 
     @Override
-    protected NativeTypedArrayView construct(NativeArrayBuffer ab, int off, int len)
+    protected NativeUint32Array construct(NativeArrayBuffer ab, int off, int len)
     {
         return new NativeUint32Array(ab, off, len);
     }
@@ -63,7 +63,7 @@ public class NativeUint32Array
     }
 
     @Override
-    protected NativeTypedArrayView realThis(Scriptable thisObj, IdFunctionObject f)
+    protected NativeUint32Array realThis(Scriptable thisObj, IdFunctionObject f)
     {
         if (!(thisObj instanceof NativeUint32Array)) {
             throw incompatibleCallError(f);
@@ -77,7 +77,7 @@ public class NativeUint32Array
         if (checkIndex(index)) {
             return Undefined.instance;
         }
-        return ByteIo.readUint32(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, false);
+        return ByteIo.readUint32(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, useLittleEndian());
     }
 
     @Override
@@ -87,7 +87,7 @@ public class NativeUint32Array
             return Undefined.instance;
         }
         long val = Conversions.toUint32(c);
-        ByteIo.writeUint32(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, val, false);
+        ByteIo.writeUint32(arrayBuffer.buffer, (index * BYTES_PER_ELEMENT) + offset, val, useLittleEndian());
         return null;
     }
 

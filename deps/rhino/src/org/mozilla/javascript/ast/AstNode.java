@@ -6,15 +6,15 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Kit;
-import org.mozilla.javascript.Node;
-import org.mozilla.javascript.Token;
-
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.mozilla.javascript.Kit;
+import org.mozilla.javascript.Node;
+import org.mozilla.javascript.Token;
 
 /**
  * Base class for AST node types.  The goal of the AST is to represent the
@@ -59,13 +59,27 @@ import java.util.Map;
  *
  * This hierarchy does not have separate branches for expressions and
  * statements, as the distinction in JavaScript is not as clear-cut as in
- * Java or C++. <p>
+ * Java or C++.
  */
 public abstract class AstNode extends Node implements Comparable<AstNode> {
 
     protected int position = -1;
     protected int length = 1;
     protected AstNode parent;
+    /*
+     * Holds comments that are on same line as of actual statement e.g.
+     * For a for loop
+     *      1) for(var i=0; i<10; i++) //test comment { }
+     *      2) for(var i=0; i<10; i++)
+     *          //test comment
+     *          //test comment 2
+     *          { }
+     * For If Statement
+     *      1) if (x == 2) //test if comment
+     *             a = 3 + 4; //then comment
+     * and so on
+     */
+    protected AstNode inlineComment;
 
     private static Map<Integer,String> operatorNames =
             new HashMap<Integer,String>();
@@ -127,6 +141,7 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
          * relative to their parent, so this comparator is only meaningful for
          * comparing siblings.
          */
+        @Override
         public int compare(AstNode n1, AstNode n2) {
             return n1.position - n2.position;
         }
@@ -239,12 +254,12 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
 
         // Convert position back to absolute.
         if (this.parent != null) {
-            setRelative(-this.parent.getPosition());
+            setRelative(-this.parent.getAbsolutePosition());
         }
 
         this.parent = parent;
         if (parent != null) {
-            setRelative(parent.getPosition());
+            setRelative(parent.getAbsolutePosition());
         }
     }
 
@@ -521,6 +536,7 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
      * {@code other}'s length.  If the lengths are equal, sorts abitrarily
      * on hashcode unless the nodes are the same per {@link #equals}.
      */
+    @Override
     public int compareTo(AstNode other) {
         if (this.equals(other)) return 0;
         int abs1 = this.getAbsolutePosition();
@@ -560,6 +576,8 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
             }
             return sb.toString();
         }
+
+        @Override
         public boolean visit(AstNode node) {
             int tt = node.getType();
             String name = Token.typeToName(tt);
@@ -570,6 +588,8 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
             buffer.append(node.getLength());
             if (tt == Token.NAME) {
                 buffer.append(" ").append(((Name)node).getIdentifier());
+            } else if(tt == Token.STRING) {
+                buffer.append(" ").append(((StringLiteral)node).getValue(true));
             }
             buffer.append("\n");
             return true;  // process kids
@@ -600,5 +620,13 @@ public abstract class AstNode extends Node implements Comparable<AstNode> {
         DebugPrintVisitor dpv = new DebugPrintVisitor(new StringBuilder(1000));
         visit(dpv);
         return dpv.toString();
+    }
+
+    public AstNode getInlineComment() {
+        return inlineComment;
+    }
+
+    public void setInlineComment(AstNode inlineComment) {
+        this.inlineComment = inlineComment;
     }
 }

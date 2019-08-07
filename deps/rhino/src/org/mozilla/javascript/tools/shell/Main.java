@@ -76,7 +76,7 @@ public class Main
     /**
      * Proxy class to avoid proliferation of anonymous classes.
      */
-    private static class IProxy implements ContextAction, QuitAction
+    private static class IProxy implements ContextAction<Object>, QuitAction
     {
         private static final int PROCESS_FILES = 1;
         private static final int EVAL_INLINE_SCRIPT = 2;
@@ -91,6 +91,7 @@ public class Main
             this.type = type;
         }
 
+        @Override
         public Object run(Context cx)
         {
             if (useRequire) {
@@ -106,6 +107,7 @@ public class Main
             return null;
         }
 
+        @Override
         public void quit(Context cx, int exitCode)
         {
             if (type == SYSTEM_EXIT) {
@@ -247,9 +249,8 @@ public class Main
                 }
             }
             return new ModuleScope(global, uri, null);
-        } else {
-            return global;
         }
+        return global;
     }
 
     /**
@@ -416,8 +417,7 @@ public class Main
     {
         Throwable exObj;
         try {
-            Class<?> cl = Class.forName
-                ("org.mozilla.javascript.tools.shell.JavaPolicySecurity");
+            Class<?> cl = Class.forName("org.mozilla.javascript.tools.shell.JavaPolicySecurity");
             securityImpl = (SecurityProxy)cl.newInstance();
             SecurityController.initGlobal(securityImpl);
             return;
@@ -430,8 +430,7 @@ public class Main
         } catch (LinkageError ex) {
             exObj = ex;
         }
-        throw Kit.initCause(new IllegalStateException(
-            "Can not load security support: "+exObj), exObj);
+        throw new IllegalStateException("Can not load security support: " + exObj, exObj);
     }
 
     /**

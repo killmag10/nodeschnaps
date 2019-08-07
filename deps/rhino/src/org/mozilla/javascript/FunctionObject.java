@@ -8,12 +8,16 @@
 
 package org.mozilla.javascript;
 
-import java.lang.reflect.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 public class FunctionObject extends BaseFunction
 {
-    static final long serialVersionUID = -5332312783643935019L;
+    private static final long serialVersionUID = -5332312783643935019L;
 
     /**
      * Create a JavaScript function object from a Java method.
@@ -198,7 +202,7 @@ public class FunctionObject extends BaseFunction
           case JAVA_DOUBLE_TYPE:
             if (arg instanceof Double)
                 return arg;
-            return new Double(ScriptRuntime.toNumber(arg));
+            return Double.valueOf(ScriptRuntime.toNumber(arg));
           case JAVA_SCRIPTABLE_TYPE:
               return ScriptRuntime.toObjectOrNull(cx, arg, scope);
           case JAVA_OBJECT_TYPE:

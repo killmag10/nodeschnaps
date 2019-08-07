@@ -6,7 +6,8 @@
 
 package org.mozilla.javascript;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NativeJavaMethod extends BaseFunction
 {
-    static final long serialVersionUID = -3440381785576412928L;
+    private static final long serialVersionUID = -3440381785576412928L;
 
     NativeJavaMethod(MemberBox[] methods)
     {
@@ -358,13 +359,12 @@ public class NativeJavaMethod extends BaseFunction
                     }
                     MemberBox bestFit = methodsOrCtors[bestFitIndex];
                     if (cx.hasFeature(Context.FEATURE_ENHANCED_JAVA_ACCESS) &&
-                        (bestFit.member().getModifiers() & Modifier.PUBLIC) !=
-                            (member.member().getModifiers() & Modifier.PUBLIC))
+                        bestFit.isPublic() != member.isPublic())
                     {
                         // When FEATURE_ENHANCED_JAVA_ACCESS gives us access
                         // to non-public members, continue to prefer public
                         // methods in overloading
-                        if ((bestFit.member().getModifiers() & Modifier.PUBLIC) == 0)
+                        if (!bestFit.isPublic())
                             ++betterCount;
                         else
                             ++worseCount;
@@ -464,11 +464,10 @@ public class NativeJavaMethod extends BaseFunction
             throw Context.reportRuntimeError3(
                 "msg.constructor.ambiguous",
                 memberName, scriptSignature(args), buf.toString());
-        } else {
-            throw Context.reportRuntimeError4(
-                "msg.method.ambiguous", memberClass,
-                memberName, scriptSignature(args), buf.toString());
         }
+        throw Context.reportRuntimeError4(
+            "msg.method.ambiguous", memberClass,
+            memberName, scriptSignature(args), buf.toString());
     }
 
     /** Types are equal */

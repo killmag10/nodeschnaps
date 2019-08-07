@@ -6,14 +6,14 @@
 
 package org.mozilla.javascript;
 
-import org.mozilla.javascript.json.JsonParser;
-
-import java.util.Stack;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Arrays;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+
+import org.mozilla.javascript.json.JsonParser;
 
 /**
  * This class implements the JSON native object.
@@ -22,7 +22,7 @@ import java.util.LinkedList;
  */
 public final class NativeJSON extends IdScriptableObject
 {
-    static final long serialVersionUID = -4567599697595654984L;
+    private static final long serialVersionUID = -4567599697595654984L;
 
     private static final Object JSON_TAG = "JSON";
 
@@ -84,9 +84,8 @@ public final class NativeJSON extends IdScriptableObject
                 }
                 if (reviver instanceof Callable) {
                   return parse(cx, scope, jtext, (Callable) reviver);
-                } else {
-                  return parse(cx, scope, jtext);
                 }
+                return parse(cx, scope, jtext);
             }
 
             case Id_stringify: {
@@ -312,9 +311,8 @@ public final class NativeJSON extends IdScriptableObject
                 d != Double.NEGATIVE_INFINITY)
             {
                 return ScriptRuntime.toString(value);
-            } else {
-                return "null";
             }
+            return "null";
         }
 
         if (value instanceof Scriptable && !(value instanceof Callable)) {

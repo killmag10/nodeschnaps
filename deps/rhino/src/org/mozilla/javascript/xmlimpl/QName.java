@@ -6,7 +6,12 @@
 
 package org.mozilla.javascript.xmlimpl;
 
-import org.mozilla.javascript.*;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.IdFunctionObject;
+import org.mozilla.javascript.IdScriptableObject;
+import org.mozilla.javascript.ScriptRuntime;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Undefined;
 
 /**
  * Class QName
@@ -262,8 +267,6 @@ final class QName extends IdScriptableObject
             ns = XmlNode.Namespace.create(q_prefix, q_uri);
         } else if (q_uri != null) {
             ns = XmlNode.Namespace.create(q_uri);
-        } else {
-            ns = null;
         }
         if (q_localName != null && q_localName.equals("*")) q_localName = null;
         return create(lib, this.getParentScope(), prototype, XmlNode.QName.create(ns, q_localName));

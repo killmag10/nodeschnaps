@@ -31,6 +31,7 @@ public abstract class ModuleSourceProviderBase implements
 {
     private static final long serialVersionUID = 1L;
 
+    @Override
     public ModuleSource loadSource(String moduleId, Scriptable paths,
             Object validator) throws IOException, URISyntaxException
     {
@@ -38,14 +39,12 @@ public abstract class ModuleSourceProviderBase implements
             return NOT_MODIFIED;
         }
 
-        ModuleSource moduleSource = loadFromPrivilegedLocations(
-                moduleId, validator);
+        ModuleSource moduleSource = loadFromPrivilegedLocations(moduleId, validator);
         if(moduleSource != null) {
             return moduleSource;
         }
         if(paths != null) {
-            moduleSource = loadFromPathArray(moduleId, paths,
-                    validator);
+            moduleSource = loadFromPathArray(moduleId, paths, validator);
             if(moduleSource != null) {
                 return moduleSource;
             }
@@ -53,6 +52,7 @@ public abstract class ModuleSourceProviderBase implements
         return loadFromFallbackLocations(moduleId, validator);
     }
 
+    @Override
     public ModuleSource loadSource(URI uri, URI base, Object validator)
             throws IOException, URISyntaxException {
         return loadFromUri(uri, base, validator);

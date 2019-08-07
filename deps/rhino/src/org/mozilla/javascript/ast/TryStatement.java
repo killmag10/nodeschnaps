@@ -6,14 +6,14 @@
 
 package org.mozilla.javascript.ast;
 
-import org.mozilla.javascript.Token;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.mozilla.javascript.Token;
+
 /**
- * Try/catch/finally statement.  Node type is {@link Token#TRY}.<p>
+ * Try/catch/finally statement.  Node type is {@link Token#TRY}.
  *
  * <pre><i>TryStatement</i> :
  *        <b>try</b> Block Catch
@@ -138,6 +138,9 @@ public class TryStatement extends AstNode {
         StringBuilder sb = new StringBuilder(250);
         sb.append(makeIndent(depth));
         sb.append("try ");
+        if(this.getInlineComment() != null) {
+            sb.append(this.getInlineComment().toSource(depth + 1)).append("\n");
+        }
         sb.append(tryBlock.toSource(depth).trim());
         for (CatchClause cc : getCatchClauses()) {
             sb.append(cc.toSource(depth));
