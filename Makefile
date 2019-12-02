@@ -1,5 +1,5 @@
-NODESCHNAPS_DEPPENDENCY_NODE_DIST_URL ?= https://nodejs.org/dist/
-NODESCHNAPS_DEPPENDENCY_NODE_VERSION := 0.12.18
+NODESCHNAPS_DEPENDENCY_NODE_DIST_URL ?= https://nodejs.org/dist/
+NODESCHNAPS_DEPENDENCY_NODE_VERSION := 0.12.18
 
 # Paths
 PATH_TEST := test
@@ -21,6 +21,12 @@ export TEST_RESOURCE_PATH
 
 TEST_DIRS := test/lib
 TEST_FILES := $(shell find $(TEST_DIRS) -type f -name '*.js')
+
+# Backward compatibility
+NODESCHNAPS_DEPPENDENCY_NODE_DIST_URL ?=
+ifneq ($(NODESCHNAPS_DEPPENDENCY_NODE_DIST_URL),)
+NODESCHNAPS_DEPENDENCY_NODE_DIST_URL := $(NODESCHNAPS_DEPPENDENCY_NODE_DIST_URL)
+endif
 
 # Macros
 EXISTS_DOCS = $(shell $(TEST) -d $(PATH_DOCS)/html && printf '1')
@@ -79,6 +85,8 @@ clean: distclean
 
 distclean: .cleanHtml
 
+build:
+	./node_modules/.bin/babel -d deps/node/lib/ deps/node-src/lib/
 
 test: testRhino testNashorn
 
@@ -156,8 +164,8 @@ endif
 
 # Paths
 
-$(PATH_DEPS)/node:
+$(PATH_DEPS)/node-src:
 	# Install nodejs source
-	@$(WGET) -O - '$(NODESCHNAPS_DEPPENDENCY_NODE_DIST_URL)v$(NODESCHNAPS_DEPPENDENCY_NODE_VERSION)/node-v$(NODESCHNAPS_DEPPENDENCY_NODE_VERSION).tar.gz' \
+	@$(WGET) -O - '$(NODESCHNAPS_DEPENDENCY_NODE_DIST_URL)v$(NODESCHNAPS_DEPENDENCY_NODE_VERSION)/node-v$(NODESCHNAPS_DEPENDENCY_NODE_VERSION).tar.gz' \
 		| $(TAR) -xz -C $(PATH_DEPS)/
-	@$(MV) $(PATH_DEPS)/node-v$(NODESCHNAPS_DEPPENDENCY_NODE_VERSION) $(PATH_DEPS)/node
+	@$(MV) $(PATH_DEPS)/node-v$(NODESCHNAPS_DEPENDENCY_NODE_VERSION) $(PATH_DEPS)/node-src
