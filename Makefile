@@ -164,7 +164,7 @@ endif
 
 # Paths
 
-$(PATH_DEPS)/node-src:
+$(PATH_DEPS)/node:
 	# Install nodejs source
 	@$(WGET) -O - '$(NODESCHNAPS_DEPENDENCY_NODE_DIST_URL)v$(NODESCHNAPS_DEPENDENCY_NODE_VERSION)/node-v$(NODESCHNAPS_DEPENDENCY_NODE_VERSION).tar.gz' \
 		| $(TAR) -xz -C $(PATH_DEPS)/
